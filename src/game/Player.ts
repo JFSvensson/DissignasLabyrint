@@ -1,27 +1,28 @@
 import { Mesh, SphereGeometry, MeshBasicMaterial, CanvasTexture, Vector3 } from 'three';
 import { PLAYER_CONSTANTS } from './constants';
+import { Position3D, MazePosition, Direction } from './types';
 
 export class Player {
   private mesh: Mesh;
-  private previousPosition = { ...PLAYER_CONSTANTS.START_POSITION };
+  private previousPosition: Position3D;
+  private currentPosition: Position3D;
 
-  // Definiera riktningsvektorer som konstanter
-  private static readonly DIRECTIONS = {
-    FORWARD: new Vector3(0, 0, -1),  // Z-axel: negativ = framåt
-    BACK: new Vector3(0, 0, 1),      // Z-axel: positiv = bakåt
-    RIGHT: new Vector3(1, 0, 0),     // X-axel: positiv = höger
-    LEFT: new Vector3(-1, 0, 0),     // X-axel: negativ = vänster
-    UP: new Vector3(0, 1, 0),        // Y-axel: positiv = upp
-    DOWN: new Vector3(0, -1, 0)      // Y-axel: negativ = ner
+  private static readonly DIRECTION_VECTORS = {
+    FORWARD: new Vector3(0, 0, -1),
+    BACK: new Vector3(0, 0, 1),
+    RIGHT: new Vector3(1, 0, 0),
+    LEFT: new Vector3(-1, 0, 0)
   };
 
   constructor() {
     this.mesh = this.createPlayerMesh();
-    this.mesh.position.set(
-      PLAYER_CONSTANTS.START_POSITION.x,
-      PLAYER_CONSTANTS.START_POSITION.y,
-      PLAYER_CONSTANTS.START_POSITION.z
-    );
+    this.currentPosition = {
+      x: 1,
+      y: PLAYER_CONSTANTS.START_POSITION.y,
+      z: 1
+    };
+    this.previousPosition = { ...this.currentPosition };
+    this.updateMeshPosition();
   }
 
   private createPlayerMesh(): Mesh {
@@ -31,16 +32,15 @@ export class Player {
     const context = canvas.getContext('2d');
     
     if (context) {
-      // Rita bakgrund
+      const squareSize = PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE;
       context.fillStyle = PLAYER_CONSTANTS.TEXTURE.COLORS.PRIMARY;
-      context.fillRect(0, 0, PLAYER_CONSTANTS.TEXTURE.SIZE, PLAYER_CONSTANTS.TEXTURE.SIZE);
-      
-      // Rita rutmönster
+      context.fillRect(0, 0, canvas.width, canvas.height);
       context.fillStyle = PLAYER_CONSTANTS.TEXTURE.COLORS.SECONDARY;
-      for (let x = 0; x < PLAYER_CONSTANTS.TEXTURE.SIZE; x += PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE) {
-        for (let y = 0; y < PLAYER_CONSTANTS.TEXTURE.SIZE; y += PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE) {
-          if ((x + y) % (PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE * 2) === 0) {
-            context.fillRect(x, y, PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE, PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE);
+      
+      for (let x = 0; x < canvas.width; x += squareSize) {
+        for (let y = 0; y < canvas.height; y += squareSize) {
+          if ((x + y) % (squareSize * 2) === 0) {
+            context.fillRect(x, y, squareSize, squareSize);
           }
         }
       }
@@ -56,52 +56,37 @@ export class Player {
     return new Mesh(sphereGeometry, sphereMaterial);
   }
 
+  private updateMeshPosition(): void {
+    this.mesh.position.set(
+      this.currentPosition.x,
+      this.currentPosition.y,
+      this.currentPosition.z
+    );
+  }
+
   public getMesh(): Mesh {
     return this.mesh;
   }
 
-  private savePreviousPosition(): void {
-    this.previousPosition = {
-      x: this.mesh.position.x,
-      y: this.mesh.position.y,
-      z: this.mesh.position.z
+  public getMazePosition(): MazePosition {
+    return {
+      x: this.currentPosition.x,
+      z: this.currentPosition.z
     };
   }
 
-  private move(direction: Vector3): void {
-    this.savePreviousPosition();
-    this.mesh.position.add(direction);
-  }
-
-  public moveForward(): void {
-    this.move(Player.DIRECTIONS.FORWARD);
-  }
-
-  public moveBack(): void {
-    this.move(Player.DIRECTIONS.BACK);
-  }
-
-  public moveRight(): void {
-    this.move(Player.DIRECTIONS.RIGHT);
-  }
-
-  public moveLeft(): void {
-    this.move(Player.DIRECTIONS.LEFT);
-  }
-
-  public moveUp(): void {
-    this.move(Player.DIRECTIONS.UP);
-  }
-
-  public moveDown(): void {
-    this.move(Player.DIRECTIONS.DOWN);
+  public move(direction: Direction): void {
+    this.previousPosition = { ...this.currentPosition };
+    
+    const moveVector = Player.DIRECTION_VECTORS[direction];
+    this.currentPosition.x += moveVector.x;
+    this.currentPosition.z += moveVector.z;
+    
+    this.updateMeshPosition();
   }
 
   public resetPosition(): void {
-    this.mesh.position.set(
-      this.previousPosition.x,
-      this.previousPosition.y,
-      this.previousPosition.z
-    );
+    this.currentPosition = { ...this.previousPosition };
+    this.updateMeshPosition();
   }
 }

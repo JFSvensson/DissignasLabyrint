@@ -50,9 +50,9 @@ export class MazeRenderer {
 
   private initMaze() {
     const wallMaterial = new MeshBasicMaterial({ 
-      color: 0xffffff,  // Vit färg
-      wireframe: true,  // Aktivera wireframe för vektor-stil
-      wireframeLinewidth: 2  // Tjockare linjer
+      color: 0xffffff,
+      wireframe: true,
+      wireframeLinewidth: 2
     });
 
     const edgeMaterial = new LineBasicMaterial({ 
@@ -66,7 +66,6 @@ export class MazeRenderer {
           const wallGeometry = new BoxGeometry(1, 2, 1);
           const wall = new Mesh(wallGeometry, wallMaterial);
           
-          // Lägg till kantlinjer
           const edges = new EdgesGeometry(wallGeometry);
           const line = new LineSegments(edges, edgeMaterial);
           
@@ -126,7 +125,7 @@ export class MazeRenderer {
   }
 
   public movePlayer(): void {
-    this.player.moveForward();
+    this.player.move('FORWARD');
   }
 
   public resetPlayerPosition(): void {

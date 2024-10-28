@@ -1,9 +1,11 @@
-import { MazeRenderer } from './MazeRenderer';
-import { MathQuestionGenerator } from './MathQuestionGenerator';
-import { Addition } from './operations/Addition';
+import { MazeRenderer } from './game/MazeRenderer';
+import { MazeLogic } from './game/MazeLogic';
+import { Direction } from './game/types';
+import { QuestionGenerator } from './game/QuestionGenerator';
+import { GameUI } from './game/UI';
 
 export function initWebGame() {
-  const maze = [
+  const mazeLayout = [
     [1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1],
     [1, 0, 1, 0, 1],
@@ -11,48 +13,31 @@ export function initWebGame() {
     [1, 1, 1, 1, 1]
   ];
 
-  const mathGenerator = new MathQuestionGenerator(new Addition());
-  let currentQuestion = mathGenerator.generateQuestion();  // Generera första frågan här
+  const mazeLogic = new MazeLogic(mazeLayout);
   
-  const mazeRenderer = new MazeRenderer(
-    'maze-container', 
-    maze, 
-    currentQuestion.question  // Skicka med första frågan till MazeRenderer
-  );
+  // Generera frågor för hela labyrinten
+  QuestionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout);
+  
+  // Skicka med mazeLogic till MazeRenderer
+  const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
 
-  function askQuestion() {
-    currentQuestion = mathGenerator.generateQuestion();
-    mazeRenderer.updateQuestionText(currentQuestion.question);
-  }
+  // Skapa UI
+  const gameUI = new GameUI('maze-container', (answer: number, direction: string) => {
+    const currentPos = mazeRenderer.getPlayer().getMazePosition();
+    const questions = mazeLogic.getQuestionsAtPosition(currentPos);
+    const questionForDirection = questions.find(q => q.direction === direction);
 
-  function checkAnswer(userAnswer: number) {
-    if (userAnswer === currentQuestion.answer) {
-      console.log('Rätt svar! Bra jobbat!');
-      mazeRenderer.movePlayer();
-      askQuestion();
+    if (questionForDirection && answer === questionForDirection.answer) {
+      console.log('Rätt svar!');
+      mazeRenderer.movePlayer(direction as Direction);
     } else {
-      console.log(`Tyvärr, fel svar. Rätt svar var ${currentQuestion.answer}.`);
+      console.log('Fel svar!');
       mazeRenderer.resetPlayerPosition();
-      mazeRenderer.updateQuestionText(currentQuestion.question);
-    }
-  }
-
-  // Skapa ett enkelt input-fält för svar
-  const input = document.createElement('input');
-  input.type = 'number';
-  input.style.position = 'absolute';
-  input.style.bottom = '20px';
-  input.style.left = '50%';
-  input.style.transform = 'translateX(-50%)';
-  document.body.appendChild(input);
-
-  input.addEventListener('keypress', (event) => {
-    if (event.key === 'Enter') {
-      checkAnswer(parseInt(input.value));
-      input.value = '';
     }
   });
 
+  // Uppdatera MazeRenderer för att känna till UI:n
+  mazeRenderer.setUI(gameUI);
 }
 
 if (typeof window !== 'undefined') {
