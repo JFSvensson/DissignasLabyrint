@@ -13,13 +13,14 @@ import {
   EdgesGeometry,
   CanvasTexture
 } from './utils/three';
+import { Player } from './game/Player';
 
 export class MazeRenderer {
   private scene: Scene;
   private camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
   private maze: number[][];
-  private player!: Mesh;
+  private player!: Player;
   private questionText: Mesh | null = null;
   private font: any = null;
   private previousPosition = {
@@ -37,7 +38,8 @@ export class MazeRenderer {
     document.getElementById(containerId)?.appendChild(this.renderer.domElement);
 
     this.initMaze();
-    this.initPlayer();
+    this.player = new Player();
+    this.scene.add(this.player.getMesh());
     this.initQuestionText(firstQuestion);
 
     this.camera.position.set(this.maze.length / 2, 5, this.maze[0].length + 5);
@@ -76,44 +78,6 @@ export class MazeRenderer {
         }
       }
     }
-  }
-
-  private initPlayer() {
-    // Skapa en canvas för att generera rutig textur
-    const textureSize = 64;
-    const canvas = document.createElement('canvas');
-    canvas.width = textureSize;
-    canvas.height = textureSize;
-    const context = canvas.getContext('2d');
-    
-    if (context) {
-      // Rita rutmönster
-      const squareSize = 16; // Storleken på varje ruta
-      context.fillStyle = '#ffffff'; // Vit bakgrund
-      context.fillRect(0, 0, textureSize, textureSize);
-      context.fillStyle = '#888888'; // Ljusgrå rutor
-      
-      for (let x = 0; x < textureSize; x += squareSize) {
-        for (let y = 0; y < textureSize; y += squareSize) {
-          if ((x + y) % (squareSize * 2) === 0) {
-            context.fillRect(x, y, squareSize, squareSize);
-          }
-        }
-      }
-    }
-
-    // Skapa textur från canvas
-    const texture = new CanvasTexture(canvas);
-    
-    const sphereGeometry = new SphereGeometry(0.3, 32, 32);
-    const sphereMaterial = new MeshBasicMaterial({ 
-      map: texture,
-      color: 0xffffff // Vit grundfärg
-    });
-    
-    this.player = new Mesh(sphereGeometry, sphereMaterial);
-    this.player.position.set(1, 0.3, 1);
-    this.scene.add(this.player);
   }
 
   private initQuestionText(firstQuestion: string) {
@@ -161,24 +125,12 @@ export class MazeRenderer {
     }
   }
 
-  public movePlayer() {
-    // Spara nuvarande position innan förflyttning
-    this.previousPosition = {
-      x: this.player.position.x,
-      y: this.player.position.y,
-      z: this.player.position.z
-    };
-
-    // Befintlig förflyttningskod
-    this.player.position.x += 1;
+  public movePlayer(): void {
+    this.player.moveForward();
   }
 
-  public resetPlayerPosition() {
-    this.player.position.set(
-      this.previousPosition.x,
-      this.previousPosition.y,
-      this.previousPosition.z
-    );
+  public resetPlayerPosition(): void {
+    this.player.resetPosition();
   }
 
   private animate() {
