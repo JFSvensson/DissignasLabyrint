@@ -10,7 +10,8 @@ import {
   TextGeometry,
   LineBasicMaterial,
   LineSegments,
-  EdgesGeometry
+  EdgesGeometry,
+  CanvasTexture
 } from './utils/three';
 
 export class MazeRenderer {
@@ -73,9 +74,39 @@ export class MazeRenderer {
   }
 
   private initPlayer() {
-    const playerGeometry = new SphereGeometry(0.3, 32, 32);
-    const playerMaterial = new MeshBasicMaterial({ color: 0xff0000 });
-    this.player = new Mesh(playerGeometry, playerMaterial);
+    // Skapa en canvas för att generera rutig textur
+    const textureSize = 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = textureSize;
+    canvas.height = textureSize;
+    const context = canvas.getContext('2d');
+    
+    if (context) {
+      // Rita rutmönster
+      const squareSize = 16; // Storleken på varje ruta
+      context.fillStyle = '#ffffff'; // Vit bakgrund
+      context.fillRect(0, 0, textureSize, textureSize);
+      context.fillStyle = '#888888'; // Ljusgrå rutor
+      
+      for (let x = 0; x < textureSize; x += squareSize) {
+        for (let y = 0; y < textureSize; y += squareSize) {
+          if ((x + y) % (squareSize * 2) === 0) {
+            context.fillRect(x, y, squareSize, squareSize);
+          }
+        }
+      }
+    }
+
+    // Skapa textur från canvas
+    const texture = new CanvasTexture(canvas);
+    
+    const sphereGeometry = new SphereGeometry(0.3, 32, 32);
+    const sphereMaterial = new MeshBasicMaterial({ 
+      map: texture,
+      color: 0xffffff // Vit grundfärg
+    });
+    
+    this.player = new Mesh(sphereGeometry, sphereMaterial);
     this.player.position.set(1, 0.3, 1);
     this.scene.add(this.player);
   }
