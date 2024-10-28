@@ -17,8 +17,9 @@ export class MazeRenderer {
   private maze: number[][];
   private player!: Mesh;
   private questionText: Mesh | null = null;
+  private font: any = null;
 
-  constructor(containerId: string, maze: number[][]) {
+  constructor(containerId: string, maze: number[][], firstQuestion: string) {
     this.maze = maze;
     this.scene = new Scene();
     this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -28,7 +29,7 @@ export class MazeRenderer {
 
     this.initMaze();
     this.initPlayer();
-    this.initQuestionText();
+    this.initQuestionText(firstQuestion);
 
     this.camera.position.set(this.maze.length / 2, 5, this.maze[0].length + 5);
     this.camera.lookAt(this.maze.length / 2, 0, this.maze[0].length / 2);
@@ -59,32 +60,48 @@ export class MazeRenderer {
     this.scene.add(this.player);
   }
 
-  private initQuestionText() {
+  private initQuestionText(firstQuestion: string) {
     const loader = new FontLoader();
     loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
-      const textGeometry = new TextGeometry('', {
+      this.font = font;
+      const textGeometry = new TextGeometry(firstQuestion, {
         font: font,
-        size: 0.5,
-        depth: 0.1,
+        size: 1.0,
+        depth: 0.2,
       });
-      const textMaterial = new MeshBasicMaterial({ color: 0xffffff });
+      const textMaterial = new MeshBasicMaterial({ color: 0xff0000 });
       this.questionText = new Mesh(textGeometry, textMaterial);
-      this.questionText.position.set(this.maze.length / 2, 2, this.maze[0].length / 2);
+      this.questionText.position.set(
+        this.maze.length / 2,
+        3,
+        this.maze[0].length / 2
+      );
+      this.questionText.rotation.x = -Math.PI / 4;
       this.scene.add(this.questionText);
     });
   }
 
   public updateQuestionText(question: string) {
-    if (this.questionText) {
-      const geometry = this.questionText.geometry as TextGeometry;
-      const font = geometry.parameters.options.font;
+    console.log('Uppdaterar text till:', question);
+    if (!this.font) {
+      console.error('Typsnitt är inte laddat.');
+      return;
+    }
+    if (!this.questionText) {
+      console.error('Frågan är inte laddad.');
+      return;
+    }
+
+    try {
       const textGeometry = new TextGeometry(question, {
-        font: font,
-        size: 0.5,
-        height: 0.1,
+        font: this.font,
+        size: 1.0,
+        depth: 0.2,
       });
       this.questionText.geometry.dispose();
       this.questionText.geometry = textGeometry;
+    } catch (error) {
+      console.error('Fel vid uppdatering av text:', error);
     }
   }
 
