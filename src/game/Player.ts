@@ -1,45 +1,46 @@
 import { Mesh, SphereGeometry, MeshBasicMaterial, CanvasTexture } from 'three';
+import { PLAYER_CONSTANTS } from './constants';
 
 export class Player {
   private mesh: Mesh;
-  private previousPosition = {
-    x: 1,
-    y: 0.3,
-    z: 1
-  };
+  private previousPosition = { ...PLAYER_CONSTANTS.START_POSITION };
 
   constructor() {
     this.mesh = this.createPlayerMesh();
-    this.mesh.position.set(1, 0.3, 1);
+    this.mesh.position.set(
+      PLAYER_CONSTANTS.START_POSITION.x,
+      PLAYER_CONSTANTS.START_POSITION.y,
+      PLAYER_CONSTANTS.START_POSITION.z
+    );
   }
 
   private createPlayerMesh(): Mesh {
-    const textureSize = 64;
     const canvas = document.createElement('canvas');
-    canvas.width = textureSize;
-    canvas.height = textureSize;
+    canvas.width = PLAYER_CONSTANTS.TEXTURE.SIZE;
+    canvas.height = PLAYER_CONSTANTS.TEXTURE.SIZE;
     const context = canvas.getContext('2d');
     
     if (context) {
-      const squareSize = 16;
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, textureSize, textureSize);
-      context.fillStyle = '#cccccc';
+      // Rita bakgrund
+      context.fillStyle = PLAYER_CONSTANTS.TEXTURE.COLORS.PRIMARY;
+      context.fillRect(0, 0, PLAYER_CONSTANTS.TEXTURE.SIZE, PLAYER_CONSTANTS.TEXTURE.SIZE);
       
-      for (let x = 0; x < textureSize; x += squareSize) {
-        for (let y = 0; y < textureSize; y += squareSize) {
-          if ((x + y) % (squareSize * 2) === 0) {
-            context.fillRect(x, y, squareSize, squareSize);
+      // Rita rutmönster
+      context.fillStyle = PLAYER_CONSTANTS.TEXTURE.COLORS.SECONDARY;
+      for (let x = 0; x < PLAYER_CONSTANTS.TEXTURE.SIZE; x += PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE) {
+        for (let y = 0; y < PLAYER_CONSTANTS.TEXTURE.SIZE; y += PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE) {
+          if ((x + y) % (PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE * 2) === 0) {
+            context.fillRect(x, y, PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE, PLAYER_CONSTANTS.TEXTURE.SQUARE_SIZE);
           }
         }
       }
     }
 
     const texture = new CanvasTexture(canvas);
-    const sphereGeometry = new SphereGeometry(0.3, 32, 32);
+    const sphereGeometry = new SphereGeometry(PLAYER_CONSTANTS.SIZE, 32, 32);
     const sphereMaterial = new MeshBasicMaterial({ 
       map: texture,
-      color: 0xffffff
+      color: PLAYER_CONSTANTS.TEXTURE.COLORS.PRIMARY
     });
     
     return new Mesh(sphereGeometry, sphereMaterial);
@@ -66,4 +67,3 @@ export class Player {
     );
   }
 }
-
