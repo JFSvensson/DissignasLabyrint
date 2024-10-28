@@ -32,6 +32,7 @@ export function initWebGame() {
       askQuestion();
     } else {
       console.log(`Tyvärr, fel svar. Rätt svar var ${currentQuestion.answer}.`);
+      mazeRenderer.resetPlayerPosition();
       mazeRenderer.updateQuestionText(currentQuestion.question);
     }
   }

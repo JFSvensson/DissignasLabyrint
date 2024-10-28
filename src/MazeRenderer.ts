@@ -22,6 +22,11 @@ export class MazeRenderer {
   private player!: Mesh;
   private questionText: Mesh | null = null;
   private font: any = null;
+  private previousPosition = {
+    x: 1,
+    y: 0.3,
+    z: 1
+  };
 
   constructor(containerId: string, maze: number[][], firstQuestion: string) {
     this.maze = maze;
@@ -157,9 +162,23 @@ export class MazeRenderer {
   }
 
   public movePlayer() {
-    if (this.player.position.z < this.maze[0].length - 2) {
-      this.player.position.z += 1;
-    }
+    // Spara nuvarande position innan förflyttning
+    this.previousPosition = {
+      x: this.player.position.x,
+      y: this.player.position.y,
+      z: this.player.position.z
+    };
+
+    // Befintlig förflyttningskod
+    this.player.position.x += 1;
+  }
+
+  public resetPlayerPosition() {
+    this.player.position.set(
+      this.previousPosition.x,
+      this.previousPosition.y,
+      this.previousPosition.z
+    );
   }
 
   private animate() {
