@@ -11,10 +11,14 @@ export function initWebGame() {
     [1, 1, 1, 1, 1]
   ];
 
-  const mazeRenderer = new MazeRenderer('maze-container', maze);
   const mathGenerator = new MathQuestionGenerator(new Addition());
-
-  let currentQuestion: { question: string; answer: number };
+  let currentQuestion = mathGenerator.generateQuestion();  // Generera första frågan här
+  
+  const mazeRenderer = new MazeRenderer(
+    'maze-container', 
+    maze, 
+    currentQuestion.question  // Skicka med första frågan till MazeRenderer
+  );
 
   function askQuestion() {
     currentQuestion = mathGenerator.generateQuestion();
@@ -28,6 +32,7 @@ export function initWebGame() {
       askQuestion();
     } else {
       console.log(`Tyvärr, fel svar. Rätt svar var ${currentQuestion.answer}.`);
+      mazeRenderer.updateQuestionText(currentQuestion.question);
     }
   }
 
@@ -47,7 +52,6 @@ export function initWebGame() {
     }
   });
 
-  askQuestion();
 }
 
 if (typeof window !== 'undefined') {
