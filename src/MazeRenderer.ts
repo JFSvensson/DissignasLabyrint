@@ -7,7 +7,10 @@ import {
   Mesh,
   SphereGeometry,
   FontLoader,
-  TextGeometry
+  TextGeometry,
+  LineBasicMaterial,
+  LineSegments,
+  EdgesGeometry
 } from './utils/three';
 
 export class MazeRenderer {
@@ -38,15 +41,32 @@ export class MazeRenderer {
   }
 
   private initMaze() {
-    const wallGeometry = new BoxGeometry(1, 1, 1);
-    const wallMaterial = new MeshBasicMaterial({ color: 0x00ff00 });
+    const wallMaterial = new MeshBasicMaterial({ 
+      color: 0xffffff,  // Vit färg
+      wireframe: true,  // Aktivera wireframe för vektor-stil
+      wireframeLinewidth: 2  // Tjockare linjer
+    });
+
+    const edgeMaterial = new LineBasicMaterial({ 
+      color: 0xffffff,
+      linewidth: 2
+    });
 
     for (let i = 0; i < this.maze.length; i++) {
       for (let j = 0; j < this.maze[i].length; j++) {
         if (this.maze[i][j] === 1) {
+          const wallGeometry = new BoxGeometry(1, 2, 1);
           const wall = new Mesh(wallGeometry, wallMaterial);
-          wall.position.set(i, 0.5, j);
+          
+          // Lägg till kantlinjer
+          const edges = new EdgesGeometry(wallGeometry);
+          const line = new LineSegments(edges, edgeMaterial);
+          
+          wall.position.set(i, 1, j);
+          line.position.set(i, 1, j);
+          
           this.scene.add(wall);
+          this.scene.add(line);
         }
       }
     }
