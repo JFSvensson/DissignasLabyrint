@@ -1,9 +1,19 @@
-import { Mesh, SphereGeometry, MeshBasicMaterial, CanvasTexture } from 'three';
+import { Mesh, SphereGeometry, MeshBasicMaterial, CanvasTexture, Vector3 } from 'three';
 import { PLAYER_CONSTANTS } from './constants';
 
 export class Player {
   private mesh: Mesh;
   private previousPosition = { ...PLAYER_CONSTANTS.START_POSITION };
+
+  // Definiera riktningsvektorer som konstanter
+  private static readonly DIRECTIONS = {
+    FORWARD: new Vector3(0, 0, -1),  // Z-axel: negativ = framåt
+    BACK: new Vector3(0, 0, 1),      // Z-axel: positiv = bakåt
+    RIGHT: new Vector3(1, 0, 0),     // X-axel: positiv = höger
+    LEFT: new Vector3(-1, 0, 0),     // X-axel: negativ = vänster
+    UP: new Vector3(0, 1, 0),        // Y-axel: positiv = upp
+    DOWN: new Vector3(0, -1, 0)      // Y-axel: negativ = ner
+  };
 
   constructor() {
     this.mesh = this.createPlayerMesh();
@@ -50,13 +60,41 @@ export class Player {
     return this.mesh;
   }
 
-  public moveForward(): void {
+  private savePreviousPosition(): void {
     this.previousPosition = {
       x: this.mesh.position.x,
       y: this.mesh.position.y,
       z: this.mesh.position.z
     };
-    this.mesh.position.x += 1;
+  }
+
+  private move(direction: Vector3): void {
+    this.savePreviousPosition();
+    this.mesh.position.add(direction);
+  }
+
+  public moveForward(): void {
+    this.move(Player.DIRECTIONS.FORWARD);
+  }
+
+  public moveBack(): void {
+    this.move(Player.DIRECTIONS.BACK);
+  }
+
+  public moveRight(): void {
+    this.move(Player.DIRECTIONS.RIGHT);
+  }
+
+  public moveLeft(): void {
+    this.move(Player.DIRECTIONS.LEFT);
+  }
+
+  public moveUp(): void {
+    this.move(Player.DIRECTIONS.UP);
+  }
+
+  public moveDown(): void {
+    this.move(Player.DIRECTIONS.DOWN);
   }
 
   public resetPosition(): void {
