@@ -57,6 +57,20 @@ export class MazeRenderer {
         }
       }
     }
+
+    // Lägg till ett golv för hela labyrinten
+    const floorGeometry = new BoxGeometry(mazeLayout.length, 0.1, mazeLayout[0].length);
+    const floorMaterial = new MeshBasicMaterial({ 
+      color: 0x333333,  // Mörkgrå färg
+      wireframe: false
+    });
+    const floor = new Mesh(floorGeometry, floorMaterial);
+    floor.position.set(
+      mazeLayout.length/2 - 0.5, 
+      -0.1,  // Strax under väggarna
+      mazeLayout[0].length/2 - 0.5
+    );
+    this.scene.add(floor);
   }
 
   private initQuestionText(): void {
@@ -144,13 +158,13 @@ export class MazeRenderer {
       // Placera texten framför spelaren
       const playerPos = this.player.getMazePosition();
       this.questionText.position.set(
-        playerPos.x + centerOffset,
-        3,  // Högre upp
-        playerPos.z - 1
+        playerPos.x,
+        5,  // Högre upp
+        playerPos.z
       );
       
       // Rotera texten så den är läsbar
-      this.questionText.rotation.x = -Math.PI / 4;
+      this.questionText.rotation.x = -Math.PI / 8;
       
       this.scene.add(this.questionText);
       console.log('Text added to scene');  // Debug log
