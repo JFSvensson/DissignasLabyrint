@@ -44,16 +44,15 @@ export class MazeRenderer {
   private initMaze(mazeLayout: number[][]): void {
     const wallMaterial = new MeshBasicMaterial({ 
       color: 0xffffff,
-      wireframe: true,
-      wireframeLinewidth: 2
+      wireframe: false
     });
 
     for (let x = 0; x < mazeLayout.length; x++) {
       for (let z = 0; z < mazeLayout[x].length; z++) {
         if (mazeLayout[x][z] === 1) {
-          const wallGeometry = new BoxGeometry(1, 2, 1);
+          const wallGeometry = new BoxGeometry(1, 0.1, 1);
           const wall = new Mesh(wallGeometry, wallMaterial);
-          wall.position.set(x, 1, z);
+          wall.position.set(x, 0, z);
           this.scene.add(wall);
         }
       }
