@@ -43,7 +43,7 @@ export class MazeRenderer {
 
   private initMaze(mazeLayout: number[][]): void {
     const wallMaterial = new MeshBasicMaterial({ 
-      color: 0xffffff,
+      color: 0x9757e3,
       wireframe: false
     });
 

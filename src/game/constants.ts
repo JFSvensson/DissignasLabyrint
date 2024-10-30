@@ -9,8 +9,8 @@ export const PLAYER_CONSTANTS = {
     SIZE: 64,
     SQUARE_SIZE: 16,
     COLORS: {
-      PRIMARY: '#ffffff',
-      SECONDARY: '#cccccc'
+      PRIMARY: '#2cff2c',
+      SECONDARY: '#0f7d0f'
     }
   }
 };
