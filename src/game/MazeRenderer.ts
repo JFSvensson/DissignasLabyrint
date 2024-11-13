@@ -103,32 +103,91 @@ export class MazeRenderer {
       }
     }
 
-    // Lägg till koordinatmarkeringar
+    // Förbättrade koordinatmarkeringar
     const textMaterial = new MeshBasicMaterial({ color: 0xffffff });
+    const coordinateSize = 0.4;  // Större text
     
-    for (let x = 0; x < mazeLayout.length; x++) {
-      const xMarker = new TextGeometry(x.toString(), {
+    // Skapa en container för koordinaterna
+    const createCoordinateLabel = (text: string, position: Vector3, rotation: number = 0) => {
+      const textGeometry = new TextGeometry(text, {
         font: this.font,
-        size: 0.3,
-        height: 0.01
+        size: coordinateSize,
+        height: 0.01,
+        curveSegments: 4,
+        bevelEnabled: false
       });
-      const xText = new Mesh(xMarker, textMaterial);
-      xText.position.set(x, 0.1, -0.5);
-      xText.rotation.x = -Math.PI / 2;
-      this.scene.add(xText);
+
+      const label = new Mesh(textGeometry, textMaterial);
+      label.position.copy(position);
+      label.rotation.x = -Math.PI / 2;  // Lägg platt
+      label.rotation.z = rotation;      // Rotera för läsbarhet
+      
+      // Centrera texten
+      textGeometry.computeBoundingBox();
+      const textWidth = textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x;
+      label.position.x -= textWidth / 2;
+      
+      return label;
+    };
+
+    // X-axelns markeringar
+    for (let x = 0; x < mazeLayout.length; x++) {
+      // Huvudkoordinater
+      const xLabel = createCoordinateLabel(
+        x.toString(),
+        new Vector3(x, 0.1, -0.8)
+      );
+      this.scene.add(xLabel);
+
+      // Rutnätslinjer
+      const gridLine = new Mesh(
+        new BoxGeometry(0.02, 0.1, mazeLayout[0].length),
+        new MeshBasicMaterial({ 
+          color: 0x666666,
+          transparent: true,
+          opacity: 0.3
+        })
+      );
+      gridLine.position.set(x, 0.05, mazeLayout[0].length/2 - 0.5);
+      this.scene.add(gridLine);
     }
 
+    // Z-axelns markeringar
     for (let z = 0; z < mazeLayout[0].length; z++) {
-      const zMarker = new TextGeometry(z.toString(), {
-        font: this.font,
-        size: 0.3,
-        height: 0.01
-      });
-      const zText = new Mesh(zMarker, textMaterial);
-      zText.position.set(-0.5, 0.1, z);
-      zText.rotation.x = -Math.PI / 2;
-      this.scene.add(zText);
+      // Huvudkoordinater
+      const zLabel = createCoordinateLabel(
+        z.toString(),
+        new Vector3(-0.8, 0.1, z),
+        Math.PI / 2  // Rotera för bättre läsbarhet
+      );
+      this.scene.add(zLabel);
+
+      // Rutnätslinjer
+      const gridLine = new Mesh(
+        new BoxGeometry(mazeLayout.length, 0.1, 0.02),
+        new MeshBasicMaterial({ 
+          color: 0x666666,
+          transparent: true,
+          opacity: 0.3
+        })
+      );
+      gridLine.position.set(mazeLayout.length/2 - 0.5, 0.05, z);
+      this.scene.add(gridLine);
     }
+
+    // Lägg till axeletiketter
+    const xAxisLabel = createCoordinateLabel(
+      'North',
+      new Vector3(mazeLayout.length/2, 0.1, -1.5),
+    );
+    this.scene.add(xAxisLabel);
+
+    const zAxisLabel = createCoordinateLabel(
+      'East',
+      new Vector3(-1.5, 0.1, mazeLayout[0].length/2),
+      Math.PI / 2
+    );
+    this.scene.add(zAxisLabel);
   }
 
   private initQuestionText(): void {
