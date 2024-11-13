@@ -228,68 +228,20 @@ export class MazeRenderer {
   }
 
   private updateDirectionQuestions(questions: MazeQuestion[]): void {
-    if (!this.font) {
-      console.log('Font not loaded yet');
-      return;
-    }
-
-    // Remove existing text if any
+    // Ta bort existerande text om den finns
     if (this.questionText) {
       this.scene.remove(this.questionText);
       this.questionText.geometry.dispose();
       
-      // Hantera material dispose korrekt
       if (Array.isArray(this.questionText.material)) {
         this.questionText.material.forEach(material => material.dispose());
       } else {
         this.questionText.material.dispose();
       }
+      this.questionText = null;
     }
 
-    const questionText = questions.map(q => 
-      `${q.direction}: ${q.question}`
-    ).join('\n');
-
-    console.log('Creating text:', questionText);  // Debug log
-
-    try {
-      const textGeometry = new TextGeometry(questionText || 'No questions available', {
-        font: this.font,
-        size: 0.5,  // Större text
-        depth: 0.1,
-        curveSegments: 12,
-        bevelEnabled: false
-      });
-
-      textGeometry.computeBoundingBox();
-      const centerOffset = -(textGeometry.boundingBox?.max.x || 0) / 2;
-
-      const textMaterial = new MeshBasicMaterial({ 
-        color: 0xff0000,
-        transparent: false,
-        opacity: 1.0
-      });
-
-      this.questionText = new Mesh(textGeometry, textMaterial);
-      
-      // Placera texten framför spelaren
-      const playerPos = this.player.getMazePosition();
-      this.questionText.position.set(
-        playerPos.x,
-        5,  // Högre upp
-        playerPos.z
-      );
-      
-      // Rotera texten så den är läsbar
-      this.questionText.rotation.x = -Math.PI / 8;
-      
-      this.scene.add(this.questionText);
-      console.log('Text added to scene');  // Debug log
-    } catch (error) {
-      console.error('Error creating text:', error);
-    }
-
-    // Uppdatera UI om den finns
+    // Uppdatera bara UI:n
     if (this.ui) {
       this.ui.updateQuestions(questions);
     }
