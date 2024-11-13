@@ -35,42 +35,100 @@ export class MazeRenderer {
     this.player = new Player();
     this.scene.add(this.player.getMesh());
 
-    this.initMaze(mazeLayout);
-    this.initQuestionText();
-    this.setupCamera();
-    this.animate();
+    this.loadFont().then(() => {
+      this.initMaze(mazeLayout);
+      this.initQuestionText();
+      this.setupCamera();
+      this.animate();
+    });
+  }
+
+  private async loadFont(): Promise<void> {
+    return new Promise((resolve) => {
+      const loader = new FontLoader();
+      loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', 
+        (font) => {
+          this.font = font;
+          resolve();
+        }
+      );
+    });
   }
 
   private initMaze(mazeLayout: number[][]): void {
+    // Väggmaterial
     const wallMaterial = new MeshBasicMaterial({ 
       color: 0x9757e3,
       wireframe: false
     });
 
-    for (let x = 0; x < mazeLayout.length; x++) {
-      for (let z = 0; z < mazeLayout[x].length; z++) {
-        if (mazeLayout[x][z] === 1) {
-          const wallGeometry = new BoxGeometry(1, 0.1, 1);
-          const wall = new Mesh(wallGeometry, wallMaterial);
-          wall.position.set(x, 0, z);
-          this.scene.add(wall);
-        }
-      }
-    }
+    // Rutnätsmaterial
+    const gridMaterial = new MeshBasicMaterial({
+      color: 0x444444,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.3
+    });
 
-    // Lägg till ett golv för hela labyrinten
+    // Skapa golvet först
     const floorGeometry = new BoxGeometry(mazeLayout.length, 0.1, mazeLayout[0].length);
     const floorMaterial = new MeshBasicMaterial({ 
-      color: 0x333333,  // Mörkgrå färg
+      color: 0x333333,
       wireframe: false
     });
     const floor = new Mesh(floorGeometry, floorMaterial);
     floor.position.set(
       mazeLayout.length/2 - 0.5, 
-      -0.1,  // Strax under väggarna
+      -0.1,
       mazeLayout[0].length/2 - 0.5
     );
     this.scene.add(floor);
+
+    // Lägg till rutnät
+    for (let x = 0; x < mazeLayout.length; x++) {
+      for (let z = 0; z < mazeLayout[x].length; z++) {
+        // Skapa en rutnätsruta för varje position
+        const gridGeometry = new BoxGeometry(1, 0.1, 1);
+        const gridCell = new Mesh(gridGeometry, gridMaterial);
+        gridCell.position.set(x, 0.01, z);  // Strax ovanför golvet
+        this.scene.add(gridCell);
+
+        // Om det är en vägg, lägg till väggmesh
+        if (mazeLayout[x][z] === 1) {
+          const wallGeometry = new BoxGeometry(0.9, 0.1, 0.9);  // Lite mindre än rutnätsrutan
+          const wall = new Mesh(wallGeometry, wallMaterial);
+          wall.position.set(x, 0.02, z);  // Strax ovanför rutnätet
+          this.scene.add(wall);
+        }
+      }
+    }
+
+    // Lägg till koordinatmarkeringar
+    const textMaterial = new MeshBasicMaterial({ color: 0xffffff });
+    
+    for (let x = 0; x < mazeLayout.length; x++) {
+      const xMarker = new TextGeometry(x.toString(), {
+        font: this.font,
+        size: 0.3,
+        height: 0.01
+      });
+      const xText = new Mesh(xMarker, textMaterial);
+      xText.position.set(x, 0.1, -0.5);
+      xText.rotation.x = -Math.PI / 2;
+      this.scene.add(xText);
+    }
+
+    for (let z = 0; z < mazeLayout[0].length; z++) {
+      const zMarker = new TextGeometry(z.toString(), {
+        font: this.font,
+        size: 0.3,
+        height: 0.01
+      });
+      const zText = new Mesh(zMarker, textMaterial);
+      zText.position.set(-0.5, 0.1, z);
+      zText.rotation.x = -Math.PI / 2;
+      this.scene.add(zText);
+    }
   }
 
   private initQuestionText(): void {
@@ -94,7 +152,7 @@ export class MazeRenderer {
 
   private setupCamera(): void {
     // Justera kamerans position för bättre överblick
-    this.camera.position.set(5, 8, 8);
+    this.camera.position.set(8, 6, 12);
     this.camera.lookAt(new Vector3(2, 0, 2));
   }
 
