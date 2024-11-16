@@ -9,16 +9,13 @@ export class GameUI {
     // Huvudcontainer
     this.container = document.createElement('div');
     this.container.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      width: 100%;
+      max-width: 500px;
       background: rgba(0, 0, 0, 0.8);
       padding: 20px;
       border-radius: 10px;
       color: white;
       font-family: Arial, sans-serif;
-      min-width: 300px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     `;
     
@@ -143,7 +140,7 @@ export class GameUI {
     `;
     this.container.appendChild(this.messageDisplay);
 
-    document.getElementById(containerId)?.appendChild(this.container);
+    document.getElementById('ui-container')?.appendChild(this.container);
   }
 
   private getActiveButton(): HTMLButtonElement | null {

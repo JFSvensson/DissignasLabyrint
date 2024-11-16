@@ -26,10 +26,22 @@ export class MazeRenderer {
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
-    this.camera = new PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    this.renderer = new WebGLRenderer();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById(containerId)?.appendChild(this.renderer.domElement);
+    
+    // Beräkna aspect ratio baserat på container-storlek
+    const container = document.getElementById(containerId);
+    const aspect = container ? container.clientWidth / container.clientHeight : window.innerWidth / window.innerHeight;
+    this.camera = new PerspectiveCamera(50, aspect, 0.1, 1000);
+    
+    this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer.setSize(
+        container ? container.clientWidth : window.innerWidth,
+        container ? container.clientHeight : window.innerHeight
+    );
+    
+    // Lägg till event listener för window resize
+    window.addEventListener('resize', () => this.handleResize());
+    
+    container?.appendChild(this.renderer.domElement);
 
     this.mazeLogic = mazeLogic;  // Använd den delade instansen
     this.player = new Player();
@@ -211,8 +223,8 @@ export class MazeRenderer {
 
   private setupCamera(): void {
     // Justera kamerans position för bättre överblick
-    this.camera.position.set(8, 6, 12);
-    this.camera.lookAt(new Vector3(2, 0, 2));
+    this.camera.position.set(4, 13, 8);
+    this.camera.lookAt(new Vector3(4, 0, 4));
   }
 
   private animate(): void {
@@ -271,5 +283,18 @@ export class MazeRenderer {
     const currentPos = this.player.getMazePosition();
     const questions = this.mazeLogic.getQuestionsAtPosition(currentPos);
     this.updateDirectionQuestions(questions);
+  }
+
+  private handleResize(): void {
+    const container = document.getElementById('maze-container');
+    if (container) {
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+        
+        this.renderer.setSize(width, height);
+    }
   }
 }
