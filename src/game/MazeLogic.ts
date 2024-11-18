@@ -20,10 +20,10 @@ export class MazeLogic {
   public getAvailableDirections(position: MazePosition): Direction[] {
     const directions: Direction[] = [];
     
-    if (!this.isWall({ x: position.x, z: position.z - 1 })) directions.push('FORWARD');
-    if (!this.isWall({ x: position.x, z: position.z + 1 })) directions.push('BACK');
-    if (!this.isWall({ x: position.x - 1, z: position.z })) directions.push('LEFT');
-    if (!this.isWall({ x: position.x + 1, z: position.z })) directions.push('RIGHT');
+    if (!this.isWall({ x: position.x, z: position.z - 1 })) directions.push('NORTH');
+    if (!this.isWall({ x: position.x, z: position.z + 1 })) directions.push('SOUTH');
+    if (!this.isWall({ x: position.x - 1, z: position.z })) directions.push('WEST');
+    if (!this.isWall({ x: position.x + 1, z: position.z })) directions.push('EAST');
     
     return directions;
   }

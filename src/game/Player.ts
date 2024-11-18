@@ -78,9 +78,20 @@ export class Player {
   public move(direction: Direction): void {
     this.previousPosition = { ...this.currentPosition };
     
-    const moveVector = Player.DIRECTION_VECTORS[direction];
-    this.currentPosition.x += moveVector.x;
-    this.currentPosition.z += moveVector.z;
+    switch (direction) {
+      case 'NORTH':
+        this.currentPosition.z -= 1;
+        break;
+      case 'SOUTH':
+        this.currentPosition.z += 1;
+        break;
+      case 'EAST':
+        this.currentPosition.x += 1;
+        break;
+      case 'WEST':
+        this.currentPosition.x -= 1;
+        break;
+    }
     
     this.updateMeshPosition();
   }

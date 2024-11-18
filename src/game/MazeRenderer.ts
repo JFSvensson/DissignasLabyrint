@@ -5,14 +5,15 @@ import {
   Mesh, 
   BoxGeometry, 
   MeshBasicMaterial,
-  Vector3
+  Vector3,
+  Group
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { Player } from './Player';
 import { MazeLogic } from './MazeLogic';
 import { Direction, MazeQuestion } from './types';
-import { GameUI } from './UI';  // Lägg till denna import
+import { GameUI } from './UI';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -23,6 +24,7 @@ export class MazeRenderer {
   private questionText: Mesh | null = null;
   private font: any = null;
   private ui: GameUI | null = null;  // Lägg till denna property
+  private maze: Group;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
@@ -46,6 +48,10 @@ export class MazeRenderer {
     this.mazeLogic = mazeLogic;  // Använd den delade instansen
     this.player = new Player();
     this.scene.add(this.player.getMesh());
+
+    this.maze = new Group();
+    this.maze.rotation.y = Math.PI / 2;  // Rotera 90 grader moturs
+    this.scene.add(this.maze);
 
     this.loadFont().then(() => {
       this.initMaze(mazeLayout);
@@ -194,12 +200,25 @@ export class MazeRenderer {
     );
     this.scene.add(xAxisLabel);
 
+    const xAxisLabelSouth = createCoordinateLabel(
+      'South',
+      new Vector3(mazeLayout.length/2, 0.1, mazeLayout[0].length + 1.5),
+    );
+    this.scene.add(xAxisLabelSouth);
+
     const zAxisLabel = createCoordinateLabel(
       'East',
       new Vector3(-1.5, 0.1, mazeLayout[0].length/2),
       Math.PI / 2
     );
     this.scene.add(zAxisLabel);
+
+    const zAxisLabelWest = createCoordinateLabel(
+      'West',
+      new Vector3(mazeLayout.length + 1.5, 0.1, mazeLayout[0].length/2 - 1.5),
+      -Math.PI / 2
+    );
+    this.scene.add(zAxisLabelWest);
   }
 
   private initQuestionText(): void {

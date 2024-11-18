@@ -11,7 +11,7 @@ export interface MazePosition {
   z: number;
 }
 
-export type Direction = 'FORWARD' | 'BACK' | 'LEFT' | 'RIGHT';
+export type Direction = 'NORTH' | 'SOUTH' | 'EAST' | 'WEST';
 
 export interface MazeQuestion {
   question: string;

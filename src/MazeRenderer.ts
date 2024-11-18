@@ -125,7 +125,7 @@ export class MazeRenderer {
   }
 
   public movePlayer(): void {
-    this.player.move('FORWARD');
+    this.player.move('NORTH');
   }
 
   public resetPlayerPosition(): void {

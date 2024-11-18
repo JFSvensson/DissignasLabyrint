@@ -1,3 +1,5 @@
+import { Direction } from './types';
+
 export class GameUI {
   private container: HTMLDivElement;
   private questionDisplay: HTMLDivElement;
@@ -86,10 +88,10 @@ export class GameUI {
     // Skapa riktningsknappar
     this.directionButtons = new Map();
     const directions = [
-      { name: 'FORWARD', area: 'forward', symbol: '↑' },
-      { name: 'LEFT', area: 'left', symbol: '←' },
-      { name: 'RIGHT', area: 'right', symbol: '→' },
-      { name: 'BACK', area: 'back', symbol: '↓' }
+      { name: 'NORTH', area: 'forward', symbol: '⬆️' },
+      { name: 'EAST', area: 'right', symbol: '➡️' },
+      { name: 'WEST', area: 'left', symbol: '⬅️' },
+      { name: 'SOUTH', area: 'back', symbol: '⬇️' }
     ];
 
     directions.forEach(({ name, area, symbol }) => {
@@ -170,5 +172,15 @@ export class GameUI {
 
     // Fokusera på input-fältet
     this.answerInput.focus();
+  }
+
+  private getDirectionButton(direction: Direction): string {
+    const directionIcons = {
+      'NORTH': '⬆️',
+      'SOUTH': '⬇️',
+      'EAST': '➡️',
+      'WEST': '⬅️'
+    };
+    return directionIcons[direction] || '?';
   }
 }
