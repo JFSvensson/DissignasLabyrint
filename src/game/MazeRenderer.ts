@@ -192,33 +192,6 @@ export class MazeRenderer {
       gridLine.position.set(mazeLayout.length/2 - 0.5, 0.05, z);
       this.scene.add(gridLine);
     }
-
-    // Lägg till axeletiketter
-    const xAxisLabel = createCoordinateLabel(
-      'North',
-      new Vector3(mazeLayout.length/2, 0.1, -1.5),
-    );
-    this.scene.add(xAxisLabel);
-
-    const xAxisLabelSouth = createCoordinateLabel(
-      'South',
-      new Vector3(mazeLayout.length/2, 0.1, mazeLayout[0].length + 1.5),
-    );
-    this.scene.add(xAxisLabelSouth);
-
-    const zAxisLabel = createCoordinateLabel(
-      'East',
-      new Vector3(-1.5, 0.1, mazeLayout[0].length/2),
-      Math.PI / 2
-    );
-    this.scene.add(zAxisLabel);
-
-    const zAxisLabelWest = createCoordinateLabel(
-      'West',
-      new Vector3(mazeLayout.length + 1.5, 0.1, mazeLayout[0].length/2 - 1.5),
-      -Math.PI / 2
-    );
-    this.scene.add(zAxisLabelWest);
   }
 
   private initQuestionText(): void {
