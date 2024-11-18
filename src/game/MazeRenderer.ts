@@ -150,13 +150,6 @@ export class MazeRenderer {
 
     // X-axelns markeringar
     for (let x = 0; x < mazeLayout.length; x++) {
-      // Huvudkoordinater
-      const xLabel = createCoordinateLabel(
-        x.toString(),
-        new Vector3(x, 0.1, -0.8)
-      );
-      this.scene.add(xLabel);
-
       // Rutnätslinjer
       const gridLine = new Mesh(
         new BoxGeometry(0.02, 0.1, mazeLayout[0].length),
@@ -172,14 +165,6 @@ export class MazeRenderer {
 
     // Z-axelns markeringar
     for (let z = 0; z < mazeLayout[0].length; z++) {
-      // Huvudkoordinater
-      const zLabel = createCoordinateLabel(
-        z.toString(),
-        new Vector3(-0.8, 0.1, z),
-        Math.PI / 2  // Rotera för bättre läsbarhet
-      );
-      this.scene.add(zLabel);
-
       // Rutnätslinjer
       const gridLine = new Mesh(
         new BoxGeometry(mazeLayout.length, 0.1, 0.02),
