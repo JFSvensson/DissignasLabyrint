@@ -3,13 +3,15 @@ import { Direction, MazePosition } from './types';
 import { Addition } from '../operations/Addition';
 import { Subtraction } from '../operations/Subtraction';
 import { Multiplication } from '../operations/Multiplication';
+import { Division } from '../operations/Division';
 import { Operation } from '../operations/Operation';
 
 export class QuestionGenerator {
   private static operations: Operation[] = [
     new Addition(),
     new Subtraction(),
-    new Multiplication()
+    new Multiplication(),
+    new Division()
   ];
 
   public static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][]): void {
