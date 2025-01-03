@@ -1,0 +1,84 @@
+%% DissignasLabyrint - Class Diagram
+%% Senast uppdaterad: 2024-11-27
+
+classDiagram
+    class MazeRenderer {
+        -scene: Scene
+        -camera: PerspectiveCamera
+        -renderer: WebGLRenderer
+        -player: Player
+        -mazeLogic: MazeLogic
+        -questionText: Mesh
+        -font: any
+        -ui: GameUI
+        +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic)
+        -setupCamera(): void
+        -initMaze(mazeLayout: number[][]): void
+        -updateDirectionQuestions(questions: MazeQuestion[]): void
+        +movePlayer(direction: Direction): void
+        +resetPlayerPosition(): void
+        +setUI(ui: GameUI): void
+    }
+
+    class Player {
+        -mesh: Mesh
+        -position: MazePosition
+        +constructor()
+        +getMesh(): Mesh
+        +getMazePosition(): MazePosition
+        +move(direction: Direction): void
+        +resetPosition(): void
+    }
+
+    class MazeLogic {
+        -mazeLayout: number[][]
+        -questions: Map<string, MazeQuestion[]>
+        +constructor(mazeLayout: number[][])
+        +getQuestionsAtPosition(position: MazePosition): MazeQuestion[]
+        +setQuestionForDirection(position: MazePosition, direction: Direction, question: string, answer: number): void
+        +getAvailableDirections(position: MazePosition): Direction[]
+    }
+
+    class GameUI {
+        -container: HTMLDivElement
+        -questionDisplay: HTMLDivElement
+        -answerInput: HTMLInputElement
+        -directionButtons: Map<string, HTMLButtonElement>
+        +constructor(containerId: string, onAnswer: Function)
+        +updateQuestions(questions: MazeQuestion[]): void
+    }
+
+    class QuestionGenerator {
+        +static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][]): void
+    }
+
+    %% Interfaces och typer
+    class MazeQuestion {
+        <<interface>>
+        +direction: Direction
+        +question: string
+        +answer: number
+    }
+
+    class MazePosition {
+        <<interface>>
+        +x: number
+        +z: number
+    }
+
+    class Direction {
+        <<enumeration>>
+        FORWARD
+        BACK
+        LEFT
+        RIGHT
+    }
+
+    %% Relationer
+    MazeRenderer --> Player
+    MazeRenderer --> MazeLogic
+    MazeRenderer --> GameUI
+    MazeLogic --> MazeQuestion
+    Player --> MazePosition
+    QuestionGenerator --> MazeLogic
+    GameUI ..> MazeQuestion
