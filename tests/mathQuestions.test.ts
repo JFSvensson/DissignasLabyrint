@@ -25,4 +25,22 @@ describe('Addition', () => {
     expect(a).toBeLessThan(max);
     expect(b).toBeLessThan(max);
   });
+
+  test('should handle zero values correctly', () => {
+    const [a, b] = [0, 5];
+    
+    expect(operation.formatQuestion(a, b)).toBe('0 + 5');
+    expect(operation.calculate(a, b)).toBe(5);
+  });
+
+  test('should handle negative numbers if allowed', () => {
+    const [a, b] = [-3, 5];
+    
+    expect(operation.formatQuestion(a, b)).toBe('-3 + 5');
+    expect(operation.calculate(a, b)).toBe(2);
+  });
+
+  test('should validate input parameters', () => {
+    expect(() => operation.generateNumbers(-1)).toThrow();
+  });
 });
