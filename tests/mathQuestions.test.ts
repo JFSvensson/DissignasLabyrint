@@ -1,28 +1,27 @@
-import { MathQuestionGenerator } from '../src/MathQuestionGenerator';
+import { QuestionGenerator } from '../src/game/QuestionGenerator';
 import { Addition } from '../src/operations/Addition';
 
-describe('MathQuestionGenerator', () => {
-  let generator: MathQuestionGenerator;
+describe('Addition', () => {
+  let operation: Addition;
 
   beforeEach(() => {
-    generator = new MathQuestionGenerator(new Addition());
+    operation = new Addition();
   });
 
   test('should generate an addition question', () => {
-    const { question, answer } = generator.generateQuestion();
+    const [a, b] = operation.generateNumbers(10);
+    const question = operation.formatQuestion(a, b);
+    const answer = operation.calculate(a, b);
     
     expect(question).toMatch(/^\d+ \+ \d+$/);
     expect(typeof answer).toBe('number');
-    
-    const [a, b] = question.split(' + ').map(Number);
-    expect(a + b).toBe(answer);
+    expect(operation.calculate(a, b)).toBe(a + b);
   });
 
-  test('should generate question with custom max value', () => {
+  test('should generate numbers within max value', () => {
     const max = 5;
-    const { question, answer } = generator.generateQuestion(max);
+    const [a, b] = operation.generateNumbers(max);
     
-    const [a, b] = question.split(' + ').map(Number);
     expect(a).toBeLessThan(max);
     expect(b).toBeLessThan(max);
   });
