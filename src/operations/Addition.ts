@@ -10,6 +10,9 @@ export class Addition implements Operation {
     }
 
     generateNumbers(max: number): [number, number] {
+        if (max <= 0) {
+            throw new Error('Max value must be a positive number');
+        }
         const a = Math.floor(Math.random() * max);
         const b = Math.floor(Math.random() * max);
         return [a, b];
