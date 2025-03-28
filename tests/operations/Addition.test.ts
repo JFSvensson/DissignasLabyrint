@@ -12,6 +12,12 @@ describe('Addition', () => {
     expect(addition.calculate(0, 5)).toBe(5);
   });
 
+  test('should add negative numbers correctly', () => {
+    expect(addition.calculate(-5, -3)).toBe(-8);
+    expect(addition.calculate(-5, 3)).toBe(-2);
+    expect(addition.calculate(5, -3)).toBe(2);
+  });
+
   test('should format question correctly', () => {
     expect(addition.formatQuestion(5, 3)).toBe('5 + 3');
   });
