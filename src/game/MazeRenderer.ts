@@ -11,6 +11,7 @@ import {
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { Player } from './Player';
+import { PlayerLogic } from './PlayerLogic';
 import { MazeLogic } from './MazeLogic';
 import { Direction, MazeQuestion } from './types';
 import { GameUI } from './UI';
