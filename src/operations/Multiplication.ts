@@ -14,4 +14,8 @@ export class Multiplication implements Operation {
         const b = Math.floor(Math.random() * (max/2)) + 1;
         return [a, b];
     }
+
+    getName(): string {
+        return 'math.operations.multiplication';
+    }
 } 
