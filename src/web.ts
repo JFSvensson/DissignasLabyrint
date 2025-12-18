@@ -3,8 +3,13 @@ import { MazeLogic } from './game/MazeLogic';
 import { Direction } from './game/types';
 import { QuestionGenerator } from './game/QuestionGenerator';
 import { GameUI } from './game/UI';
+import { i18n } from './services/TranslationService';
 
 export function initWebGame() {
+  // Set initial HTML lang attribute
+  document.documentElement.lang = i18n.getLocale();
+  document.title = i18n.t('game.title');
+
   const mazeLayout = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -32,10 +37,10 @@ export function initWebGame() {
     const questionForDirection = questions.find(q => q.direction === direction);
 
     if (questionForDirection && answer === questionForDirection.answer) {
-      console.log('Rätt svar!');
+      console.log(i18n.t('ui.feedback.correct'));
       mazeRenderer.movePlayer(direction as Direction);
     } else {
-      console.log('Fel svar!');
+      console.log(i18n.t('ui.feedback.incorrect'));
       mazeRenderer.resetPlayerPosition();
     }
   });
