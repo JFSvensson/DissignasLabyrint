@@ -1,4 +1,6 @@
 import { Direction } from './types';
+import { i18n } from '../services/TranslationService';
+import { SupportedLocale } from '../locales';
 
 export class GameUI {
   private container: HTMLDivElement;
@@ -6,6 +8,7 @@ export class GameUI {
   private answerInput: HTMLInputElement;
   private directionButtons: Map<string, HTMLButtonElement>;
   private messageDisplay: HTMLDivElement;
+  private languageSwitcher: HTMLDivElement;
 
   constructor(containerId: string, onAnswer: (answer: number, direction: string) => void) {
     // Huvudcontainer
@@ -44,7 +47,7 @@ export class GameUI {
 
     // Label för input
     const inputLabel = document.createElement('label');
-    inputLabel.textContent = 'Svar:';
+    inputLabel.textContent = i18n.t('ui.answerLabel');
     inputLabel.style.cssText = `
       font-size: 16px;
     `;
@@ -88,15 +91,17 @@ export class GameUI {
     // Skapa riktningsknappar
     this.directionButtons = new Map();
     const directions = [
-      { name: 'NORTH', area: 'forward', symbol: '⬆️' },
-      { name: 'EAST', area: 'right', symbol: '➡️' },
-      { name: 'WEST', area: 'left', symbol: '⬅️' },
-      { name: 'SOUTH', area: 'back', symbol: '⬇️' }
+      { name: 'NORTH', area: 'forward', symbol: '⬆️', translationKey: 'ui.directions.north' },
+      { name: 'EAST', area: 'right', symbol: '➡️', translationKey: 'ui.directions.east' },
+      { name: 'WEST', area: 'left', symbol: '⬅️', translationKey: 'ui.directions.west' },
+      { name: 'SOUTH', area: 'back', symbol: '⬇️', translationKey: 'ui.directions.south' }
     ];
 
-    directions.forEach(({ name, area, symbol }) => {
+    directions.forEach(({ name, area, symbol, translationKey }) => {
       const button = document.createElement('button');
-      button.textContent = `${symbol} ${name}`;
+      button.textContent = `${symbol} ${i18n.t(translationKey)}`;
+      button.dataset.translationKey = translationKey;
+      button.dataset.symbol = symbol;
       button.style.cssText = `
         grid-area: ${area};
         padding: 10px 20px;
@@ -122,7 +127,7 @@ export class GameUI {
           this.answerInput.value = '';
           this.showMessage('');  // Rensa eventuellt meddelande
         } else {
-          this.showMessage('Ange ett giltigt nummer!');
+          this.showMessage(i18n.t('ui.validation.invalidNumber'));
         }
       };
       this.directionButtons.set(name, button);
@@ -142,7 +147,14 @@ export class GameUI {
     `;
     this.container.appendChild(this.messageDisplay);
 
+    // Language switcher
+    this.languageSwitcher = this.createLanguageSwitcher();
+    this.container.appendChild(this.languageSwitcher);
+
     document.getElementById('ui-container')?.appendChild(this.container);
+
+    // Listen for locale changes
+    i18n.onChange(() => this.updateTranslations());
   }
 
   private getActiveButton(): HTMLButtonElement | null {
@@ -182,5 +194,79 @@ export class GameUI {
       'WEST': '⬅️'
     };
     return directionIcons[direction] || '?';
+  }
+
+  private createLanguageSwitcher(): HTMLDivElement {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    `;
+
+    const label = document.createElement('span');
+    label.textContent = i18n.t('ui.language.selectLanguage');
+    label.style.cssText = 'font-size: 14px;';
+    label.dataset.translationKey = 'ui.language.selectLanguage';
+    container.appendChild(label);
+
+    const locales = i18n.getSupportedLocales();
+    locales.forEach(locale => {
+      const button = document.createElement('button');
+      const translationKey = `ui.language.${locale === 'sv' ? 'swedish' : 'english'}`;
+      button.textContent = i18n.t(translationKey);
+      button.dataset.translationKey = translationKey;
+      button.style.cssText = `
+        padding: 5px 15px;
+        background: ${i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.1)'};
+        color: white;
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s ease;
+      `;
+      button.onclick = () => {
+        i18n.setLocale(locale);
+      };
+      container.appendChild(button);
+    });
+
+    return container;
+  }
+
+  private updateTranslations(): void {
+    // Update all elements with translation keys
+    const elementsWithTranslations = this.container.querySelectorAll('[data-translation-key]');
+    elementsWithTranslations.forEach(element => {
+      const key = element.getAttribute('data-translation-key');
+      if (key) {
+        if (element.tagName === 'BUTTON' && element instanceof HTMLButtonElement) {
+          const symbol = element.dataset.symbol;
+          if (symbol) {
+            element.textContent = `${symbol} ${i18n.t(key)}`;
+          } else {
+            element.textContent = i18n.t(key);
+          }
+          // Update language switcher button styles
+          if (key.startsWith('ui.language.')) {
+            const locale = key === 'ui.language.swedish' ? 'sv' : 'en';
+            element.style.background = i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.1)';
+          }
+        } else {
+          element.textContent = i18n.t(key);
+        }
+      }
+    });
+
+    // Update input label (doesn't have dataset)
+    const inputLabel = this.container.querySelector('label');
+    if (inputLabel) {
+      inputLabel.textContent = i18n.t('ui.answerLabel');
+    }
   }
 }
