@@ -17,4 +17,8 @@ export class Addition implements Operation {
         const b = Math.floor(Math.random() * max);
         return [a, b];
     }
+
+    getName(): string {
+        return 'math.operations.addition';
+    }
 }
