@@ -1,0 +1,36 @@
+{
+  "ui": {
+    "answerLabel": "Svar:",
+    "directions": {
+      "north": "NORR",
+      "south": "SÖDER",
+      "east": "ÖSTER",
+      "west": "VÄSTER"
+    },
+    "validation": {
+      "invalidNumber": "Ange ett giltigt nummer!"
+    },
+    "feedback": {
+      "correct": "Rätt svar!",
+      "incorrect": "Fel svar!",
+      "tryAgain": "Försök igen!"
+    },
+    "language": {
+      "swedish": "Svenska",
+      "english": "English",
+      "selectLanguage": "Välj språk:"
+    }
+  },
+  "math": {
+    "operations": {
+      "addition": "Addition",
+      "subtraction": "Subtraktion",
+      "multiplication": "Multiplikation",
+      "division": "Division"
+    }
+  },
+  "game": {
+    "title": "Dissignas Labyrint",
+    "welcome": "Välkommen till Matematiska Labyrinten!"
+  }
+}
