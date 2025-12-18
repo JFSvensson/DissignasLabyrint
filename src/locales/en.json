@@ -1,0 +1,36 @@
+{
+  "ui": {
+    "answerLabel": "Answer:",
+    "directions": {
+      "north": "NORTH",
+      "south": "SOUTH",
+      "east": "EAST",
+      "west": "WEST"
+    },
+    "validation": {
+      "invalidNumber": "Please enter a valid number!"
+    },
+    "feedback": {
+      "correct": "Correct answer!",
+      "incorrect": "Wrong answer!",
+      "tryAgain": "Try again!"
+    },
+    "language": {
+      "swedish": "Svenska",
+      "english": "English",
+      "selectLanguage": "Select language:"
+    }
+  },
+  "math": {
+    "operations": {
+      "addition": "Addition",
+      "subtraction": "Subtraction",
+      "multiplication": "Multiplication",
+      "division": "Division"
+    }
+  },
+  "game": {
+    "title": "Dissigna's Labyrinth",
+    "welcome": "Welcome to the Mathematical Labyrinth!"
+  }
+}
