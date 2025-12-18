@@ -9,6 +9,10 @@ export class Division implements Operation {
         return `${a} ÷ ${b}`;
     }
 
+    getName(): string {
+        return 'math.operations.division';
+    }
+
     generateNumbers(max: number): [number, number] {
         const b = Math.floor(Math.random() * (max/2)) + 1;
         
