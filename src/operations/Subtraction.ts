@@ -14,4 +14,8 @@ export class Subtraction implements Operation {
         const a = Math.floor(Math.random() * max) + b; // Säkerställ positivt svar
         return [a, b];
     }
+
+    getName(): string {
+        return 'math.operations.subtraction';
+    }
 }
