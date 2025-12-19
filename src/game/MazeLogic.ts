@@ -2,9 +2,12 @@ import { Direction, MazePosition, MazeQuestion, MazeCell } from './types';
 
 export class MazeLogic {
   private maze: MazeCell[][];
+  private goalPosition: MazePosition;
 
-  constructor(mazeLayout: number[][]) {
+  constructor(mazeLayout: number[][], goalPosition?: MazePosition) {
     this.maze = this.initializeMaze(mazeLayout);
+    // Default goal is bottom-right corner (before last wall)
+    this.goalPosition = goalPosition || { x: mazeLayout.length - 2, z: mazeLayout[0].length - 2 };
   }
 
   private initializeMaze(layout: number[][]): MazeCell[][] {
@@ -48,5 +51,13 @@ export class MazeLogic {
   ): void {
     const cell = this.maze[position.x][position.z];
     cell.questions.push({ question, answer, direction });
+  }
+
+  public isGoalReached(position: MazePosition): boolean {
+    return position.x === this.goalPosition.x && position.z === this.goalPosition.z;
+  }
+
+  public getGoalPosition(): MazePosition {
+    return { ...this.goalPosition };
   }
 }
