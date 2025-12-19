@@ -15,6 +15,17 @@
       "incorrect": "Wrong answer!",
       "tryAgain": "Try again!"
     },
+    "victory": {
+      "title": "Congratulations!",
+      "message": "You have completed the labyrinth!",
+      "score": "Score:",
+      "attempts": "Attempts:",
+      "playAgain": "Play Again"
+    },
+    "score": {
+      "label": "Score:",
+      "attempts": "Attempts:"
+    },
     "language": {
       "swedish": "Svenska",
       "english": "English",
