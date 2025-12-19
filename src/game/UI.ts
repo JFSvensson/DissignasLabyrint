@@ -24,6 +24,24 @@ export class GameUI {
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     `;
     
+    // Score display
+    const scoreDisplay = document.createElement('div');
+    scoreDisplay.id = 'score-display';
+    scoreDisplay.style.cssText = `
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 5px;
+      font-size: 14px;
+    `;
+    scoreDisplay.innerHTML = `
+      <span><strong>${i18n.t('ui.score.label')}</strong> <span id="score-value">0</span></span>
+      <span><strong>${i18n.t('ui.score.attempts')}</strong> <span id="attempts-value">0</span></span>
+    `;
+    this.container.appendChild(scoreDisplay);
+
     // Frågedisplay
     this.questionDisplay = document.createElement('div');
     this.questionDisplay.style.cssText = `
@@ -170,6 +188,18 @@ export class GameUI {
     this.messageDisplay.textContent = message;
   }
 
+  public showFeedback(message: string, type: 'success' | 'error' = 'error'): void {
+    this.messageDisplay.textContent = message;
+    this.messageDisplay.style.color = type === 'success' ? '#4CAF50' : '#ff4444';
+  }
+
+  public updateScore(score: number, attempts: number): void {
+    const scoreValue = document.getElementById('score-value');
+    const attemptsValue = document.getElementById('attempts-value');
+    if (scoreValue) scoreValue.textContent = score.toString();
+    if (attemptsValue) attemptsValue.textContent = attempts.toString();
+  }
+
   public updateQuestions(questions: Array<{ direction: string, question: string }>): void {
     // Uppdatera frågedisplayen
     this.questionDisplay.innerHTML = questions
@@ -268,5 +298,110 @@ export class GameUI {
     if (inputLabel) {
       inputLabel.textContent = i18n.t('ui.answerLabel');
     }
+  }
+
+  public showVictoryScreen(score: number, attempts: number, onPlayAgain: () => void): void {
+    // Create victory overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    `;
+
+    const victoryBox = document.createElement('div');
+    victoryBox.style.cssText = `
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      color: white;
+      font-family: Arial, sans-serif;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      max-width: 400px;
+      animation: slideIn 0.5s ease-out;
+    `;
+
+    const title = document.createElement('h1');
+    title.textContent = i18n.t('ui.victory.title');
+    title.style.cssText = `
+      font-size: 48px;
+      margin: 0 0 20px 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    `;
+
+    const message = document.createElement('p');
+    message.textContent = i18n.t('ui.victory.message');
+    message.style.cssText = `
+      font-size: 20px;
+      margin: 0 0 30px 0;
+    `;
+
+    const statsContainer = document.createElement('div');
+    statsContainer.style.cssText = `
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+    `;
+
+    const scoreText = document.createElement('p');
+    scoreText.textContent = `${i18n.t('ui.victory.score')} ${score}`;
+    scoreText.style.cssText = `
+      font-size: 24px;
+      margin: 10px 0;
+      font-weight: bold;
+    `;
+
+    const attemptsText = document.createElement('p');
+    attemptsText.textContent = `${i18n.t('ui.victory.attempts')} ${attempts}`;
+    attemptsText.style.cssText = `
+      font-size: 18px;
+      margin: 10px 0;
+    `;
+
+    const playAgainButton = document.createElement('button');
+    playAgainButton.textContent = i18n.t('ui.victory.playAgain');
+    playAgainButton.style.cssText = `
+      padding: 15px 40px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    `;
+    playAgainButton.onmouseover = () => {
+      playAgainButton.style.background = '#45a049';
+      playAgainButton.style.transform = 'scale(1.05)';
+    };
+    playAgainButton.onmouseout = () => {
+      playAgainButton.style.background = '#4CAF50';
+      playAgainButton.style.transform = 'scale(1)';
+    };
+    playAgainButton.onclick = () => {
+      document.body.removeChild(overlay);
+      onPlayAgain();
+    };
+
+    statsContainer.appendChild(scoreText);
+    statsContainer.appendChild(attemptsText);
+
+    victoryBox.appendChild(title);
+    victoryBox.appendChild(message);
+    victoryBox.appendChild(statsContainer);
+    victoryBox.appendChild(playAgainButton);
+
+    overlay.appendChild(victoryBox);
+    document.body.appendChild(overlay);
   }
 }
