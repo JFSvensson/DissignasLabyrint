@@ -17,6 +17,13 @@ export type TranslationKey =
   | 'ui.language.swedish'
   | 'ui.language.english'
   | 'ui.language.selectLanguage'
+  | 'ui.victory.title'
+  | 'ui.victory.message'
+  | 'ui.victory.score'
+  | 'ui.victory.attempts'
+  | 'ui.victory.playAgain'
+  | 'ui.score.label'
+  | 'ui.score.attempts'
   // Math operations
   | 'math.operations.addition'
   | 'math.operations.subtraction'
