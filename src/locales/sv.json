@@ -15,6 +15,17 @@
       "incorrect": "Fel svar!",
       "tryAgain": "Försök igen!"
     },
+    "victory": {
+      "title": "Grattis!",
+      "message": "Du har klarat labyrinten!",
+      "score": "Poäng:",
+      "attempts": "Försök:",
+      "playAgain": "Spela igen"
+    },
+    "score": {
+      "label": "Poäng:",
+      "attempts": "Försök:"
+    },
     "language": {
       "swedish": "Svenska",
       "english": "English",
