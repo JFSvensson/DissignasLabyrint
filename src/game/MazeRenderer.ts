@@ -122,6 +122,17 @@ export class MazeRenderer {
       }
     }
 
+    // Add goal marker (golden star/circle)
+    const goalPos = this.mazeLogic.getGoalPosition();
+    const goalGeometry = new BoxGeometry(0.8, 0.15, 0.8);
+    const goalMaterial = new MeshBasicMaterial({ 
+      color: 0xFFD700,  // Gold color
+      wireframe: false
+    });
+    const goalMarker = new Mesh(goalGeometry, goalMaterial);
+    goalMarker.position.set(goalPos.x, 0.03, goalPos.z);
+    this.scene.add(goalMarker);
+
     // Förbättrade koordinatmarkeringar
     const textMaterial = new MeshBasicMaterial({ color: 0xffffff });
     const coordinateSize = 0.4;  // Större text
