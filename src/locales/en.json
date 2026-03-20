@@ -33,6 +33,10 @@
       "swedish": "Svenska",
       "english": "English",
       "selectLanguage": "Select language:"
+    },
+    "sound": {
+      "on": "Sound on",
+      "off": "Sound off"
     }
   },
   "math": {
