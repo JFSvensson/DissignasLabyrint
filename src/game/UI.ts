@@ -39,6 +39,7 @@ export class GameUI {
     scoreDisplay.innerHTML = `
       <span><strong>${i18n.t('ui.score.label')}</strong> <span id="score-value">0</span></span>
       <span><strong>${i18n.t('ui.score.attempts')}</strong> <span id="attempts-value">0</span></span>
+      <span><strong>${i18n.t('ui.score.streak')}</strong> <span id="streak-value">0</span></span>
     `;
     this.container.appendChild(scoreDisplay);
 
@@ -193,11 +194,13 @@ export class GameUI {
     this.messageDisplay.style.color = type === 'success' ? '#4CAF50' : '#ff4444';
   }
 
-  public updateScore(score: number, attempts: number): void {
+  public updateScore(score: number, attempts: number, streak: number = 0): void {
     const scoreValue = document.getElementById('score-value');
     const attemptsValue = document.getElementById('attempts-value');
+    const streakValue = document.getElementById('streak-value');
     if (scoreValue) scoreValue.textContent = score.toString();
     if (attemptsValue) attemptsValue.textContent = attempts.toString();
+    if (streakValue) streakValue.textContent = streak.toString();
   }
 
   public updateQuestions(questions: Array<{ direction: string, question: string }>): void {
@@ -300,7 +303,7 @@ export class GameUI {
     }
   }
 
-  public showVictoryScreen(score: number, attempts: number, onPlayAgain: () => void): void {
+  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void): void {
     // Create victory overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -367,6 +370,20 @@ export class GameUI {
       margin: 10px 0;
     `;
 
+    const accuracyText = document.createElement('p');
+    accuracyText.textContent = `${i18n.t('ui.victory.accuracy')} ${accuracy}%`;
+    accuracyText.style.cssText = `
+      font-size: 18px;
+      margin: 10px 0;
+    `;
+
+    const streakText = document.createElement('p');
+    streakText.textContent = `${i18n.t('ui.victory.bestStreak')} ${bestStreak}`;
+    streakText.style.cssText = `
+      font-size: 18px;
+      margin: 10px 0;
+    `;
+
     const playAgainButton = document.createElement('button');
     playAgainButton.textContent = i18n.t('ui.victory.playAgain');
     playAgainButton.style.cssText = `
@@ -395,6 +412,8 @@ export class GameUI {
 
     statsContainer.appendChild(scoreText);
     statsContainer.appendChild(attemptsText);
+    statsContainer.appendChild(accuracyText);
+    statsContainer.appendChild(streakText);
 
     victoryBox.appendChild(title);
     victoryBox.appendChild(message);
