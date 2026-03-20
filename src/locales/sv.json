@@ -20,11 +20,14 @@
       "message": "Du har klarat labyrinten!",
       "score": "Poäng:",
       "attempts": "Försök:",
+      "accuracy": "Träffsäkerhet:",
+      "bestStreak": "Bästa svit:",
       "playAgain": "Spela igen"
     },
     "score": {
       "label": "Poäng:",
-      "attempts": "Försök:"
+      "attempts": "Försök:",
+      "streak": "Svit:"
     },
     "language": {
       "swedish": "Svenska",
