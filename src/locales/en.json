@@ -20,11 +20,14 @@
       "message": "You have completed the labyrinth!",
       "score": "Score:",
       "attempts": "Attempts:",
+      "accuracy": "Accuracy:",
+      "bestStreak": "Best streak:",
       "playAgain": "Play Again"
     },
     "score": {
       "label": "Score:",
-      "attempts": "Attempts:"
+      "attempts": "Attempts:",
+      "streak": "Streak:"
     },
     "language": {
       "swedish": "Svenska",
