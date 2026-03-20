@@ -1,12 +1,11 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2024-11-27
+%% Senast uppdaterad: 2026-03-20
 
 classDiagram
     class MazeRenderer {
         -scene: Scene
         -camera: PerspectiveCamera
         -renderer: WebGLRenderer
-        -player: Player
         -mazeLogic: MazeLogic
         -questionText: Mesh
         -font: any
@@ -15,14 +14,13 @@ classDiagram
         -setupCamera(): void
         -initMaze(mazeLayout: number[][]): void
         -updateDirectionQuestions(questions: MazeQuestion[]): void
-        +movePlayer(direction: Direction): void
-        +resetPlayerPosition(): void
+        -handleResize(): void
         +setUI(ui: GameUI): void
     }
 
     class Player {
         -mesh: Mesh
-        -position: MazePosition
+        -logic: PlayerLogic
         +constructor()
         +getMesh(): Mesh
         +getMazePosition(): MazePosition
@@ -30,26 +28,91 @@ classDiagram
         +resetPosition(): void
     }
 
+    class PlayerLogic {
+        -currentPosition: Position3D
+        -previousPosition: Position3D
+        +constructor(startPosition: Position3D)
+        +move(direction: Direction): void
+        +resetPosition(): void
+        +getMazePosition(): MazePosition
+        +getCurrentPosition(): Position3D
+    }
+
     class MazeLogic {
-        -mazeLayout: number[][]
-        -questions: Map<string, MazeQuestion[]>
-        +constructor(mazeLayout: number[][])
+        -maze: MazeCell[][]
+        -player: Player
+        -goalPosition: MazePosition
+        +constructor(mazeLayout: number[][], goalPosition?: MazePosition)
         +getQuestionsAtPosition(position: MazePosition): MazeQuestion[]
         +setQuestionForDirection(position: MazePosition, direction: Direction, question: string, answer: number): void
         +getAvailableDirections(position: MazePosition): Direction[]
+        +movePlayer(direction: Direction): void
+        +resetPlayerPosition(): void
+        +updateAvailableDirections(): void
+        +isGoalReached(position: MazePosition): boolean
+        +getGoalPosition(): MazePosition
+        +getPlayer(): Player
+    }
+
+    class MazeGenerator {
+        +static generate(width: number, height: number): number[][]
+        -static carve(maze: number[][], row: number, col: number, width: number, height: number): void
+        -static shuffleDirections(): [number, number][]
     }
 
     class GameUI {
         -container: HTMLDivElement
         -questionDisplay: HTMLDivElement
         -answerInput: HTMLInputElement
-        -directionButtons: Map<string, HTMLButtonElement>
-        +constructor(containerId: string, onAnswer: Function)
+        -directionButtons: Map~string, HTMLButtonElement~
+        -soundManager: SoundManager
+        +constructor(containerId: string, onAnswer: Function, soundManager?: SoundManager)
         +updateQuestions(questions: MazeQuestion[]): void
+        +showFeedback(message: string, type: string): void
+        +updateScore(score: number, attempts: number, streak: number): void
+        +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function): void
     }
 
     class QuestionGenerator {
+        -static easyOperations: Operation[]
+        -static allOperations: Operation[]
         +static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][]): void
+        +static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number): number
+        +static getMaxForDifficulty(difficulty: number): number
+        +static getOperationsForDifficulty(difficulty: number): Operation[]
+    }
+
+    class ScoreTracker {
+        -score: number
+        -attempts: number
+        -streak: number
+        -bestStreak: number
+        +recordAnswer(correct: boolean): void
+        +getScore(): number
+        +getAttempts(): number
+        +getStreak(): number
+        +getBestStreak(): number
+        +getAccuracy(): number
+        +reset(): void
+    }
+
+    class SoundManager {
+        -ctx: AudioContext
+        -enabled: boolean
+        +setEnabled(enabled: boolean): void
+        +isEnabled(): boolean
+        +playCorrect(): void
+        +playIncorrect(): void
+        +playVictory(): void
+        +playMove(): void
+    }
+
+    class Operation {
+        <<interface>>
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
     }
 
     %% Interfaces och typer
@@ -68,17 +131,21 @@ classDiagram
 
     class Direction {
         <<enumeration>>
-        FORWARD
-        BACK
-        LEFT
-        RIGHT
+        NORTH
+        SOUTH
+        EAST
+        WEST
     }
 
     %% Relationer
-    MazeRenderer --> Player
     MazeRenderer --> MazeLogic
     MazeRenderer --> GameUI
+    MazeLogic --> Player
+    MazeLogic --|> EventEmitter
+    Player --> PlayerLogic
     MazeLogic --> MazeQuestion
     Player --> MazePosition
     QuestionGenerator --> MazeLogic
+    QuestionGenerator --> Operation
     GameUI ..> MazeQuestion
+    GameUI --> SoundManager
