@@ -5,7 +5,10 @@ import { Direction } from './game/types';
 import { QuestionGenerator } from './game/QuestionGenerator';
 import { GameUI } from './game/UI';
 import { ScoreTracker } from './game/ScoreTracker';
+import { SoundManager } from './game/SoundManager';
 import { i18n } from './services/TranslationService';
+
+const soundManager = new SoundManager();
 
 export function initWebGame() {
   // Set initial HTML lang attribute
@@ -33,14 +36,17 @@ export function initWebGame() {
       if (questionForDirection && answer === questionForDirection.answer) {
         // Correct answer
         scoreTracker.recordAnswer(true);
+        soundManager.playCorrect();
         gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
         gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
         
         mazeLogic.movePlayer(direction as Direction);
+        soundManager.playMove();
         
         // Check for win condition after move
         const newPos = mazeLogic.getPlayer().getMazePosition();
         if (mazeLogic.isGoalReached(newPos)) {
+          soundManager.playVictory();
           setTimeout(() => {
             gameUI.showVictoryScreen(
               scoreTracker.getScore(),
@@ -61,11 +67,12 @@ export function initWebGame() {
       } else {
         // Incorrect answer
         scoreTracker.recordAnswer(false);
+        soundManager.playIncorrect();
         gameUI.showFeedback(i18n.t('ui.feedback.incorrect'), 'error');
         gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
         mazeLogic.resetPlayerPosition();
       }
-    });
+    }, soundManager);
 
     // Uppdatera MazeRenderer för att känna till UI:n
     mazeRenderer.setUI(gameUI);
