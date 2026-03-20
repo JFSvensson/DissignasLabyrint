@@ -1,11 +1,16 @@
+import { EventEmitter } from 'events';
 import { Direction, MazePosition, MazeQuestion, MazeCell } from './types';
+import { Player } from './Player';
 
-export class MazeLogic {
+export class MazeLogic extends EventEmitter {
   private maze: MazeCell[][];
+  private player: Player;
   private goalPosition: MazePosition;
 
   constructor(mazeLayout: number[][], goalPosition?: MazePosition) {
+    super();
     this.maze = this.initializeMaze(mazeLayout);
+    this.player = new Player();
     // Default goal is bottom-right corner (before last wall)
     this.goalPosition = goalPosition || { x: mazeLayout.length - 2, z: mazeLayout[0].length - 2 };
   }
@@ -59,5 +64,25 @@ export class MazeLogic {
 
   public getGoalPosition(): MazePosition {
     return { ...this.goalPosition };
+  }
+
+  public getPlayer(): Player {
+    return this.player;
+  }
+
+  public movePlayer(direction: Direction): void {
+    this.player.move(direction);
+    this.updateAvailableDirections();
+  }
+
+  public resetPlayerPosition(): void {
+    this.player.resetPosition();
+    this.updateAvailableDirections();
+  }
+
+  public updateAvailableDirections(): void {
+    const currentPos = this.player.getMazePosition();
+    const questions = this.getQuestionsAtPosition(currentPos);
+    this.emit('directionsUpdated', questions);
   }
 }

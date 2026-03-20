@@ -33,9 +33,9 @@ export function initWebGame() {
     // Skicka med mazeLogic till MazeRenderer
     const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
 
-    // Skapa UI
+    // Skapa UI — spellogik hanteras via mazeLogic
     const gameUI = new GameUI('maze-container', (answer: number, direction: string) => {
-      const currentPos = mazeRenderer.getPlayer().getMazePosition();
+      const currentPos = mazeLogic.getPlayer().getMazePosition();
       const questions = mazeLogic.getQuestionsAtPosition(currentPos);
       const questionForDirection = questions.find(q => q.direction === direction);
 
@@ -45,10 +45,10 @@ export function initWebGame() {
         gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
         gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts());
         
-        mazeRenderer.movePlayer(direction as Direction);
+        mazeLogic.movePlayer(direction as Direction);
         
         // Check for win condition after move
-        const newPos = mazeRenderer.getPlayer().getMazePosition();
+        const newPos = mazeLogic.getPlayer().getMazePosition();
         if (mazeLogic.isGoalReached(newPos)) {
           setTimeout(() => {
             gameUI.showVictoryScreen(
@@ -70,7 +70,7 @@ export function initWebGame() {
         scoreTracker.recordAnswer(false);
         gameUI.showFeedback(i18n.t('ui.feedback.incorrect'), 'error');
         gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts());
-        mazeRenderer.resetPlayerPosition();
+        mazeLogic.resetPlayerPosition();
       }
     });
 

@@ -10,21 +10,18 @@ import {
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
-import { Player } from './Player';
-import { PlayerLogic } from './PlayerLogic';
 import { MazeLogic } from './MazeLogic';
-import { Direction, MazeQuestion } from './types';
+import { MazeQuestion } from './types';
 import { GameUI } from './UI';
 
 export class MazeRenderer {
   private scene: Scene;
   private camera: PerspectiveCamera;
   private renderer: WebGLRenderer;
-  private player: Player;
   private mazeLogic: MazeLogic;
   private questionText: Mesh | null = null;
   private font: any = null;
-  private ui: GameUI | null = null;  // Lägg till denna property
+  private ui: GameUI | null = null;
   private maze: Group;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
@@ -46,13 +43,17 @@ export class MazeRenderer {
     
     container?.appendChild(this.renderer.domElement);
 
-    this.mazeLogic = mazeLogic;  // Använd den delade instansen
-    this.player = new Player();
-    this.scene.add(this.player.getMesh());
+    this.mazeLogic = mazeLogic;
+    this.scene.add(this.mazeLogic.getPlayer().getMesh());
 
     this.maze = new Group();
     this.maze.rotation.y = Math.PI / 2;  // Rotera 90 grader moturs
     this.scene.add(this.maze);
+
+    // Lyssna på händelser från MazeLogic
+    this.mazeLogic.on('directionsUpdated', (questions: MazeQuestion[]) => {
+      this.updateDirectionQuestions(questions);
+    });
 
     this.loadFont().then(() => {
       this.initMaze(mazeLayout);
@@ -197,7 +198,7 @@ export class MazeRenderer {
       (font) => {
         console.log('Font loaded successfully');
         this.font = font;
-        this.updateAvailableDirections();
+        this.mazeLogic.updateAvailableDirections();
       },
       // Progress callback
       (xhr) => {
@@ -221,13 +222,6 @@ export class MazeRenderer {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private updateAvailableDirections(): void {
-    const currentPos = this.player.getMazePosition();
-    const questions = this.mazeLogic.getQuestionsAtPosition(currentPos);
-    console.log('Available questions:', questions);  // Debug log
-    this.updateDirectionQuestions(questions);
-  }
-
   private updateDirectionQuestions(questions: MazeQuestion[]): void {
     // Ta bort existerande text om den finns
     if (this.questionText) {
@@ -248,30 +242,14 @@ export class MazeRenderer {
     }
   }
 
-  public movePlayer(direction: Direction): void {
-    this.player.move(direction);
-    this.updateAvailableDirections();
-  }
-
-  public resetPlayerPosition(): void {
-    this.player.resetPosition();
-    this.updateAvailableDirections();
-  }
-
-  public getPlayer(): Player {
-    return this.player;
-  }
-
   public getMazeLogic(): MazeLogic {
     return this.mazeLogic;
   }
 
   public setUI(ui: GameUI): void {
     this.ui = ui;
-    // Uppdatera UI:n med initiala frågor
-    const currentPos = this.player.getMazePosition();
-    const questions = this.mazeLogic.getQuestionsAtPosition(currentPos);
-    this.updateDirectionQuestions(questions);
+    // Trigga initial uppdatering av riktningar
+    this.mazeLogic.updateAvailableDirections();
   }
 
   private handleResize(): void {
