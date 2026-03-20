@@ -34,7 +34,7 @@ export function initWebGame() {
         // Correct answer
         scoreTracker.recordAnswer(true);
         gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
-        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts());
+        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
         
         mazeLogic.movePlayer(direction as Direction);
         
@@ -45,6 +45,8 @@ export function initWebGame() {
             gameUI.showVictoryScreen(
               scoreTracker.getScore(),
               scoreTracker.getAttempts(),
+              scoreTracker.getAccuracy(),
+              scoreTracker.getBestStreak(),
               () => {
                 // Reset and start new game
                 const container = document.getElementById('maze-container');
@@ -60,7 +62,7 @@ export function initWebGame() {
         // Incorrect answer
         scoreTracker.recordAnswer(false);
         gameUI.showFeedback(i18n.t('ui.feedback.incorrect'), 'error');
-        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts());
+        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
         mazeLogic.resetPlayerPosition();
       }
     });
