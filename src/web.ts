@@ -1,5 +1,6 @@
 import { MazeRenderer } from './game/MazeRenderer';
 import { MazeLogic } from './game/MazeLogic';
+import { MazeGenerator } from './game/MazeGenerator';
 import { Direction } from './game/types';
 import { QuestionGenerator } from './game/QuestionGenerator';
 import { GameUI } from './game/UI';
@@ -12,17 +13,7 @@ export function initWebGame() {
   document.title = i18n.t('game.title');
 
   const startGame = () => {
-    const mazeLayout = [
-      [1, 1, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      [1, 0, 1, 0, 0, 0, 1, 0, 1],
-      [1, 0, 1, 0, 0, 1, 1, 0, 1],
-      [1, 0, 1, 1, 1, 1, 1, 1, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 0, 1, 1, 1, 1, 1, 0, 1],
-      [1, 0, 0, 0, 0, 0, 0, 0, 1],
-      [1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ];
+    const mazeLayout = MazeGenerator.generate(9, 9);
 
     const mazeLogic = new MazeLogic(mazeLayout);
     const scoreTracker = new ScoreTracker();
