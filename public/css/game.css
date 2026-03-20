@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -16,13 +20,45 @@ body {
 #maze-container {
     flex: 1;
     position: relative;
-    max-height: 80vh;
+    min-height: 0;
 }
 
 #ui-container {
-    height: 20vh;
     position: relative;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+/* Landscape on larger screens: side-by-side layout */
+@media (min-width: 768px) and (orientation: landscape) {
+    #game-container {
+        flex-direction: row;
+    }
+
+    #maze-container {
+        flex: 1;
+        max-height: 100vh;
+    }
+
+    #ui-container {
+        width: 350px;
+        max-width: 40vw;
+        align-items: center;
+        padding: 15px;
+    }
+}
+
+/* Small screens / portrait: stack vertically */
+@media (max-width: 767px) {
+    #maze-container {
+        max-height: 55vh;
+    }
+
+    #ui-container {
+        flex: 1;
+        padding: 8px;
+    }
 }
