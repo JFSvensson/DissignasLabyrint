@@ -1,6 +1,7 @@
 import { Direction } from './types';
 import { i18n } from '../services/TranslationService';
 import { SupportedLocale } from '../locales';
+import { SoundManager } from './SoundManager';
 
 export class GameUI {
   private container: HTMLDivElement;
@@ -9,8 +10,10 @@ export class GameUI {
   private directionButtons: Map<string, HTMLButtonElement>;
   private messageDisplay: HTMLDivElement;
   private languageSwitcher: HTMLDivElement;
+  private soundManager: SoundManager | null;
 
-  constructor(containerId: string, onAnswer: (answer: number, direction: string) => void) {
+  constructor(containerId: string, onAnswer: (answer: number, direction: string) => void, soundManager?: SoundManager) {
+    this.soundManager = soundManager || null;
     // Huvudcontainer
     this.container = document.createElement('div');
     this.container.style.cssText = `
@@ -170,6 +173,11 @@ export class GameUI {
     this.languageSwitcher = this.createLanguageSwitcher();
     this.container.appendChild(this.languageSwitcher);
 
+    // Sound toggle
+    if (this.soundManager) {
+      this.container.appendChild(this.createSoundToggle(this.soundManager));
+    }
+
     document.getElementById('ui-container')?.appendChild(this.container);
 
     // Listen for locale changes
@@ -269,6 +277,36 @@ export class GameUI {
       container.appendChild(button);
     });
 
+    return container;
+  }
+
+  private createSoundToggle(sm: SoundManager): HTMLDivElement {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+    `;
+
+    const button = document.createElement('button');
+    const update = () => {
+      button.textContent = sm.isEnabled() ? '🔊 ' + i18n.t('ui.sound.on') : '🔇 ' + i18n.t('ui.sound.off');
+    };
+    update();
+    button.style.cssText = `
+      padding: 5px 15px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    `;
+    button.onclick = () => {
+      sm.setEnabled(!sm.isEnabled());
+      update();
+    };
+    container.appendChild(button);
     return container;
   }
 
