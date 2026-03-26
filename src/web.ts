@@ -185,5 +185,10 @@ export function initWebGame() {
 if (typeof window !== 'undefined') {
   window.onload = () => {
     initWebGame();
+
+    // Register service worker for PWA / offline support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
   };
 }
