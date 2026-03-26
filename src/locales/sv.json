@@ -1,4 +1,18 @@
 {
+  "math": {
+    "operations": {
+      "addition": "Addition",
+      "subtraction": "Subtraktion",
+      "multiplication": "Multiplikation",
+      "division": "Division"
+    }
+  },
+  "game": {
+    "title": "Dissignas Labyrint",
+    "welcome": "Välkommen till Matematiska Labyrinten!",
+    "timeUp": "Tiden är slut!",
+    "nextLevel": "Nästa nivå"
+  },
   "ui": {
     "answerLabel": "Svar:",
     "directions": {
@@ -22,7 +36,8 @@
       "attempts": "Försök:",
       "accuracy": "Träffsäkerhet:",
       "bestStreak": "Bästa svit:",
-      "playAgain": "Spela igen"
+      "playAgain": "Spela igen",
+      "timeRemaining": "Tid kvar:"
     },
     "score": {
       "label": "Poäng:",
@@ -37,18 +52,38 @@
     "sound": {
       "on": "Ljud på",
       "off": "Ljud av"
+    },
+    "settings": {
+      "mazeSize": "Labyrintstorlek:",
+      "mathDifficulty": "Mattesvårighet:",
+      "easy": "Enkel",
+      "medium": "Medel",
+      "hard": "Svår",
+      "timer": "Tidsgräns:",
+      "timerOff": "Av",
+      "start": "Starta spelet",
+      "startLevel": "Starta nivå"
+    },
+    "level": {
+      "label": "Nivå",
+      "complete": "Nivå avklarad!"
+    },
+    "tutorial": {
+      "howToPlay": "Hur man spelar",
+      "title": "Hur man spelar",
+      "step1": "Du befinner dig i övre vänstra hörnet av labyrinten.",
+      "step2": "Varje riktning har en mattefråga. Skriv ditt svar i fältet.",
+      "step3": "Tryck på en riktningsknapp för att svara och flytta dig.",
+      "step4": "Fel svar skickar tillbaka dig! Rätt svar flyttar dig framåt.",
+      "step5": "Nå det gyllene målet i nedre högra hörnet för att vinna!",
+      "tip": "Frågorna blir svårare ju närmare målet du kommer. Bygg upp en svit för bonuspoäng!",
+      "close": "Uppfattat!"
+    },
+    "timeUp": {
+      "title": "Tiden är slut!",
+      "message": "Du hann inte klara labyrinten i tid.",
+      "tryAgain": "Försök igen",
+      "backToMenu": "Tillbaka till menyn"
     }
-  },
-  "math": {
-    "operations": {
-      "addition": "Addition",
-      "subtraction": "Subtraktion",
-      "multiplication": "Multiplikation",
-      "division": "Division"
-    }
-  },
-  "game": {
-    "title": "Dissignas Labyrint",
-    "welcome": "Välkommen till Matematiska Labyrinten!"
   }
 }
