@@ -5,6 +5,7 @@ import { Subtraction } from '../operations/Subtraction';
 import { Multiplication } from '../operations/Multiplication';
 import { Division } from '../operations/Division';
 import { Operation } from '../operations/Operation';
+import { MathDifficulty, mathDifficultyToBase } from './GameConfig';
 
 export class QuestionGenerator {
   private static easyOperations: Operation[] = [
@@ -22,15 +23,19 @@ export class QuestionGenerator {
   /**
    * Returns a difficulty level (1-3) based on Manhattan distance from start (1,1)
    * to the given position, relative to the goal position.
+   * The baseDifficulty parameter shifts the range up (0=normal, 1=medium, 2=hard).
    */
-  public static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number): number {
-    const maxDistance = (mazeWidth - 2) + (mazeHeight - 2); // distance from (1,1) to goal
+  public static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number, baseDifficulty: number = 0): number {
+    const maxDistance = (mazeWidth - 2) + (mazeHeight - 2);
     const distance = Math.abs(position.x - 1) + Math.abs(position.z - 1);
     const ratio = distance / maxDistance;
 
-    if (ratio < 0.33) return 1;
-    if (ratio < 0.66) return 2;
-    return 3;
+    let level: number;
+    if (ratio < 0.33) level = 1;
+    else if (ratio < 0.66) level = 2;
+    else level = 3;
+
+    return Math.min(3, level + baseDifficulty);
   }
 
   /**
@@ -54,15 +59,16 @@ export class QuestionGenerator {
     return difficulty <= 1 ? this.easyOperations : this.allOperations;
   }
 
-  public static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][]): void {
+  public static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void {
     const mazeHeight = mazeLayout.length;
     const mazeWidth = mazeLayout[0].length;
+    const baseDiff = mathDifficulty ? mathDifficultyToBase(mathDifficulty) : 0;
 
     for (let x = 0; x < mazeHeight; x++) {
       for (let z = 0; z < mazeWidth; z++) {
         if (mazeLayout[x][z] === 0) {
           const position: MazePosition = { x, z };
-          const difficulty = this.getDifficulty(position, mazeWidth, mazeHeight);
+          const difficulty = this.getDifficulty(position, mazeWidth, mazeHeight, baseDiff);
           const max = this.getMaxForDifficulty(difficulty);
           const operations = this.getOperationsForDifficulty(difficulty);
           const availableDirections = mazeLogic.getAvailableDirections(position);
