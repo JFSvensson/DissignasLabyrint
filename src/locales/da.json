@@ -38,7 +38,9 @@
       "bestStreak": "Bedste serie:",
       "playAgain": "Spil igen",
       "timeRemaining": "Tid tilbage:",
-      "newHighScore": "Ny highscore!"
+      "newHighScore": "Ny highscore!",
+      "share": "Del resultat",
+      "copied": "Kopieret!"
     },
     "score": {
       "label": "Point:",

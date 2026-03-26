@@ -38,7 +38,9 @@
       "bestStreak": "Best streak:",
       "playAgain": "Play Again",
       "timeRemaining": "Time remaining:",
-      "newHighScore": "New high score!"
+      "newHighScore": "New high score!",
+      "share": "Share result",
+      "copied": "Copied!"
     },
     "score": {
       "label": "Score:",

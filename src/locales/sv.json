@@ -38,7 +38,9 @@
       "bestStreak": "Bästa svit:",
       "playAgain": "Spela igen",
       "timeRemaining": "Tid kvar:",
-      "newHighScore": "Nytt highscore!"
+      "newHighScore": "Nytt highscore!",
+      "share": "Dela resultat",
+      "copied": "Kopierat!"
     },
     "score": {
       "label": "Poäng:",
