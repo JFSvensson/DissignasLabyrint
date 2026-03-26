@@ -1,5 +1,5 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-03-20
+%% Senast uppdaterad: 2026-03-26
 
 classDiagram
     class MazeRenderer {
@@ -65,12 +65,18 @@ classDiagram
         -questionDisplay: HTMLDivElement
         -answerInput: HTMLInputElement
         -directionButtons: Map~string, HTMLButtonElement~
+        -messageDisplay: HTMLDivElement
+        -languageSwitcher: HTMLDivElement
         -soundManager: SoundManager
         +constructor(containerId: string, onAnswer: Function, soundManager?: SoundManager)
-        +updateQuestions(questions: MazeQuestion[]): void
+        +updateQuestions(questions: Array): void
         +showFeedback(message: string, type: string): void
         +updateScore(score: number, attempts: number, streak: number): void
         +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function): void
+        -createLanguageSwitcher(): HTMLDivElement
+        -createSoundToggle(sm: SoundManager): HTMLDivElement
+        -updateTranslations(): void
+        -getActiveButton(): HTMLButtonElement
     }
 
     class QuestionGenerator {
@@ -105,10 +111,55 @@ classDiagram
         +playIncorrect(): void
         +playVictory(): void
         +playMove(): void
+        -playTone(frequency: number, duration: number, type: OscillatorType, delay: number, volume: number): void
+    }
+
+    class TranslationService {
+        -static instance: TranslationService
+        -currentLocale: SupportedLocale
+        -translations: Record
+        -listeners: Set~Function~
+        +static getInstance(): TranslationService
+        +t(key: string): string
+        +setLocale(locale: SupportedLocale): void
+        +getLocale(): SupportedLocale
+        +getSupportedLocales(): SupportedLocale[]
+        +onChange(callback: Function): void
+        +offChange(callback: Function): void
+        -detectLocale(): SupportedLocale
+        -notifyListeners(): void
     }
 
     class Operation {
         <<interface>>
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    class Addition {
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    class Subtraction {
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    class Multiplication {
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    class Division {
         +calculate(a: number, b: number): number
         +formatQuestion(a: number, b: number): string
         +generateNumbers(max: number): [number, number]
@@ -123,9 +174,23 @@ classDiagram
         +answer: number
     }
 
+    class MazeCell {
+        <<interface>>
+        +position: MazePosition
+        +questions: MazeQuestion[]
+        +isWall: boolean
+    }
+
     class MazePosition {
         <<interface>>
         +x: number
+        +z: number
+    }
+
+    class Position3D {
+        <<interface>>
+        +x: number
+        +y: number
         +z: number
     }
 
@@ -138,14 +203,21 @@ classDiagram
     }
 
     %% Relationer
-    MazeRenderer --> MazeLogic
-    MazeRenderer --> GameUI
-    MazeLogic --> Player
-    MazeLogic --|> EventEmitter
-    Player --> PlayerLogic
-    MazeLogic --> MazeQuestion
-    Player --> MazePosition
-    QuestionGenerator --> MazeLogic
-    QuestionGenerator --> Operation
-    GameUI ..> MazeQuestion
-    GameUI --> SoundManager
+    MazeRenderer --> MazeLogic : renders
+    MazeRenderer --> GameUI : updates
+    MazeLogic --> Player : manages
+    MazeLogic --> MazeCell : contains
+    MazeLogic --|> EventEmitter : extends
+    Player --> PlayerLogic : delegates to
+    PlayerLogic --> Position3D : tracks
+    PlayerLogic --> MazePosition : exposes
+    MazeCell --> MazeQuestion : contains
+    QuestionGenerator --> MazeLogic : populates
+    QuestionGenerator --> Operation : uses
+    GameUI --> SoundManager : plays sounds
+    GameUI --> TranslationService : translates
+    Addition ..|> Operation : implements
+    Subtraction ..|> Operation : implements
+    Multiplication ..|> Operation : implements
+    Division ..|> Operation : implements
+    MazeGenerator ..> MazeLogic : generates layout for
