@@ -1,0 +1,103 @@
+{
+  "math": {
+    "operations": {
+      "addition": "Yhteenlasku",
+      "subtraction": "Vähennyslasku",
+      "multiplication": "Kertolasku",
+      "division": "Jakolasku"
+    }
+  },
+  "game": {
+    "title": "Dissignan Labyrintti",
+    "welcome": "Tervetuloa matemaattiseen labyrinttiin!",
+    "timeUp": "Aika loppui!",
+    "nextLevel": "Seuraava taso"
+  },
+  "ui": {
+    "answerLabel": "Vastaus:",
+    "directions": {
+      "north": "POHJOINEN",
+      "south": "ETELÄ",
+      "east": "ITÄ",
+      "west": "LÄNSI"
+    },
+    "validation": {
+      "invalidNumber": "Syötä kelvollinen numero!"
+    },
+    "feedback": {
+      "correct": "Oikein!",
+      "incorrect": "Väärin!",
+      "tryAgain": "Yritä uudelleen!"
+    },
+    "victory": {
+      "title": "Onnittelut!",
+      "message": "Olet läpäissyt labyrintin!",
+      "score": "Pisteet:",
+      "attempts": "Yritykset:",
+      "accuracy": "Tarkkuus:",
+      "bestStreak": "Paras putki:",
+      "playAgain": "Pelaa uudelleen",
+      "timeRemaining": "Aikaa jäljellä:",
+      "newHighScore": "Uusi ennätys!"
+    },
+    "score": {
+      "label": "Pisteet:",
+      "attempts": "Yritykset:",
+      "streak": "Putki:"
+    },
+    "language": {
+      "swedish": "Svenska",
+      "english": "English",
+      "norwegian": "Norsk",
+      "finnish": "Suomi",
+      "danish": "Dansk",
+      "selectLanguage": "Valitse kieli:"
+    },
+    "sound": {
+      "on": "Ääni päällä",
+      "off": "Ääni pois"
+    },
+    "settings": {
+      "mazeSize": "Labyrintin koko:",
+      "mathDifficulty": "Matikan vaikeus:",
+      "easy": "Helppo",
+      "medium": "Keskitaso",
+      "hard": "Vaikea",
+      "timer": "Aikaraja:",
+      "timerOff": "Pois",
+      "start": "Aloita peli",
+      "startLevel": "Aloita taso"
+    },
+    "level": {
+      "label": "Taso",
+      "complete": "Taso läpäisty!"
+    },
+    "tutorial": {
+      "howToPlay": "Kuinka pelata",
+      "title": "Kuinka pelata",
+      "step1": "Aloitat labyrintin vasemmasta yläkulmasta.",
+      "step2": "Jokaisessa suunnassa on matikkakysymys. Kirjoita vastauksesi kenttään.",
+      "step3": "Paina suuntapainiketta vastataksesi ja liikkuaksesi.",
+      "step4": "Väärä vastaus palauttaa sinut takaisin! Oikea vastaus vie sinua eteenpäin.",
+      "step5": "Saavuta kultainen maali oikeassa alakulmassa voittaaksesi!",
+      "tip": "Kysymykset vaikeutuvat lähempänä maalia. Rakenna putkia bonuspisteisiin!",
+      "close": "Selvä!"
+    },
+    "timeUp": {
+      "title": "Aika loppui!",
+      "message": "Et ehtinyt läpäistä labyrinttia ajoissa.",
+      "tryAgain": "Yritä uudelleen",
+      "backToMenu": "Takaisin valikkoon"
+    },
+    "highscore": {
+      "title": "Tuloslista",
+      "empty": "Ei tuloksia vielä. Pelaa kierros!",
+      "level": "Taso",
+      "date": "Päivämäärä"
+    },
+    "stats": {
+      "gamesWon": "Voitot",
+      "highestLevel": "Korkein taso"
+    }
+  }
+}
