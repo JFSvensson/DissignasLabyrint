@@ -3,6 +3,88 @@
 ---
 
 # The Labyrinth of Dissigna
-A game of math and logic set in a world of norse mythology.
+A game of math and logic set in a world of Norse mythology.
 
-Currently under heavy development...
+## About
+
+Dissignas Labyrint is an educational web game where the player navigates a 3D maze by solving math problems. The difficulty increases as you progress deeper into the labyrinth — from simple addition near the entrance to multiplication and division near the goal.
+
+**Features:**
+- 3D maze rendered with Three.js
+- 4 math operations: addition, subtraction, multiplication, division
+- Progressive difficulty based on maze position
+- Score tracking with streak bonuses
+- Multi-language support (Swedish / English)
+- Procedural sound effects (Web Audio API)
+- Responsive design (desktop & mobile)
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- npm
+
+### Install dependencies
+```bash
+npm install
+```
+
+### Run in development mode
+```bash
+npm run dev
+```
+Open http://localhost:8080 in your browser.
+
+### Build for production
+```bash
+npm run build
+```
+Output is written to the `dist/` folder.
+
+### Run tests
+```bash
+npm test
+```
+
+## Project Structure
+
+```
+src/
+  web.ts                  # Entry point
+  game/
+    MazeGenerator.ts      # Recursive backtracking maze algorithm
+    MazeLogic.ts          # Game state, movement, events
+    MazeRenderer.ts       # Three.js 3D rendering
+    Player.ts             # Player entity (logic + mesh)
+    PlayerLogic.ts        # Pure player state management
+    QuestionGenerator.ts  # Difficulty-scaled math questions
+    ScoreTracker.ts       # Points, streaks, accuracy
+    SoundManager.ts       # Procedural audio (Web Audio API)
+    UI.ts                 # Game UI (DOM)
+    types.ts              # TypeScript type definitions
+    constants.ts          # Game constants
+  operations/             # Math operations (Addition, Subtraction, etc.)
+  services/
+    TranslationService.ts # i18n singleton
+  locales/                # sv.json, en.json
+  types/
+    translations.ts       # Type-safe translation keys
+tests/                    # Jest test suite
+public/
+  index.html
+  css/game.css
+  docs/                   # Architecture documentation & diagrams
+```
+
+## How to Play
+
+1. You start at the top-left corner of the maze
+2. Available directions show math questions to solve
+3. Enter your answer and click a direction button
+4. Correct answer → you move in that direction
+5. Wrong answer → you are sent back to start
+6. Reach the golden goal at the bottom-right to win!
+
+## License
+
+ISC
