@@ -10,6 +10,7 @@ import { i18n } from './services/TranslationService';
 import { StartScreen } from './game/StartScreen';
 import { GameConfig, LEVELS } from './game/GameConfig';
 import { GameTimer } from './game/GameTimer';
+import { stats } from './game/StatsManager';
 
 const soundManager = new SoundManager();
 const startScreen = new StartScreen();
@@ -63,6 +64,17 @@ function startGame(config: GameConfig, level?: number) {
       if (mazeLogic.isGoalReached(newPos)) {
         if (activeTimer) { activeTimer.stop(); }
         soundManager.playVictory();
+        const timeRemaining = activeTimer ? activeTimer.getRemainingSeconds() : undefined;
+        const isNewHighScore = stats.saveGameResult({
+          level: level ?? 0,
+          score: scoreTracker.getScore(),
+          accuracy: scoreTracker.getAccuracy(),
+          bestStreak: scoreTracker.getBestStreak(),
+          mazeSize: config.mazeSize,
+          difficulty: config.mathDifficulty,
+          timeRemaining,
+          date: new Date().toISOString(),
+        });
         setTimeout(() => {
           const nextLevel = level !== undefined ? level + 1 : undefined;
           gameUI.showVictoryScreen(
@@ -75,7 +87,7 @@ function startGame(config: GameConfig, level?: number) {
               startScreen.remove();
               showStartScreen(nextLevel);
             },
-            activeTimer ? activeTimer.getRemainingSeconds() : undefined,
+            timeRemaining,
             nextLevel !== undefined && nextLevel <= LEVELS.length ? () => {
               currentLevel = nextLevel!;
               const def = LEVELS[Math.min(currentLevel - 1, LEVELS.length - 1)];
@@ -85,7 +97,8 @@ function startGame(config: GameConfig, level?: number) {
                 timerEnabled: def.timerSeconds > 0,
                 timerSeconds: def.timerSeconds,
               }, currentLevel);
-            } : undefined
+            } : undefined,
+            isNewHighScore
           );
         }, 500);
       }
