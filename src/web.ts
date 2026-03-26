@@ -7,78 +7,166 @@ import { GameUI } from './game/UI';
 import { ScoreTracker } from './game/ScoreTracker';
 import { SoundManager } from './game/SoundManager';
 import { i18n } from './services/TranslationService';
+import { StartScreen } from './game/StartScreen';
+import { GameConfig, LEVELS } from './game/GameConfig';
+import { GameTimer } from './game/GameTimer';
 
 const soundManager = new SoundManager();
+const startScreen = new StartScreen();
+let currentLevel = 1;
+let activeTimer: GameTimer | null = null;
+
+export function showStartScreen(level?: number) {
+  // Clean up any running timer
+  if (activeTimer) { activeTimer.stop(); activeTimer = null; }
+
+  const container = document.getElementById('maze-container');
+  if (container) container.innerHTML = '';
+  const uiContainer = document.getElementById('ui-container');
+  if (uiContainer) uiContainer.innerHTML = '';
+
+  startScreen.show((config) => {
+    startGame(config, level);
+  }, level);
+}
+
+function startGame(config: GameConfig, level?: number) {
+  // Clean containers
+  const mazeContainer = document.getElementById('maze-container');
+  if (mazeContainer) mazeContainer.innerHTML = '';
+  const uiContainer = document.getElementById('ui-container');
+  if (uiContainer) uiContainer.innerHTML = '';
+
+  const mazeLayout = MazeGenerator.generate(config.mazeSize, config.mazeSize);
+  const mazeLogic = new MazeLogic(mazeLayout);
+  const scoreTracker = new ScoreTracker();
+
+  QuestionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout, config.mathDifficulty);
+
+  const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
+
+  const gameUI = new GameUI('maze-container', (answer: number, direction: string) => {
+    const currentPos = mazeLogic.getPlayer().getMazePosition();
+    const questions = mazeLogic.getQuestionsAtPosition(currentPos);
+    const questionForDirection = questions.find(q => q.direction === direction);
+
+    if (questionForDirection && answer === questionForDirection.answer) {
+      scoreTracker.recordAnswer(true);
+      soundManager.playCorrect();
+      gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
+      gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
+
+      mazeLogic.movePlayer(direction as Direction);
+      soundManager.playMove();
+
+      const newPos = mazeLogic.getPlayer().getMazePosition();
+      if (mazeLogic.isGoalReached(newPos)) {
+        if (activeTimer) { activeTimer.stop(); }
+        soundManager.playVictory();
+        setTimeout(() => {
+          const nextLevel = level !== undefined ? level + 1 : undefined;
+          gameUI.showVictoryScreen(
+            scoreTracker.getScore(),
+            scoreTracker.getAttempts(),
+            scoreTracker.getAccuracy(),
+            scoreTracker.getBestStreak(),
+            () => {
+              // Play again at same settings
+              startScreen.remove();
+              showStartScreen(nextLevel);
+            },
+            activeTimer ? activeTimer.getRemainingSeconds() : undefined,
+            nextLevel !== undefined && nextLevel <= LEVELS.length ? () => {
+              currentLevel = nextLevel!;
+              const def = LEVELS[Math.min(currentLevel - 1, LEVELS.length - 1)];
+              startGame({
+                mazeSize: def.mazeSize,
+                mathDifficulty: def.mathDifficulty,
+                timerEnabled: def.timerSeconds > 0,
+                timerSeconds: def.timerSeconds,
+              }, currentLevel);
+            } : undefined
+          );
+        }, 500);
+      }
+    } else {
+      scoreTracker.recordAnswer(false);
+      soundManager.playIncorrect();
+      gameUI.showFeedback(i18n.t('ui.feedback.incorrect'), 'error');
+      gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
+      mazeLogic.resetPlayerPosition();
+    }
+  }, soundManager);
+
+  // Timer
+  if (config.timerEnabled && config.timerSeconds > 0) {
+    activeTimer = new GameTimer(config.timerSeconds, () => {
+      // Time's up — show time-up overlay
+      showTimeUpScreen(() => {
+        startGame(config, level);
+      }, () => {
+        showStartScreen();
+      });
+    });
+    gameUI.setTimer(activeTimer);
+    activeTimer.start();
+  }
+
+  // Level indicator
+  if (level !== undefined) {
+    gameUI.setLevel(level);
+  }
+
+  mazeRenderer.setUI(gameUI);
+}
+
+function showTimeUpScreen(onRetry: () => void, onMenu: () => void) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.9); display: flex; justify-content: center;
+    align-items: center; z-index: 1000; font-family: Arial, sans-serif;
+  `;
+
+  const box = document.createElement('div');
+  box.style.cssText = `
+    background: linear-gradient(135deg, #8b0000, #4a0000); padding: 40px;
+    border-radius: 20px; text-align: center; color: white; max-width: 400px;
+  `;
+
+  const title = document.createElement('h1');
+  title.textContent = `⏱ ${i18n.t('ui.timeUp.title')}`;
+  title.style.cssText = `font-size: 36px; margin: 0 0 15px 0;`;
+  box.appendChild(title);
+
+  const msg = document.createElement('p');
+  msg.textContent = i18n.t('ui.timeUp.message');
+  msg.style.cssText = `font-size: 16px; margin: 0 0 25px 0; color: #ccc;`;
+  box.appendChild(msg);
+
+  [
+    { text: i18n.t('ui.timeUp.tryAgain'), action: onRetry, bg: '#4CAF50' },
+    { text: i18n.t('ui.timeUp.backToMenu'), action: onMenu, bg: 'rgba(255,255,255,0.15)' },
+  ].forEach(({ text, action, bg }) => {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.cssText = `
+      display: block; width: 100%; margin: 8px 0; padding: 12px; background: ${bg};
+      color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer;
+    `;
+    btn.onclick = () => { overlay.parentNode?.removeChild(overlay); action(); };
+    box.appendChild(btn);
+  });
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
 
 export function initWebGame() {
-  // Set initial HTML lang attribute
   document.documentElement.lang = i18n.getLocale();
   document.title = i18n.t('game.title');
-
-  const startGame = () => {
-    const mazeLayout = MazeGenerator.generate(9, 9);
-
-    const mazeLogic = new MazeLogic(mazeLayout);
-    const scoreTracker = new ScoreTracker();
-    
-    // Generera frågor för hela labyrinten
-    QuestionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout);
-    
-    // Skicka med mazeLogic till MazeRenderer
-    const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
-
-    // Skapa UI — spellogik hanteras via mazeLogic
-    const gameUI = new GameUI('maze-container', (answer: number, direction: string) => {
-      const currentPos = mazeLogic.getPlayer().getMazePosition();
-      const questions = mazeLogic.getQuestionsAtPosition(currentPos);
-      const questionForDirection = questions.find(q => q.direction === direction);
-
-      if (questionForDirection && answer === questionForDirection.answer) {
-        // Correct answer
-        scoreTracker.recordAnswer(true);
-        soundManager.playCorrect();
-        gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
-        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
-        
-        mazeLogic.movePlayer(direction as Direction);
-        soundManager.playMove();
-        
-        // Check for win condition after move
-        const newPos = mazeLogic.getPlayer().getMazePosition();
-        if (mazeLogic.isGoalReached(newPos)) {
-          soundManager.playVictory();
-          setTimeout(() => {
-            gameUI.showVictoryScreen(
-              scoreTracker.getScore(),
-              scoreTracker.getAttempts(),
-              scoreTracker.getAccuracy(),
-              scoreTracker.getBestStreak(),
-              () => {
-                // Reset and start new game
-                const container = document.getElementById('maze-container');
-                if (container) {
-                  container.innerHTML = '';
-                }
-                initWebGame();
-              }
-            );
-          }, 500); // Delay to let player see they reached goal
-        }
-      } else {
-        // Incorrect answer
-        scoreTracker.recordAnswer(false);
-        soundManager.playIncorrect();
-        gameUI.showFeedback(i18n.t('ui.feedback.incorrect'), 'error');
-        gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
-        mazeLogic.resetPlayerPosition();
-      }
-    }, soundManager);
-
-    // Uppdatera MazeRenderer för att känna till UI:n
-    mazeRenderer.setUI(gameUI);
-  };
-
-  startGame();
+  currentLevel = 1;
+  showStartScreen();
 }
 
 if (typeof window !== 'undefined') {
