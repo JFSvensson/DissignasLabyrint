@@ -13,6 +13,12 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - 3D maze rendered with Three.js
 - 4 math operations: addition, subtraction, multiplication, division
 - Progressive difficulty based on maze position
+- Selectable maze size (5×5 to 13×13) and math difficulty (easy/medium/hard)
+- 7-level progression system with increasing challenge
+- Optional countdown timer for extra challenge
+- Tutorial / how-to-play screen
+- Visited cells highlighted in 3D view
+- Dynamic camera adapting to maze size
 - Score tracking with streak bonuses
 - Multi-language support (Swedish / English)
 - Procedural sound effects (Web Audio API)
@@ -50,17 +56,20 @@ npm test
 
 ```
 src/
-  web.ts                  # Entry point
+  web.ts                  # Entry point, game flow & level progression
   game/
+    GameConfig.ts         # Difficulty settings, level definitions
+    GameTimer.ts          # Countdown timer component
+    StartScreen.ts        # Start/settings screen with tutorial
     MazeGenerator.ts      # Recursive backtracking maze algorithm
     MazeLogic.ts          # Game state, movement, events
-    MazeRenderer.ts       # Three.js 3D rendering
+    MazeRenderer.ts       # Three.js 3D rendering, visited cells
     Player.ts             # Player entity (logic + mesh)
     PlayerLogic.ts        # Pure player state management
     QuestionGenerator.ts  # Difficulty-scaled math questions
     ScoreTracker.ts       # Points, streaks, accuracy
     SoundManager.ts       # Procedural audio (Web Audio API)
-    UI.ts                 # Game UI (DOM)
+    UI.ts                 # Game UI (DOM), timer & level display
     types.ts              # TypeScript type definitions
     constants.ts          # Game constants
   operations/             # Math operations (Addition, Subtraction, etc.)
@@ -69,7 +78,7 @@ src/
   locales/                # sv.json, en.json
   types/
     translations.ts       # Type-safe translation keys
-tests/                    # Jest test suite
+tests/                    # Jest test suite (168 tests)
 public/
   index.html
   css/game.css
