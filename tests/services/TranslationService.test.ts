@@ -152,8 +152,8 @@ describe('TranslationService', () => {
     it('should return all supported locales', () => {
       const i18n = loadService();
       const locales = i18n.getSupportedLocales();
-      expect(locales).toEqual(expect.arrayContaining(['sv', 'en']));
-      expect(locales.length).toBe(2);
+      expect(locales).toEqual(expect.arrayContaining(['sv', 'en', 'no', 'fi', 'da']));
+      expect(locales.length).toBe(5);
     });
   });
 });
