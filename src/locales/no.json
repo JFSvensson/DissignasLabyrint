@@ -1,0 +1,103 @@
+{
+  "math": {
+    "operations": {
+      "addition": "Addisjon",
+      "subtraction": "Subtraksjon",
+      "multiplication": "Multiplikasjon",
+      "division": "Divisjon"
+    }
+  },
+  "game": {
+    "title": "Dissignas Labyrint",
+    "welcome": "Velkommen til den matematiske labyrinten!",
+    "timeUp": "Tiden er ute!",
+    "nextLevel": "Neste nivå"
+  },
+  "ui": {
+    "answerLabel": "Svar:",
+    "directions": {
+      "north": "NORD",
+      "south": "SØR",
+      "east": "ØST",
+      "west": "VEST"
+    },
+    "validation": {
+      "invalidNumber": "Skriv inn et gyldig tall!"
+    },
+    "feedback": {
+      "correct": "Riktig svar!",
+      "incorrect": "Feil svar!",
+      "tryAgain": "Prøv igjen!"
+    },
+    "victory": {
+      "title": "Gratulerer!",
+      "message": "Du har klart labyrinten!",
+      "score": "Poeng:",
+      "attempts": "Forsøk:",
+      "accuracy": "Treffsikkerhet:",
+      "bestStreak": "Beste rekke:",
+      "playAgain": "Spill igjen",
+      "timeRemaining": "Tid igjen:",
+      "newHighScore": "Ny highscore!"
+    },
+    "score": {
+      "label": "Poeng:",
+      "attempts": "Forsøk:",
+      "streak": "Rekke:"
+    },
+    "language": {
+      "swedish": "Svenska",
+      "english": "English",
+      "norwegian": "Norsk",
+      "finnish": "Suomi",
+      "danish": "Dansk",
+      "selectLanguage": "Velg språk:"
+    },
+    "sound": {
+      "on": "Lyd på",
+      "off": "Lyd av"
+    },
+    "settings": {
+      "mazeSize": "Labyrintstørrelse:",
+      "mathDifficulty": "Mattevanskelighet:",
+      "easy": "Enkel",
+      "medium": "Middels",
+      "hard": "Vanskelig",
+      "timer": "Tidsbegrensning:",
+      "timerOff": "Av",
+      "start": "Start spillet",
+      "startLevel": "Start nivå"
+    },
+    "level": {
+      "label": "Nivå",
+      "complete": "Nivå fullført!"
+    },
+    "tutorial": {
+      "howToPlay": "Hvordan spille",
+      "title": "Hvordan spille",
+      "step1": "Du starter i øvre venstre hjørne av labyrinten.",
+      "step2": "Hver retning har et mattespørsmål. Skriv svaret ditt i feltet.",
+      "step3": "Trykk på en retningsknapp for å svare og flytte deg.",
+      "step4": "Feil svar sender deg tilbake! Riktige svar flytter deg fremover.",
+      "step5": "Nå det gylne målet i nedre høyre hjørne for å vinne!",
+      "tip": "Spørsmålene blir vanskeligere nærmere målet. Bygg opp en rekke for bonuspoeng!",
+      "close": "Skjønner!"
+    },
+    "timeUp": {
+      "title": "Tiden er ute!",
+      "message": "Du rakk ikke å fullføre labyrinten i tide.",
+      "tryAgain": "Prøv igjen",
+      "backToMenu": "Tilbake til menyen"
+    },
+    "highscore": {
+      "title": "Toppliste",
+      "empty": "Ingen resultater ennå. Spill en runde!",
+      "level": "Nivå",
+      "date": "Dato"
+    },
+    "stats": {
+      "gamesWon": "Seire",
+      "highestLevel": "Høyeste nivå"
+    }
+  }
+}
