@@ -30,8 +30,4 @@ export class Division implements Operation {
 
         return [a, b];
     }
-
-    private isValidDivision(a: number, b: number): boolean {
-        return b !== 0 && a % b === 0;
-    }
 } 
