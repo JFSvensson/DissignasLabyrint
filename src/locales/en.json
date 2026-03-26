@@ -37,7 +37,8 @@
       "accuracy": "Accuracy:",
       "bestStreak": "Best streak:",
       "playAgain": "Play Again",
-      "timeRemaining": "Time remaining:"
+      "timeRemaining": "Time remaining:",
+      "newHighScore": "New high score!"
     },
     "score": {
       "label": "Score:",
@@ -47,6 +48,9 @@
     "language": {
       "swedish": "Svenska",
       "english": "English",
+      "norwegian": "Norsk",
+      "finnish": "Suomi",
+      "danish": "Dansk",
       "selectLanguage": "Select language:"
     },
     "sound": {
@@ -84,6 +88,16 @@
       "message": "You didn't complete the labyrinth in time.",
       "tryAgain": "Try again",
       "backToMenu": "Back to menu"
+    },
+    "highscore": {
+      "title": "High Scores",
+      "empty": "No scores yet. Play a round!",
+      "level": "Level",
+      "date": "Date"
+    },
+    "stats": {
+      "gamesWon": "Wins",
+      "highestLevel": "Highest level"
     }
   }
 }
