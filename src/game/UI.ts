@@ -254,6 +254,14 @@ export class GameUI {
     return directionIcons[direction] || '?';
   }
 
+  private static readonly localeNames: Record<string, string> = {
+    sv: 'ui.language.swedish',
+    en: 'ui.language.english',
+    no: 'ui.language.norwegian',
+    fi: 'ui.language.finnish',
+    da: 'ui.language.danish',
+  };
+
   private createLanguageSwitcher(): HTMLDivElement {
     const container = document.createElement('div');
     container.style.cssText = `
@@ -264,6 +272,7 @@ export class GameUI {
       align-items: center;
       justify-content: center;
       gap: 10px;
+      flex-wrap: wrap;
     `;
 
     const label = document.createElement('span');
@@ -274,10 +283,11 @@ export class GameUI {
 
     const locales = i18n.getSupportedLocales();
     locales.forEach(locale => {
+      const translationKey = GameUI.localeNames[locale] || `ui.language.${locale}`;
       const button = document.createElement('button');
-      const translationKey = `ui.language.${locale === 'sv' ? 'swedish' : 'english'}`;
       button.textContent = i18n.t(translationKey);
       button.dataset.translationKey = translationKey;
+      button.dataset.locale = locale;
       button.style.cssText = `
         padding: 5px 15px;
         background: ${i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.1)'};
@@ -341,9 +351,8 @@ export class GameUI {
             element.textContent = i18n.t(key);
           }
           // Update language switcher button styles
-          if (key.startsWith('ui.language.')) {
-            const locale = key === 'ui.language.swedish' ? 'sv' : 'en';
-            element.style.background = i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.1)';
+          if (element.dataset.locale) {
+            element.style.background = i18n.getLocale() === element.dataset.locale ? '#2196F3' : 'rgba(255,255,255,0.1)';
           }
         } else {
           element.textContent = i18n.t(key);
@@ -371,7 +380,7 @@ export class GameUI {
     this.topBar.insertBefore(el, this.topBar.firstChild);
   }
 
-  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void, timeRemaining?: number, onNextLevel?: () => void): void {
+  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void, timeRemaining?: number, onNextLevel?: () => void, isNewHighScore?: boolean): void {
     // Create victory overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -422,6 +431,16 @@ export class GameUI {
       border-radius: 10px;
       margin-bottom: 30px;
     `;
+
+    if (isNewHighScore) {
+      const badge = document.createElement('div');
+      badge.textContent = `🏆 ${i18n.t('ui.victory.newHighScore')}`;
+      badge.style.cssText = `
+        font-size: 22px; font-weight: bold; color: #ffd700;
+        margin-bottom: 15px; animation: pulse 1s ease-in-out infinite;
+      `;
+      statsContainer.appendChild(badge);
+    }
 
     const scoreText = document.createElement('p');
     scoreText.textContent = `${i18n.t('ui.victory.score')} ${score}`;
