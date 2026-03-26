@@ -21,9 +21,43 @@ export type TranslationKey =
   | 'ui.victory.message'
   | 'ui.victory.score'
   | 'ui.victory.attempts'
+  | 'ui.victory.accuracy'
+  | 'ui.victory.bestStreak'
   | 'ui.victory.playAgain'
+  | 'ui.victory.timeRemaining'
   | 'ui.score.label'
   | 'ui.score.attempts'
+  | 'ui.score.streak'
+  | 'ui.sound.on'
+  | 'ui.sound.off'
+  // Settings
+  | 'ui.settings.mazeSize'
+  | 'ui.settings.mathDifficulty'
+  | 'ui.settings.easy'
+  | 'ui.settings.medium'
+  | 'ui.settings.hard'
+  | 'ui.settings.timer'
+  | 'ui.settings.timerOff'
+  | 'ui.settings.start'
+  | 'ui.settings.startLevel'
+  // Level
+  | 'ui.level.label'
+  | 'ui.level.complete'
+  // Tutorial
+  | 'ui.tutorial.howToPlay'
+  | 'ui.tutorial.title'
+  | 'ui.tutorial.step1'
+  | 'ui.tutorial.step2'
+  | 'ui.tutorial.step3'
+  | 'ui.tutorial.step4'
+  | 'ui.tutorial.step5'
+  | 'ui.tutorial.tip'
+  | 'ui.tutorial.close'
+  // Time up
+  | 'ui.timeUp.title'
+  | 'ui.timeUp.message'
+  | 'ui.timeUp.tryAgain'
+  | 'ui.timeUp.backToMenu'
   // Math operations
   | 'math.operations.addition'
   | 'math.operations.subtraction'
@@ -31,7 +65,9 @@ export type TranslationKey =
   | 'math.operations.division'
   // Game text
   | 'game.title'
-  | 'game.welcome';
+  | 'game.welcome'
+  | 'game.timeUp'
+  | 'game.nextLevel';
 
 /**
  * Extend this type when adding new translation keys to ensure type safety
