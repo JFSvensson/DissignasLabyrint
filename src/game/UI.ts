@@ -231,7 +231,7 @@ export class GameUI {
   public updateQuestions(questions: Array<{ direction: string, question: string }>): void {
     // Uppdatera frågedisplayen
     this.questionDisplay.innerHTML = questions
-      .map(q => `<div style="margin: 5px 0;">${q.direction}: ${q.question}</div>`)
+      .map(q => `<div style="margin: 5px 0;">${this.getDirectionLabel(q.direction)}: ${q.question}</div>`)
       .join('');
 
     // Visa/dölj knappar baserat på tillgängliga riktningar
@@ -252,6 +252,18 @@ export class GameUI {
       'WEST': '⬅️'
     };
     return directionIcons[direction] || '?';
+  }
+
+  private getDirectionLabel(direction: string): string {
+    const directionKeys: Record<string, string> = {
+      NORTH: 'ui.directions.north',
+      SOUTH: 'ui.directions.south',
+      EAST: 'ui.directions.east',
+      WEST: 'ui.directions.west'
+    };
+
+    const key = directionKeys[direction];
+    return key ? i18n.t(key) : direction;
   }
 
   private static readonly localeNames: Record<string, string> = {
