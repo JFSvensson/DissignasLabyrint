@@ -1,5 +1,5 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-03-26 (Fas 3: Visual polish)
+%% Senast uppdaterad: 2026-03-26 (Fas 3: Persistens & social)
 
 classDiagram
     class MazeRenderer {
@@ -206,7 +206,41 @@ classDiagram
         +remove(): void
         -getLevelDef(level: number): LevelDefinition
         -createButtonGroup(options: Array, defaultValue: string): Object
+        -showHighScores(): void
         -showTutorial(): void
+    }
+
+    class StatsManager {
+        -static instance: StatsManager
+        +static getInstance(): StatsManager
+        +getStats(): GameStats
+        +saveGameResult(result: GameResult): boolean
+        +getHighestLevel(): number
+        +getHighScores(): GameResult[]
+        +clearStats(): void
+        -saveStats(stats: GameStats): void
+        -createDefaultStats(): GameStats
+        -isValidStats(data: unknown): boolean
+    }
+
+    class GameResult {
+        <<interface>>
+        +level: number
+        +score: number
+        +accuracy: number
+        +bestStreak: number
+        +mazeSize: number
+        +difficulty: MathDifficulty
+        +timeRemaining: number
+        +date: string
+    }
+
+    class GameStats {
+        <<interface>>
+        +highScores: GameResult[]
+        +highestLevel: number
+        +totalGamesPlayed: number
+        +totalGamesWon: number
     }
 
     class GameTimer {
@@ -276,6 +310,9 @@ classDiagram
     GameUI --> GameTimer : displays
     StartScreen --> GameConfig : produces
     StartScreen --> TranslationService : translates
+    StartScreen --> StatsManager : reads high scores
+    StatsManager --> GameResult : manages
+    StatsManager --> GameStats : persists to localStorage
     GameTimer --> TranslationService : translates
     Addition ..|> Operation : implements
     Subtraction ..|> Operation : implements
