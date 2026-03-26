@@ -29,6 +29,9 @@ jest.mock('../../src/services/TranslationService', () => {
     'ui.victory.accuracy': 'Träffsäkerhet:',
     'ui.victory.bestStreak': 'Bästa svit:',
     'ui.victory.playAgain': 'Spela igen',
+    'ui.victory.timeRemaining': 'Tid kvar:',
+    'ui.level.label': 'Nivå',
+    'game.nextLevel': 'Nästa nivå',
     'game.title': 'Dissignas Labyrint',
   };
   return {
@@ -250,6 +253,64 @@ describe('GameUI', () => {
       soundBtn?.click();
       expect(sm.isEnabled()).toBe(false);
       expect(soundBtn?.textContent).toContain('Ljud av');
+    });
+  });
+
+  describe('setLevel', () => {
+    it('should display level indicator in the top bar', () => {
+      const ui = createUI();
+      ui.setLevel(3);
+      expect(uiContainer.textContent).toContain('Nivå');
+      expect(uiContainer.textContent).toContain('3');
+    });
+  });
+
+  describe('setTimer', () => {
+    it('should add timer element to the top bar', () => {
+      const ui = createUI();
+      // Create a mock timer with getElement
+      const timerEl = document.createElement('div');
+      timerEl.textContent = '⏱ 3:00';
+      const mockTimer = { getElement: () => timerEl } as any;
+      ui.setTimer(mockTimer);
+      expect(uiContainer.textContent).toContain('3:00');
+    });
+  });
+
+  describe('showVictoryScreen with time and next level', () => {
+    it('should show time remaining when provided', () => {
+      const ui = createUI();
+      ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), 125);
+      const overlay = document.body.querySelector('div[style*="position: fixed"]');
+      expect(overlay?.textContent).toContain('Tid kvar:');
+      expect(overlay?.textContent).toContain('2:05');
+    });
+
+    it('should show next level button when onNextLevel is provided', () => {
+      const ui = createUI();
+      const onNextLevel = jest.fn();
+      ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), undefined, onNextLevel);
+      const nextBtn = Array.from(document.body.querySelectorAll('button'))
+        .find(b => b.textContent?.includes('Nästa nivå'));
+      expect(nextBtn).toBeDefined();
+    });
+
+    it('should call onNextLevel when next level button is clicked', () => {
+      const ui = createUI();
+      const onNextLevel = jest.fn();
+      ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), undefined, onNextLevel);
+      const nextBtn = Array.from(document.body.querySelectorAll('button'))
+        .find(b => b.textContent?.includes('Nästa nivå'));
+      nextBtn?.click();
+      expect(onNextLevel).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not show next level button without onNextLevel', () => {
+      const ui = createUI();
+      ui.showVictoryScreen(100, 20, 85, 5, jest.fn());
+      const nextBtn = Array.from(document.body.querySelectorAll('button'))
+        .find(b => b.textContent?.includes('Nästa nivå'));
+      expect(nextBtn).toBeUndefined();
     });
   });
 });
