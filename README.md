@@ -24,6 +24,8 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Highscore leaderboard (top 10)
 - Multi-language support (Swedish, English, Norwegian, Finnish, Danish)
 - Procedural sound effects (Web Audio API)
+- Share results (Web Share API / clipboard)
+- PWA: installable, works offline
 - Responsive design (desktop & mobile)
 
 ## Getting Started
@@ -54,6 +56,9 @@ Output is written to the `dist/` folder.
 npm test
 ```
 
+### Deploy to GitHub Pages
+The project includes a GitHub Actions workflow that automatically tests and deploys to GitHub Pages on push to `main`. Enable Pages in your repo settings with "GitHub Actions" as the source.
+
 ## Project Structure
 
 ```
@@ -72,7 +77,7 @@ src/
     ScoreTracker.ts       # Points, streaks, accuracy
     StatsManager.ts       # Persistent stats & high scores (localStorage)
     SoundManager.ts       # Procedural audio (Web Audio API)
-    UI.ts                 # Game UI (DOM), timer & level display
+    UI.ts                 # Game UI (DOM), timer, level, share
     types.ts              # TypeScript type definitions
     constants.ts          # Game constants
   operations/             # Math operations (Addition, Subtraction, etc.)
@@ -81,9 +86,13 @@ src/
   locales/                # sv, en, no, fi, da
   types/
     translations.ts       # Type-safe translation keys
+.github/workflows/ci.yml  # CI/CD: test + deploy to GitHub Pages
 tests/                    # Jest test suite (196 tests)
 public/
-  index.html
+  index.html              # PWA-enabled HTML shell
+  manifest.json           # PWA manifest
+  sw.js                   # Service worker (offline cache)
+  icons/                  # App icons
   css/game.css
   docs/                   # Architecture documentation & diagrams
 ```
