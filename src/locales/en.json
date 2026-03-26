@@ -1,4 +1,18 @@
 {
+  "math": {
+    "operations": {
+      "addition": "Addition",
+      "subtraction": "Subtraction",
+      "multiplication": "Multiplication",
+      "division": "Division"
+    }
+  },
+  "game": {
+    "title": "Dissigna's Labyrinth",
+    "welcome": "Welcome to the Mathematical Labyrinth!",
+    "timeUp": "Time's up!",
+    "nextLevel": "Next level"
+  },
   "ui": {
     "answerLabel": "Answer:",
     "directions": {
@@ -22,7 +36,8 @@
       "attempts": "Attempts:",
       "accuracy": "Accuracy:",
       "bestStreak": "Best streak:",
-      "playAgain": "Play Again"
+      "playAgain": "Play Again",
+      "timeRemaining": "Time remaining:"
     },
     "score": {
       "label": "Score:",
@@ -37,18 +52,38 @@
     "sound": {
       "on": "Sound on",
       "off": "Sound off"
+    },
+    "settings": {
+      "mazeSize": "Maze size:",
+      "mathDifficulty": "Math difficulty:",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "timer": "Time limit:",
+      "timerOff": "Off",
+      "start": "Start game",
+      "startLevel": "Start level"
+    },
+    "level": {
+      "label": "Level",
+      "complete": "Level complete!"
+    },
+    "tutorial": {
+      "howToPlay": "How to play",
+      "title": "How to Play",
+      "step1": "You start in the top-left corner of the maze.",
+      "step2": "Each direction has a math question. Type your answer in the field.",
+      "step3": "Press a direction button to submit your answer and move.",
+      "step4": "Wrong answers send you back! Correct answers move you forward.",
+      "step5": "Reach the golden goal in the bottom-right corner to win!",
+      "tip": "Questions get harder closer to the goal. Build a streak for bonus points!",
+      "close": "Got it!"
+    },
+    "timeUp": {
+      "title": "Time's up!",
+      "message": "You didn't complete the labyrinth in time.",
+      "tryAgain": "Try again",
+      "backToMenu": "Back to menu"
     }
-  },
-  "math": {
-    "operations": {
-      "addition": "Addition",
-      "subtraction": "Subtraction",
-      "multiplication": "Multiplication",
-      "division": "Division"
-    }
-  },
-  "game": {
-    "title": "Dissigna's Labyrinth",
-    "welcome": "Welcome to the Mathematical Labyrinth!"
   }
 }
