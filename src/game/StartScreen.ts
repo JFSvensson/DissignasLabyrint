@@ -1,5 +1,6 @@
 import { i18n } from '../services/TranslationService';
 import { GameConfig, MathDifficulty, LEVELS, LevelDefinition } from './GameConfig';
+import { stats } from './StatsManager';
 
 export class StartScreen {
   private overlay: HTMLDivElement | null = null;
@@ -131,6 +132,25 @@ export class StartScreen {
     tutorialLink.onclick = () => this.showTutorial();
     box.appendChild(tutorialLink);
 
+    // --- Highscore link ---
+    const highscoreLink = document.createElement('button');
+    highscoreLink.textContent = `🏆 ${i18n.t('ui.highscore.title')}`;
+    highscoreLink.style.cssText = `
+      display: block; margin: 8px auto 0; background: none; border: none;
+      color: #ffd700; font-size: 13px; cursor: pointer; text-decoration: underline;
+    `;
+    highscoreLink.onclick = () => this.showHighScores();
+    box.appendChild(highscoreLink);
+
+    // --- Stats summary ---
+    const gameStats = stats.getStats();
+    if (gameStats.totalGamesWon > 0) {
+      const statsLine = document.createElement('p');
+      statsLine.textContent = `${i18n.t('ui.stats.gamesWon')}: ${gameStats.totalGamesWon} | ${i18n.t('ui.stats.highestLevel')}: ${gameStats.highestLevel}`;
+      statsLine.style.cssText = `font-size: 12px; color: #888; margin: 10px 0 0 0;`;
+      box.appendChild(statsLine);
+    }
+
     this.overlay.appendChild(box);
     document.body.appendChild(this.overlay);
   }
@@ -174,6 +194,87 @@ export class StartScreen {
     });
 
     return { container, getValue: () => selected };
+  }
+
+  private showHighScores(): void {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85); display: flex; justify-content: center;
+      align-items: center; z-index: 3000;
+    `;
+
+    const box = document.createElement('div');
+    box.style.cssText = `
+      background: #1a1a3e; padding: 35px; border-radius: 15px; color: white;
+      max-width: 460px; width: 90%; font-family: Arial, sans-serif;
+      border: 1px solid rgba(150,87,227,0.3); max-height: 80vh; overflow-y: auto;
+    `;
+
+    const title = document.createElement('h2');
+    title.textContent = `🏆 ${i18n.t('ui.highscore.title')}`;
+    title.style.cssText = `margin: 0 0 18px 0; font-size: 24px; color: #ffd700;`;
+    box.appendChild(title);
+
+    const highScores = stats.getHighScores();
+    if (highScores.length === 0) {
+      const empty = document.createElement('p');
+      empty.textContent = i18n.t('ui.highscore.empty');
+      empty.style.cssText = `color: #aaa; font-size: 15px;`;
+      box.appendChild(empty);
+    } else {
+      const table = document.createElement('table');
+      table.style.cssText = `width: 100%; border-collapse: collapse; font-size: 14px;`;
+
+      const header = document.createElement('tr');
+      ['#', i18n.t('ui.victory.score'), i18n.t('ui.victory.accuracy'), i18n.t('ui.highscore.level'), i18n.t('ui.highscore.date')].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        th.style.cssText = `padding: 8px 6px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.2); color: #c9a0ff;`;
+        header.appendChild(th);
+      });
+      table.appendChild(header);
+
+      highScores.forEach((entry, idx) => {
+        const row = document.createElement('tr');
+        row.style.cssText = idx === 0 ? 'color: #ffd700;' : '';
+
+        const cells = [
+          `${idx + 1}`,
+          `${entry.score}`,
+          `${entry.accuracy}%`,
+          `${entry.level}`,
+          new Date(entry.date).toLocaleDateString(),
+        ];
+        cells.forEach(text => {
+          const td = document.createElement('td');
+          td.textContent = text;
+          td.style.cssText = `padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);`;
+          row.appendChild(td);
+        });
+        table.appendChild(row);
+      });
+
+      box.appendChild(table);
+    }
+
+    const gameStats = stats.getStats();
+    const summaryDiv = document.createElement('div');
+    summaryDiv.style.cssText = `margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 13px; color: #aaa;`;
+    summaryDiv.innerHTML = `${i18n.t('ui.stats.gamesWon')}: ${gameStats.totalGamesWon} &nbsp;|&nbsp; ${i18n.t('ui.stats.highestLevel')}: ${gameStats.highestLevel}`;
+    box.appendChild(summaryDiv);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = i18n.t('ui.tutorial.close');
+    closeBtn.style.cssText = `
+      margin-top: 20px; padding: 10px 30px; background: #9757e3; color: white;
+      border: none; border-radius: 5px; font-size: 15px; cursor: pointer;
+    `;
+    closeBtn.onclick = () => overlay.parentNode?.removeChild(overlay);
+    box.appendChild(closeBtn);
+
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
   }
 
   private showTutorial(): void {
