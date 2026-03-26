@@ -1,5 +1,5 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-03-26
+%% Senast uppdaterad: 2026-03-27
 
 classDiagram
     class MazeRenderer {
@@ -10,11 +10,14 @@ classDiagram
         -questionText: Mesh
         -font: any
         -ui: GameUI
+        -visitedCells: Map~string, Mesh~
+        -mazeLayout: number[][]
         +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic)
         -setupCamera(): void
         -initMaze(mazeLayout: number[][]): void
         -updateDirectionQuestions(questions: MazeQuestion[]): void
         -handleResize(): void
+        -markCurrentCellVisited(): void
         +setUI(ui: GameUI): void
     }
 
@@ -68,11 +71,14 @@ classDiagram
         -messageDisplay: HTMLDivElement
         -languageSwitcher: HTMLDivElement
         -soundManager: SoundManager
+        -topBar: HTMLDivElement
         +constructor(containerId: string, onAnswer: Function, soundManager?: SoundManager)
         +updateQuestions(questions: Array): void
         +showFeedback(message: string, type: string): void
         +updateScore(score: number, attempts: number, streak: number): void
-        +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function): void
+        +setTimer(timer: GameTimer): void
+        +setLevel(level: number): void
+        +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function, timeRemaining?: number, onNextLevel?: Function): void
         -createLanguageSwitcher(): HTMLDivElement
         -createSoundToggle(sm: SoundManager): HTMLDivElement
         -updateTranslations(): void
@@ -82,8 +88,8 @@ classDiagram
     class QuestionGenerator {
         -static easyOperations: Operation[]
         -static allOperations: Operation[]
-        +static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][]): void
-        +static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number): number
+        +static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void
+        +static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number, baseDifficulty?: number): number
         +static getMaxForDifficulty(difficulty: number): number
         +static getOperationsForDifficulty(difficulty: number): Operation[]
     }
@@ -167,6 +173,52 @@ classDiagram
     }
 
     %% Interfaces och typer
+    class GameConfig {
+        <<interface>>
+        +mazeSize: number
+        +mathDifficulty: MathDifficulty
+        +timerEnabled: boolean
+        +timerSeconds: number
+    }
+
+    class MathDifficulty {
+        <<enumeration>>
+        easy
+        medium
+        hard
+    }
+
+    class LevelDefinition {
+        <<interface>>
+        +level: number
+        +mazeSize: number
+        +mathDifficulty: MathDifficulty
+        +timerSeconds: number
+    }
+
+    class StartScreen {
+        -overlay: HTMLDivElement
+        +show(onStart: Function, currentLevel?: number): void
+        +remove(): void
+        -getLevelDef(level: number): LevelDefinition
+        -createButtonGroup(options: Array, defaultValue: string): Object
+        -showTutorial(): void
+    }
+
+    class GameTimer {
+        -remainingSeconds: number
+        -intervalId: number
+        -display: HTMLDivElement
+        -onTimeUp: Function
+        +constructor(seconds: number, onTimeUp: Function)
+        +getElement(): HTMLDivElement
+        +start(): void
+        +stop(): void
+        +getRemainingSeconds(): number
+        -createDisplay(): HTMLDivElement
+        -formatTime(seconds: number): string
+    }
+
     class MazeQuestion {
         <<interface>>
         +direction: Direction
@@ -214,8 +266,13 @@ classDiagram
     MazeCell --> MazeQuestion : contains
     QuestionGenerator --> MazeLogic : populates
     QuestionGenerator --> Operation : uses
+    QuestionGenerator --> GameConfig : reads MathDifficulty
     GameUI --> SoundManager : plays sounds
     GameUI --> TranslationService : translates
+    GameUI --> GameTimer : displays
+    StartScreen --> GameConfig : produces
+    StartScreen --> TranslationService : translates
+    GameTimer --> TranslationService : translates
     Addition ..|> Operation : implements
     Subtraction ..|> Operation : implements
     Multiplication ..|> Operation : implements
