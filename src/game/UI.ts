@@ -2,6 +2,7 @@ import { Direction } from './types';
 import { i18n } from '../services/TranslationService';
 import { SupportedLocale } from '../locales';
 import { SoundManager } from './SoundManager';
+import { GameTimer } from './GameTimer';
 
 export class GameUI {
   private container: HTMLDivElement;
@@ -11,6 +12,7 @@ export class GameUI {
   private messageDisplay: HTMLDivElement;
   private languageSwitcher: HTMLDivElement;
   private soundManager: SoundManager | null;
+  private topBar: HTMLDivElement;
 
   constructor(containerId: string, onAnswer: (answer: number, direction: string) => void, soundManager?: SoundManager) {
     this.soundManager = soundManager || null;
@@ -26,6 +28,14 @@ export class GameUI {
       font-family: Arial, sans-serif;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
     `;
+
+    // Top bar for level and timer
+    this.topBar = document.createElement('div');
+    this.topBar.style.cssText = `
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px; min-height: 0;
+    `;
+    this.container.appendChild(this.topBar);
     
     // Score display
     const scoreDisplay = document.createElement('div');
@@ -341,7 +351,20 @@ export class GameUI {
     }
   }
 
-  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void): void {
+  public setTimer(timer: GameTimer): void {
+    const el = timer.getElement();
+    el.style.cssText = 'font-size: 18px; font-weight: bold;';
+    this.topBar.appendChild(el);
+  }
+
+  public setLevel(level: number): void {
+    const el = document.createElement('span');
+    el.textContent = `${i18n.t('ui.level.label')} ${level}`;
+    el.style.cssText = 'font-size: 16px; font-weight: bold; color: #ffd700;';
+    this.topBar.insertBefore(el, this.topBar.firstChild);
+  }
+
+  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void, timeRemaining?: number, onNextLevel?: () => void): void {
     // Create victory overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = `
@@ -453,9 +476,34 @@ export class GameUI {
     statsContainer.appendChild(accuracyText);
     statsContainer.appendChild(streakText);
 
+    if (timeRemaining !== undefined) {
+      const timeText = document.createElement('p');
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      timeText.textContent = `${i18n.t('ui.victory.timeRemaining')} ${minutes}:${seconds.toString().padStart(2, '0')}`;
+      timeText.style.cssText = 'font-size: 18px; margin: 10px 0;';
+      statsContainer.appendChild(timeText);
+    }
+
     victoryBox.appendChild(title);
     victoryBox.appendChild(message);
     victoryBox.appendChild(statsContainer);
+
+    if (onNextLevel) {
+      const nextLevelButton = document.createElement('button');
+      nextLevelButton.textContent = i18n.t('game.nextLevel');
+      nextLevelButton.style.cssText = `
+        padding: 15px 40px; background: #2196F3; color: white; border: none;
+        border-radius: 25px; font-size: 18px; cursor: pointer; margin-bottom: 10px;
+        transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: block; width: 80%; margin: 0 auto 10px auto;
+      `;
+      nextLevelButton.onclick = () => {
+        document.body.removeChild(overlay);
+        onNextLevel();
+      };
+      victoryBox.appendChild(nextLevelButton);
+    }
+
     victoryBox.appendChild(playAgainButton);
 
     overlay.appendChild(victoryBox);
