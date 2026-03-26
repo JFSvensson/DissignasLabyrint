@@ -23,6 +23,8 @@ export class MazeRenderer {
   private font: any = null;
   private ui: GameUI | null = null;
   private maze: Group;
+  private visitedCells: Map<string, Mesh> = new Map();
+  private mazeLayout: number[][] = [];
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
@@ -44,6 +46,7 @@ export class MazeRenderer {
     container?.appendChild(this.renderer.domElement);
 
     this.mazeLogic = mazeLogic;
+    this.mazeLayout = mazeLayout;
     this.scene.add(this.mazeLogic.getPlayer().getMesh());
 
     this.maze = new Group();
@@ -53,6 +56,7 @@ export class MazeRenderer {
     // Lyssna på händelser från MazeLogic
     this.mazeLogic.on('directionsUpdated', (questions: MazeQuestion[]) => {
       this.updateDirectionQuestions(questions);
+      this.markCurrentCellVisited();
     });
 
     this.loadFont().then(() => {
@@ -212,9 +216,29 @@ export class MazeRenderer {
   }
 
   private setupCamera(): void {
-    // Justera kamerans position för bättre överblick
-    this.camera.position.set(4, 13, 8);
-    this.camera.lookAt(new Vector3(4, 0, 4));
+    // Dynamic camera position based on maze size
+    const size = this.mazeLayout.length;
+    const halfSize = size / 2;
+    const cameraHeight = size * 1.4;
+    this.camera.position.set(halfSize, cameraHeight, halfSize + size * 0.4);
+    this.camera.lookAt(new Vector3(halfSize, 0, halfSize));
+  }
+
+  private markCurrentCellVisited(): void {
+    const pos = this.mazeLogic.getPlayer().getMazePosition();
+    const key = `${pos.x},${pos.z}`;
+    if (this.visitedCells.has(key)) return;
+
+    const visitedGeometry = new BoxGeometry(0.9, 0.02, 0.9);
+    const visitedMaterial = new MeshBasicMaterial({
+      color: 0x2a6e2a,
+      transparent: true,
+      opacity: 0.5,
+    });
+    const marker = new Mesh(visitedGeometry, visitedMaterial);
+    marker.position.set(pos.x, 0.015, pos.z);
+    this.scene.add(marker);
+    this.visitedCells.set(key, marker);
   }
 
   private animate(): void {
