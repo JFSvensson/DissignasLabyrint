@@ -173,7 +173,7 @@ export class MazeRenderer {
       const textGeometry = new TextGeometry(text, {
         font: this.font,
         size: coordinateSize,
-        height: 0.01,
+        depth: 0.01,
         curveSegments: 4,
         bevelEnabled: false
       });
