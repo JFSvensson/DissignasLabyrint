@@ -37,7 +37,8 @@
       "accuracy": "Träffsäkerhet:",
       "bestStreak": "Bästa svit:",
       "playAgain": "Spela igen",
-      "timeRemaining": "Tid kvar:"
+      "timeRemaining": "Tid kvar:",
+      "newHighScore": "Nytt highscore!"
     },
     "score": {
       "label": "Poäng:",
@@ -47,6 +48,9 @@
     "language": {
       "swedish": "Svenska",
       "english": "English",
+      "norwegian": "Norsk",
+      "finnish": "Suomi",
+      "danish": "Dansk",
       "selectLanguage": "Välj språk:"
     },
     "sound": {
@@ -84,6 +88,16 @@
       "message": "Du hann inte klara labyrinten i tid.",
       "tryAgain": "Försök igen",
       "backToMenu": "Tillbaka till menyn"
+    },
+    "highscore": {
+      "title": "Topplista",
+      "empty": "Inga resultat ännu. Spela en runda!",
+      "level": "Nivå",
+      "date": "Datum"
+    },
+    "stats": {
+      "gamesWon": "Vinster",
+      "highestLevel": "Högsta nivå"
     }
   }
 }
