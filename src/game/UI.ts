@@ -532,6 +532,27 @@ export class GameUI {
 
     victoryBox.appendChild(playAgainButton);
 
+    // Share button
+    const shareBtn = document.createElement('button');
+    shareBtn.textContent = `📤 ${i18n.t('ui.victory.share')}`;
+    shareBtn.style.cssText = `
+      display: block; margin: 10px auto 0; padding: 10px 30px;
+      background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px; font-size: 14px; cursor: pointer; transition: all 0.2s ease;
+    `;
+    shareBtn.onclick = () => {
+      const text = `${i18n.t('game.title')} — ${i18n.t('ui.victory.score')} ${score} | ${i18n.t('ui.victory.accuracy')} ${accuracy}% | ${i18n.t('ui.victory.bestStreak')} ${bestStreak}`;
+      if (navigator.share) {
+        navigator.share({ title: i18n.t('game.title'), text }).catch(() => {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          shareBtn.textContent = `✅ ${i18n.t('ui.victory.copied')}`;
+          setTimeout(() => { shareBtn.textContent = `📤 ${i18n.t('ui.victory.share')}`; }, 2000);
+        }).catch(() => {});
+      }
+    };
+    victoryBox.appendChild(shareBtn);
+
     overlay.appendChild(victoryBox);
     document.body.appendChild(overlay);
   }
