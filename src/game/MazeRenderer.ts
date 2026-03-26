@@ -4,7 +4,10 @@ import {
   WebGLRenderer, 
   Mesh, 
   BoxGeometry, 
+  MeshStandardMaterial,
   MeshBasicMaterial,
+  AmbientLight,
+  DirectionalLight,
   Vector3,
   Group
 } from 'three';
@@ -13,6 +16,7 @@ import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { MazeLogic } from './MazeLogic';
 import { MazeQuestion } from './types';
 import { GameUI } from './UI';
+import { MAZE_COLORS, MAZE_VISUAL } from './constants';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -35,6 +39,7 @@ export class MazeRenderer {
     this.camera = new PerspectiveCamera(50, aspect, 0.1, 1000);
     
     this.renderer = new WebGLRenderer({ antialias: true });
+    this.renderer.shadowMap.enabled = true;
     this.renderer.setSize(
         container ? container.clientWidth : window.innerWidth,
         container ? container.clientHeight : window.innerHeight
@@ -44,6 +49,21 @@ export class MazeRenderer {
     window.addEventListener('resize', () => this.handleResize());
     
     container?.appendChild(this.renderer.domElement);
+
+    // Lighting
+    const ambient = new AmbientLight(MAZE_COLORS.AMBIENT_LIGHT, 0.6);
+    this.scene.add(ambient);
+    const sun = new DirectionalLight(MAZE_COLORS.DIRECTIONAL_LIGHT, 0.8);
+    sun.position.set(mazeLayout.length, mazeLayout.length * 1.5, mazeLayout[0].length * 0.5);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 1024;
+    sun.shadow.mapSize.height = 1024;
+    const shadowExtent = Math.max(mazeLayout.length, mazeLayout[0].length);
+    sun.shadow.camera.left = -shadowExtent;
+    sun.shadow.camera.right = shadowExtent;
+    sun.shadow.camera.top = shadowExtent;
+    sun.shadow.camera.bottom = -shadowExtent;
+    this.scene.add(sun);
 
     this.mazeLogic = mazeLogic;
     this.mazeLayout = mazeLayout;
@@ -80,67 +100,73 @@ export class MazeRenderer {
   }
 
   private initMaze(mazeLayout: number[][]): void {
-    // Väggmaterial
-    const wallMaterial = new MeshBasicMaterial({ 
-      color: 0x9757e3,
-      wireframe: false
+    // Väggmaterial — lit
+    const wallMaterial = new MeshStandardMaterial({ 
+      color: MAZE_COLORS.WALL,
+      roughness: 0.7,
+      metalness: 0.1,
     });
 
-    // Rutnätsmaterial
+    // Rutnätsmaterial — basic (wireframe)
     const gridMaterial = new MeshBasicMaterial({
-      color: 0x444444,
+      color: MAZE_COLORS.GRID,
       wireframe: true,
       transparent: true,
-      opacity: 0.3
+      opacity: MAZE_VISUAL.GRID_OPACITY,
     });
 
-    // Skapa golvet först
+    // Skapa golvet
     const floorGeometry = new BoxGeometry(mazeLayout.length, 0.1, mazeLayout[0].length);
-    const floorMaterial = new MeshBasicMaterial({ 
-      color: 0x333333,
-      wireframe: false
+    const floorMaterial = new MeshStandardMaterial({ 
+      color: MAZE_COLORS.FLOOR,
+      roughness: 0.9,
+      metalness: 0.0,
     });
     const floor = new Mesh(floorGeometry, floorMaterial);
+    floor.receiveShadow = true;
     floor.position.set(
       mazeLayout.length/2 - 0.5, 
-      -0.1,
+      MAZE_VISUAL.FLOOR_Y,
       mazeLayout[0].length/2 - 0.5
     );
     this.scene.add(floor);
 
-    // Lägg till rutnät
+    // Lägg till rutnät + väggar
     for (let x = 0; x < mazeLayout.length; x++) {
       for (let z = 0; z < mazeLayout[x].length; z++) {
-        // Skapa en rutnätsruta för varje position
         const gridGeometry = new BoxGeometry(1, 0.1, 1);
         const gridCell = new Mesh(gridGeometry, gridMaterial);
-        gridCell.position.set(x, 0.01, z);  // Strax ovanför golvet
+        gridCell.position.set(x, 0.01, z);
         this.scene.add(gridCell);
 
-        // Om det är en vägg, lägg till väggmesh
         if (mazeLayout[x][z] === 1) {
-          const wallGeometry = new BoxGeometry(0.9, 0.1, 0.9);  // Lite mindre än rutnätsrutan
+          const wallGeometry = new BoxGeometry(0.9, MAZE_VISUAL.WALL_HEIGHT, 0.9);
           const wall = new Mesh(wallGeometry, wallMaterial);
-          wall.position.set(x, 0.02, z);  // Strax ovanför rutnätet
+          wall.castShadow = true;
+          wall.receiveShadow = true;
+          wall.position.set(x, MAZE_VISUAL.WALL_HEIGHT / 2, z);
           this.scene.add(wall);
         }
       }
     }
 
-    // Add goal marker (golden star/circle)
+    // Goal marker (golden)
     const goalPos = this.mazeLogic.getGoalPosition();
-    const goalGeometry = new BoxGeometry(0.8, 0.15, 0.8);
-    const goalMaterial = new MeshBasicMaterial({ 
-      color: 0xFFD700,  // Gold color
-      wireframe: false
+    const goalGeometry = new BoxGeometry(0.8, MAZE_VISUAL.GOAL_HEIGHT, 0.8);
+    const goalMaterial = new MeshStandardMaterial({ 
+      color: MAZE_COLORS.GOAL,
+      roughness: 0.3,
+      metalness: 0.6,
+      emissive: MAZE_COLORS.GOAL,
+      emissiveIntensity: 0.3,
     });
     const goalMarker = new Mesh(goalGeometry, goalMaterial);
-    goalMarker.position.set(goalPos.x, 0.03, goalPos.z);
+    goalMarker.position.set(goalPos.x, MAZE_VISUAL.GOAL_HEIGHT / 2, goalPos.z);
     this.scene.add(goalMarker);
 
-    // Förbättrade koordinatmarkeringar
-    const textMaterial = new MeshBasicMaterial({ color: 0xffffff });
-    const coordinateSize = 0.4;  // Större text
+    // Koordinatmarkeringar
+    const textMaterial = new MeshBasicMaterial({ color: MAZE_COLORS.COORDINATE_TEXT });
+    const coordinateSize = MAZE_VISUAL.COORDINATE_SIZE;
     
     // Skapa en container för koordinaterna
     const createCoordinateLabel = (text: string, position: Vector3, rotation: number = 0) => {
@@ -167,13 +193,12 @@ export class MazeRenderer {
 
     // X-axelns markeringar
     for (let x = 0; x < mazeLayout.length; x++) {
-      // Rutnätslinjer
       const gridLine = new Mesh(
         new BoxGeometry(0.02, 0.1, mazeLayout[0].length),
         new MeshBasicMaterial({ 
-          color: 0x666666,
+          color: MAZE_COLORS.GRID_LINE,
           transparent: true,
-          opacity: 0.3
+          opacity: MAZE_VISUAL.GRID_LINE_OPACITY,
         })
       );
       gridLine.position.set(x, 0.05, mazeLayout[0].length/2 - 0.5);
@@ -182,13 +207,12 @@ export class MazeRenderer {
 
     // Z-axelns markeringar
     for (let z = 0; z < mazeLayout[0].length; z++) {
-      // Rutnätslinjer
       const gridLine = new Mesh(
         new BoxGeometry(mazeLayout.length, 0.1, 0.02),
         new MeshBasicMaterial({ 
-          color: 0x666666,
+          color: MAZE_COLORS.GRID_LINE,
           transparent: true,
-          opacity: 0.3
+          opacity: MAZE_VISUAL.GRID_LINE_OPACITY,
         })
       );
       gridLine.position.set(mazeLayout.length/2 - 0.5, 0.05, z);
@@ -230,10 +254,12 @@ export class MazeRenderer {
     if (this.visitedCells.has(key)) return;
 
     const visitedGeometry = new BoxGeometry(0.9, 0.02, 0.9);
-    const visitedMaterial = new MeshBasicMaterial({
-      color: 0x2a6e2a,
+    const visitedMaterial = new MeshStandardMaterial({
+      color: MAZE_COLORS.VISITED,
       transparent: true,
-      opacity: 0.5,
+      opacity: MAZE_VISUAL.VISITED_OPACITY,
+      roughness: 0.8,
+      metalness: 0.0,
     });
     const marker = new Mesh(visitedGeometry, visitedMaterial);
     marker.position.set(pos.x, 0.015, pos.z);
