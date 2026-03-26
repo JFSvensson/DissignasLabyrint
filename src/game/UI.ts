@@ -176,6 +176,7 @@ export class GameUI {
       color: #ff4444;
       min-height: 20px;
       font-size: 14px;
+      transition: color 0.2s ease;
     `;
     this.container.appendChild(this.messageDisplay);
 
@@ -210,6 +211,12 @@ export class GameUI {
   public showFeedback(message: string, type: 'success' | 'error' = 'error'): void {
     this.messageDisplay.textContent = message;
     this.messageDisplay.style.color = type === 'success' ? '#4CAF50' : '#ff4444';
+    // Quick scale pulse for visual feedback
+    this.messageDisplay.style.transform = 'scale(1.15)';
+    this.messageDisplay.style.transition = 'color 0.2s ease, transform 0.15s ease';
+    requestAnimationFrame(() => {
+      setTimeout(() => { this.messageDisplay.style.transform = 'scale(1)'; }, 150);
+    });
   }
 
   public updateScore(score: number, attempts: number, streak: number = 0): void {
