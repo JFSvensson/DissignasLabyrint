@@ -16,6 +16,9 @@ export type TranslationKey =
   | 'ui.feedback.tryAgain'
   | 'ui.language.swedish'
   | 'ui.language.english'
+  | 'ui.language.norwegian'
+  | 'ui.language.finnish'
+  | 'ui.language.danish'
   | 'ui.language.selectLanguage'
   | 'ui.victory.title'
   | 'ui.victory.message'
@@ -25,6 +28,7 @@ export type TranslationKey =
   | 'ui.victory.bestStreak'
   | 'ui.victory.playAgain'
   | 'ui.victory.timeRemaining'
+  | 'ui.victory.newHighScore'
   | 'ui.score.label'
   | 'ui.score.attempts'
   | 'ui.score.streak'
@@ -67,7 +71,14 @@ export type TranslationKey =
   | 'game.title'
   | 'game.welcome'
   | 'game.timeUp'
-  | 'game.nextLevel';
+  | 'game.nextLevel'
+  // Highscore & stats
+  | 'ui.highscore.title'
+  | 'ui.highscore.empty'
+  | 'ui.highscore.level'
+  | 'ui.highscore.date'
+  | 'ui.stats.gamesWon'
+  | 'ui.stats.highestLevel';
 
 /**
  * Extend this type when adding new translation keys to ensure type safety
