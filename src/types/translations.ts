@@ -29,6 +29,8 @@ export type TranslationKey =
   | 'ui.victory.playAgain'
   | 'ui.victory.timeRemaining'
   | 'ui.victory.newHighScore'
+  | 'ui.victory.share'
+  | 'ui.victory.copied'
   | 'ui.score.label'
   | 'ui.score.attempts'
   | 'ui.score.streak'
