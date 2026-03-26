@@ -20,7 +20,9 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Visited cells highlighted in 3D view
 - Dynamic camera adapting to maze size
 - Score tracking with streak bonuses
-- Multi-language support (Swedish / English)
+- High score persistence (localStorage)
+- Highscore leaderboard (top 10)
+- Multi-language support (Swedish, English, Norwegian, Finnish, Danish)
 - Procedural sound effects (Web Audio API)
 - Responsive design (desktop & mobile)
 
@@ -68,6 +70,7 @@ src/
     PlayerLogic.ts        # Pure player state management
     QuestionGenerator.ts  # Difficulty-scaled math questions
     ScoreTracker.ts       # Points, streaks, accuracy
+    StatsManager.ts       # Persistent stats & high scores (localStorage)
     SoundManager.ts       # Procedural audio (Web Audio API)
     UI.ts                 # Game UI (DOM), timer & level display
     types.ts              # TypeScript type definitions
@@ -75,10 +78,10 @@ src/
   operations/             # Math operations (Addition, Subtraction, etc.)
   services/
     TranslationService.ts # i18n singleton
-  locales/                # sv.json, en.json
+  locales/                # sv, en, no, fi, da
   types/
     translations.ts       # Type-safe translation keys
-tests/                    # Jest test suite (168 tests)
+tests/                    # Jest test suite (196 tests)
 public/
   index.html
   css/game.css
