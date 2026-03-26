@@ -64,4 +64,24 @@ describe('QuestionGenerator', () => {
       expect(names).toContain('math.operations.division');
     });
   });
+
+  describe('getDifficulty with baseDifficulty', () => {
+    it('should increase difficulty near start with baseDifficulty=1', () => {
+      const base0 = QuestionGenerator.getDifficulty({ x: 1, z: 1 }, 9, 9, 0);
+      const base1 = QuestionGenerator.getDifficulty({ x: 1, z: 1 }, 9, 9, 1);
+      expect(base1).toBeGreaterThan(base0);
+    });
+
+    it('should cap difficulty at 3', () => {
+      // Near the goal with hard difficulty should still be 3
+      expect(QuestionGenerator.getDifficulty({ x: 7, z: 7 }, 9, 9, 2)).toBe(3);
+    });
+
+    it('should shift mid-range positions up', () => {
+      // Middle of 9×9 with baseDifficulty=0 => 2
+      expect(QuestionGenerator.getDifficulty({ x: 4, z: 4 }, 9, 9, 0)).toBe(2);
+      // With baseDifficulty=1 => 3
+      expect(QuestionGenerator.getDifficulty({ x: 4, z: 4 }, 9, 9, 1)).toBe(3);
+    });
+  });
 });
