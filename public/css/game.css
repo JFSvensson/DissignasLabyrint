@@ -8,7 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: #1a1a1a;
+    background: #0d0d1a;
 }
 
 #game-container {
@@ -61,4 +61,20 @@ body {
         flex: 1;
         padding: 8px;
     }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+}
+
+@keyframes feedbackFlash {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
 }
