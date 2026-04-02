@@ -11,6 +11,7 @@ import { StartScreen } from './game/StartScreen';
 import { GameConfig, LEVELS } from './game/GameConfig';
 import { GameTimer } from './game/GameTimer';
 import { stats } from './game/StatsManager';
+import { PowerUpManager } from './game/PowerUpManager';
 
 const soundManager = new SoundManager();
 const startScreen = new StartScreen();
@@ -41,26 +42,64 @@ function startGame(config: GameConfig, level?: number) {
   const mazeLayout = MazeGenerator.generate(config.mazeSize, config.mazeSize);
   const mazeLogic = new MazeLogic(mazeLayout);
   const scoreTracker = new ScoreTracker();
+  const powerUpManager = new PowerUpManager();
+
+  // Place 3 power-ups in the maze
+  powerUpManager.placePowerUps(mazeLayout, 3);
 
   QuestionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout, config.mathDifficulty);
 
   const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
 
-  const gameUI = new GameUI('maze-container', (answer: number, direction: string) => {
+  const gameUI = new GameUI('maze-container', (answer: number, direction: Direction) => {
     const currentPos = mazeLogic.getPlayer().getMazePosition();
     const questions = mazeLogic.getQuestionsAtPosition(currentPos);
     const questionForDirection = questions.find(q => q.direction === direction);
 
     if (questionForDirection && answer === questionForDirection.answer) {
-      scoreTracker.recordAnswer(true);
+      // Apply score multiplier from power-up
+      const multiplier = powerUpManager.getScoreMultiplier();
+      for (let i = 0; i < multiplier; i++) {
+        scoreTracker.recordAnswer(true);
+      }
+      if (multiplier > 1) {
+        powerUpManager.consumeMultiplierUse();
+      }
       soundManager.playCorrect();
-      gameUI.showFeedback(i18n.t('ui.feedback.correct'), 'success');
+      gameUI.showFeedback(
+        multiplier > 1
+          ? `${i18n.t('ui.feedback.correct')} (x${multiplier}!)`
+          : i18n.t('ui.feedback.correct'),
+        'success'
+      );
       gameUI.updateScore(scoreTracker.getScore(), scoreTracker.getAttempts(), scoreTracker.getStreak());
 
-      mazeLogic.movePlayer(direction as Direction);
+      mazeLogic.movePlayer(direction);
       soundManager.playMove();
 
       const newPos = mazeLogic.getPlayer().getMazePosition();
+
+      // Check for power-up collection
+      const collected = powerUpManager.collectAtPosition(newPos);
+      if (collected) {
+        soundManager.playCorrect();
+        if (collected.type === 'hint') {
+          const allQ = mazeLogic.getQuestionsAtPosition(newPos);
+          const hint = powerUpManager.getHintAnswer(allQ);
+          if (hint) {
+            gameUI.showFeedback(
+              `${i18n.t('ui.powerUp.hint')}: ${hint.direction} = ${hint.answer}`,
+              'success'
+            );
+          }
+        } else if (collected.type === 'timeBonus' && activeTimer) {
+          activeTimer.addTime(30);
+          gameUI.showFeedback(i18n.t('ui.powerUp.timeBonus'), 'success');
+        } else if (collected.type === 'scoreMultiplier') {
+          gameUI.showFeedback(i18n.t('ui.powerUp.scoreMultiplier'), 'success');
+        }
+      }
+
       if (mazeLogic.isGoalReached(newPos)) {
         if (activeTimer) { activeTimer.stop(); }
         soundManager.playVictory();
