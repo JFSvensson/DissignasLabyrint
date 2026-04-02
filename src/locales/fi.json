@@ -4,7 +4,9 @@
       "addition": "Yhteenlasku",
       "subtraction": "Vähennyslasku",
       "multiplication": "Kertolasku",
-      "division": "Jakolasku"
+      "division": "Jakolasku",
+      "modulo": "Jakojäännös",
+      "power": "Potenssi"
     }
   },
   "game": {
@@ -58,6 +60,15 @@
     "sound": {
       "on": "Ääni päällä",
       "off": "Ääni pois"
+    },
+    "music": {
+      "on": "Musiikki päällä",
+      "off": "Musiikki pois"
+    },
+    "powerUp": {
+      "hint": "💡 Vihje",
+      "timeBonus": "⏱ +30 sekuntia!",
+      "scoreMultiplier": "⭐ Tuplapisteet (3 vastausta)!"
     },
     "settings": {
       "mazeSize": "Labyrintin koko:",

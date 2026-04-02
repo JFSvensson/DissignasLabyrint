@@ -4,7 +4,9 @@
       "addition": "Addition",
       "subtraction": "Subtraktion",
       "multiplication": "Multiplikation",
-      "division": "Division"
+      "division": "Division",
+      "modulo": "Modulo",
+      "power": "Potens"
     }
   },
   "game": {
@@ -58,6 +60,15 @@
     "sound": {
       "on": "Lyd til",
       "off": "Lyd fra"
+    },
+    "music": {
+      "on": "Musik til",
+      "off": "Musik fra"
+    },
+    "powerUp": {
+      "hint": "💡 Hint",
+      "timeBonus": "⏱ +30 sekunder!",
+      "scoreMultiplier": "⭐ Dobbelte point (3 svar)!"
     },
     "settings": {
       "mazeSize": "Labyrintstørrelse:",

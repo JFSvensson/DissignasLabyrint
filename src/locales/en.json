@@ -4,7 +4,9 @@
       "addition": "Addition",
       "subtraction": "Subtraction",
       "multiplication": "Multiplication",
-      "division": "Division"
+      "division": "Division",
+      "modulo": "Modulo",
+      "power": "Power"
     }
   },
   "game": {
@@ -58,6 +60,15 @@
     "sound": {
       "on": "Sound on",
       "off": "Sound off"
+    },
+    "music": {
+      "on": "Music on",
+      "off": "Music off"
+    },
+    "powerUp": {
+      "hint": "💡 Hint",
+      "timeBonus": "⏱ +30 seconds!",
+      "scoreMultiplier": "⭐ Double points (3 answers)!"
     },
     "settings": {
       "mazeSize": "Maze size:",
