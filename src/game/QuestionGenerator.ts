@@ -4,6 +4,8 @@ import { Addition } from '../operations/Addition';
 import { Subtraction } from '../operations/Subtraction';
 import { Multiplication } from '../operations/Multiplication';
 import { Division } from '../operations/Division';
+import { Modulo } from '../operations/Modulo';
+import { Power } from '../operations/Power';
 import { Operation } from '../operations/Operation';
 import { MathDifficulty, mathDifficultyToBase } from './GameConfig';
 
@@ -18,6 +20,15 @@ export class QuestionGenerator {
     new Subtraction(),
     new Multiplication(),
     new Division()
+  ];
+
+  private static hardOperations: Operation[] = [
+    new Addition(),
+    new Subtraction(),
+    new Multiplication(),
+    new Division(),
+    new Modulo(),
+    new Power()
   ];
 
   /**
@@ -56,7 +67,9 @@ export class QuestionGenerator {
    * Medium+ (2-3): all four operations.
    */
   public static getOperationsForDifficulty(difficulty: number): Operation[] {
-    return difficulty <= 1 ? this.easyOperations : this.allOperations;
+    if (difficulty <= 1) return this.easyOperations;
+    if (difficulty <= 2) return this.allOperations;
+    return this.hardOperations;
   }
 
   public static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void {
