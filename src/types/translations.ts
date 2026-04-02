@@ -64,11 +64,20 @@ export type TranslationKey =
   | 'ui.timeUp.message'
   | 'ui.timeUp.tryAgain'
   | 'ui.timeUp.backToMenu'
+  // Music
+  | 'ui.music.on'
+  | 'ui.music.off'
+  // Power-ups
+  | 'ui.powerUp.hint'
+  | 'ui.powerUp.timeBonus'
+  | 'ui.powerUp.scoreMultiplier'
   // Math operations
   | 'math.operations.addition'
   | 'math.operations.subtraction'
   | 'math.operations.multiplication'
   | 'math.operations.division'
+  | 'math.operations.modulo'
+  | 'math.operations.power'
   // Game text
   | 'game.title'
   | 'game.welcome'
