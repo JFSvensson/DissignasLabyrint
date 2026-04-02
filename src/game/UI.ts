@@ -8,16 +8,18 @@ export class GameUI {
   private container: HTMLDivElement;
   private questionDisplay: HTMLDivElement;
   private answerInput: HTMLInputElement;
-  private directionButtons: Map<string, HTMLButtonElement>;
+  private directionButtons: Map<Direction, HTMLButtonElement>;
   private messageDisplay: HTMLDivElement;
   private languageSwitcher: HTMLDivElement;
   private soundManager: SoundManager | null;
   private topBar: HTMLDivElement;
 
-  constructor(containerId: string, onAnswer: (answer: number, direction: string) => void, soundManager?: SoundManager) {
+  constructor(containerId: string, onAnswer: (answer: number, direction: Direction) => void, soundManager?: SoundManager) {
     this.soundManager = soundManager || null;
     // Huvudcontainer
     this.container = document.createElement('div');
+    this.container.setAttribute('role', 'region');
+    this.container.setAttribute('aria-label', 'Game controls');
     this.container.style.cssText = `
       width: 100%;
       max-width: 500px;
@@ -88,6 +90,7 @@ export class GameUI {
     // Input för svar
     this.answerInput = document.createElement('input');
     this.answerInput.type = 'number';
+    this.answerInput.setAttribute('aria-label', i18n.t('ui.answerLabel'));
     this.answerInput.style.cssText = `
       padding: 8px;
       font-size: 16px;
@@ -104,12 +107,30 @@ export class GameUI {
         }
       }
     });
+    // Keyboard navigation: arrow keys and WASD to trigger direction buttons
+    this.answerInput.addEventListener('keydown', (e) => {
+      const keyMap: Record<string, Direction> = {
+        ArrowUp: 'NORTH', ArrowDown: 'SOUTH', ArrowLeft: 'WEST', ArrowRight: 'EAST',
+        w: 'NORTH', s: 'SOUTH', a: 'WEST', d: 'EAST',
+        W: 'NORTH', S: 'SOUTH', A: 'WEST', D: 'EAST',
+      };
+      const direction = keyMap[e.key];
+      if (direction) {
+        const btn = this.directionButtons.get(direction);
+        if (btn && btn.style.display !== 'none') {
+          e.preventDefault();
+          btn.click();
+        }
+      }
+    });
     inputContainer.appendChild(this.answerInput);
 
     this.container.appendChild(inputContainer);
 
     // Container för riktningsknappar
     const buttonContainer = document.createElement('div');
+    buttonContainer.setAttribute('role', 'group');
+    buttonContainer.setAttribute('aria-label', 'Direction buttons');
     buttonContainer.style.cssText = `
       display: grid;
       grid-template-areas:
@@ -122,7 +143,7 @@ export class GameUI {
     
     // Skapa riktningsknappar
     this.directionButtons = new Map();
-    const directions = [
+    const directions: { name: Direction; area: string; symbol: string; translationKey: string }[] = [
       { name: 'NORTH', area: 'forward', symbol: '⬆️', translationKey: 'ui.directions.north' },
       { name: 'EAST', area: 'right', symbol: '➡️', translationKey: 'ui.directions.east' },
       { name: 'WEST', area: 'left', symbol: '⬅️', translationKey: 'ui.directions.west' },
@@ -132,6 +153,7 @@ export class GameUI {
     directions.forEach(({ name, area, symbol, translationKey }) => {
       const button = document.createElement('button');
       button.textContent = `${symbol} ${i18n.t(translationKey)}`;
+      button.setAttribute('aria-label', i18n.t(translationKey));
       button.dataset.translationKey = translationKey;
       button.dataset.symbol = symbol;
       button.style.cssText = `
@@ -170,6 +192,8 @@ export class GameUI {
 
     // Meddelandedisplay för feedback
     this.messageDisplay = document.createElement('div');
+    this.messageDisplay.setAttribute('role', 'status');
+    this.messageDisplay.setAttribute('aria-live', 'polite');
     this.messageDisplay.style.cssText = `
       margin-top: 10px;
       text-align: center;
@@ -187,6 +211,7 @@ export class GameUI {
     // Sound toggle
     if (this.soundManager) {
       this.container.appendChild(this.createSoundToggle(this.soundManager));
+      this.container.appendChild(this.createMusicToggle(this.soundManager));
     }
 
     document.getElementById('ui-container')?.appendChild(this.container);
@@ -228,7 +253,7 @@ export class GameUI {
     if (streakValue) streakValue.textContent = streak.toString();
   }
 
-  public updateQuestions(questions: Array<{ direction: string, question: string }>): void {
+  public updateQuestions(questions: Array<{ direction: Direction, question: string }>): void {
     // Uppdatera frågedisplayen
     this.questionDisplay.innerHTML = questions
       .map(q => `<div style="margin: 5px 0;">${this.getDirectionLabel(q.direction)}: ${q.question}</div>`)
@@ -254,8 +279,8 @@ export class GameUI {
     return directionIcons[direction] || '?';
   }
 
-  private getDirectionLabel(direction: string): string {
-    const directionKeys: Record<string, string> = {
+  private getDirectionLabel(direction: Direction): string {
+    const directionKeys: Record<Direction, string> = {
       NORTH: 'ui.directions.north',
       SOUTH: 'ui.directions.south',
       EAST: 'ui.directions.east',
@@ -343,6 +368,36 @@ export class GameUI {
     `;
     button.onclick = () => {
       sm.setEnabled(!sm.isEnabled());
+      update();
+    };
+    container.appendChild(button);
+    return container;
+  }
+
+  private createMusicToggle(sm: SoundManager): HTMLDivElement {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      margin-top: 5px;
+      display: flex;
+      justify-content: center;
+    `;
+
+    const button = document.createElement('button');
+    const update = () => {
+      button.textContent = sm.isMusicPlaying() ? '🎵 ' + i18n.t('ui.music.on') : '🎵 ' + i18n.t('ui.music.off');
+    };
+    update();
+    button.style.cssText = `
+      padding: 5px 15px;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+    `;
+    button.onclick = () => {
+      sm.toggleMusic();
       update();
     };
     container.appendChild(button);
