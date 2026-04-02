@@ -61,6 +61,16 @@ export class GameTimer {
     return this.remainingSeconds;
   }
 
+  public addTime(seconds: number): void {
+    this.remainingSeconds += seconds;
+    this.display.textContent = this.formatTime(this.remainingSeconds);
+    if (this.remainingSeconds > 60) {
+      this.display.style.color = '#4CAF50';
+    } else if (this.remainingSeconds > 30) {
+      this.display.style.color = '#ffaa00';
+    }
+  }
+
   private formatTime(seconds: number): string {
     const m = Math.floor(Math.max(0, seconds) / 60);
     const s = Math.max(0, seconds) % 60;
