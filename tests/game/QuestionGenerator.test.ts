@@ -54,14 +54,21 @@ describe('QuestionGenerator', () => {
     it('should return all four operations for difficulty 2', () => {
       const ops = QuestionGenerator.getOperationsForDifficulty(2);
       expect(ops.length).toBe(4);
+      const names = ops.map(o => o.getName());
+      expect(names).toContain('math.operations.addition');
+      expect(names).toContain('math.operations.subtraction');
+      expect(names).toContain('math.operations.multiplication');
+      expect(names).toContain('math.operations.division');
     });
 
-    it('should return all four operations for difficulty 3', () => {
+    it('should return all six operations for difficulty 3', () => {
       const ops = QuestionGenerator.getOperationsForDifficulty(3);
-      expect(ops.length).toBe(4);
+      expect(ops.length).toBe(6);
       const names = ops.map(o => o.getName());
       expect(names).toContain('math.operations.multiplication');
       expect(names).toContain('math.operations.division');
+      expect(names).toContain('math.operations.modulo');
+      expect(names).toContain('math.operations.power');
     });
   });
 
