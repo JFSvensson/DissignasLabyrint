@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
+ 
 const sv = require('../src/locales/sv.json');
 const en = require('../src/locales/en.json');
 const no = require('../src/locales/no.json');
