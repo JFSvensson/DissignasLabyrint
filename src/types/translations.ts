@@ -71,6 +71,9 @@ export type TranslationKey =
   | 'ui.powerUp.hint'
   | 'ui.powerUp.timeBonus'
   | 'ui.powerUp.scoreMultiplier'
+  // ARIA
+  | 'ui.aria.gameControls'
+  | 'ui.aria.directionButtons'
   // Math operations
   | 'math.operations.addition'
   | 'math.operations.subtraction'
