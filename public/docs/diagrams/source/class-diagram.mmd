@@ -1,5 +1,5 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-03-26 (Fas 3: Persistens & social)
+%% Senast uppdaterad: 2026-04-03 (Fas 6: Polering & kvalitetssäkring)
 
 classDiagram
     class MazeRenderer {
@@ -12,13 +12,18 @@ classDiagram
         -ui: GameUI
         -visitedCells: Map~string, Mesh~
         -mazeLayout: number[][]
+        -powerUpMeshes: Map~string, Mesh~
+        -animationTime: number
         +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic)
         -setupCamera(): void
         -initMaze(mazeLayout: number[][]): void
         -updateDirectionQuestions(questions: MazeQuestion[]): void
         -handleResize(): void
         -markCurrentCellVisited(): void
+        -animatePowerUps(): void
         +setUI(ui: GameUI): void
+        +addPowerUps(powerUps: PowerUp[]): void
+        +removePowerUpAt(x: number, z: number): void
     }
 
     class Player {
@@ -92,6 +97,7 @@ classDiagram
     class QuestionGenerator {
         -static easyOperations: Operation[]
         -static allOperations: Operation[]
+        -static hardOperations: Operation[]
         +static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void
         +static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number, baseDifficulty?: number): number
         +static getMaxForDifficulty(difficulty: number): number
@@ -115,12 +121,17 @@ classDiagram
     class SoundManager {
         -ctx: AudioContext
         -enabled: boolean
+        -musicPlaying: boolean
         +setEnabled(enabled: boolean): void
         +isEnabled(): boolean
         +playCorrect(): void
         +playIncorrect(): void
         +playVictory(): void
         +playMove(): void
+        +startMusic(): void
+        +stopMusic(): void
+        +toggleMusic(): void
+        +isMusicPlaying(): boolean
         -playTone(frequency: number, duration: number, type: OscillatorType, delay: number, volume: number): void
     }
 
@@ -253,6 +264,7 @@ classDiagram
         +start(): void
         +stop(): void
         +getRemainingSeconds(): number
+        +addTime(seconds: number): void
         -createDisplay(): HTMLDivElement
         -formatTime(seconds: number): string
     }
@@ -318,4 +330,51 @@ classDiagram
     Subtraction ..|> Operation : implements
     Multiplication ..|> Operation : implements
     Division ..|> Operation : implements
+    Modulo ..|> Operation : implements
+    Power ..|> Operation : implements
     MazeGenerator ..> MazeLogic : generates layout for
+    MazeRenderer --> PowerUpManager : renders power-ups
+    PowerUpManager --> MazePosition : tracks
+
+    class PowerUpManager {
+        -powerUps: PowerUp[]
+        -activeMultiplier: ActivePowerUp
+        +placePowerUps(mazeLayout: number[][], count: number): void
+        +getPowerUps(): PowerUp[]
+        +getUncollectedPowerUps(): PowerUp[]
+        +collectAtPosition(position: MazePosition): PowerUp
+        +getScoreMultiplier(): number
+        +consumeMultiplierUse(): void
+        +getHintAnswer(questions: Array): Object
+    }
+
+    class PowerUp {
+        <<interface>>
+        +type: PowerUpType
+        +position: MazePosition
+        +collected: boolean
+    }
+
+    class PowerUpType {
+        <<enumeration>>
+        hint
+        timeBonus
+        scoreMultiplier
+    }
+
+    class Modulo {
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    class Power {
+        +calculate(a: number, b: number): number
+        +formatQuestion(a: number, b: number): string
+        +generateNumbers(max: number): [number, number]
+        +getName(): string
+    }
+
+    PowerUpManager --> PowerUp : manages
+    PowerUp --> PowerUpType : has type
