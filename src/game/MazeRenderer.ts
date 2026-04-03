@@ -9,7 +9,10 @@ import {
   AmbientLight,
   DirectionalLight,
   Vector3,
-  Group
+  Group,
+  SphereGeometry,
+  OctahedronGeometry,
+  ConeGeometry
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
@@ -17,6 +20,7 @@ import { MazeLogic } from './MazeLogic';
 import { MazeQuestion } from './types';
 import { GameUI } from './UI';
 import { MAZE_COLORS, MAZE_VISUAL } from './constants';
+import { PowerUp, PowerUpType } from './PowerUpManager';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -24,11 +28,13 @@ export class MazeRenderer {
   private renderer: WebGLRenderer;
   private mazeLogic: MazeLogic;
   private questionText: Mesh | null = null;
-  private font: any = null;
+  private font: unknown = null;
   private ui: GameUI | null = null;
   private maze: Group;
   private visitedCells: Map<string, Mesh> = new Map();
   private mazeLayout: number[][] = [];
+  private powerUpMeshes: Map<string, Mesh> = new Map();
+  private animationTime: number = 0;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
@@ -164,33 +170,7 @@ export class MazeRenderer {
     goalMarker.position.set(goalPos.x, MAZE_VISUAL.GOAL_HEIGHT / 2, goalPos.z);
     this.scene.add(goalMarker);
 
-    // Koordinatmarkeringar
-    const textMaterial = new MeshBasicMaterial({ color: MAZE_COLORS.COORDINATE_TEXT });
-    const coordinateSize = MAZE_VISUAL.COORDINATE_SIZE;
     
-    // Skapa en container för koordinaterna
-    const createCoordinateLabel = (text: string, position: Vector3, rotation: number = 0) => {
-      const textGeometry = new TextGeometry(text, {
-        font: this.font,
-        size: coordinateSize,
-        depth: 0.01,
-        curveSegments: 4,
-        bevelEnabled: false
-      });
-
-      const label = new Mesh(textGeometry, textMaterial);
-      label.position.copy(position);
-      label.rotation.x = -Math.PI / 2;  // Lägg platt
-      label.rotation.z = rotation;      // Rotera för läsbarhet
-      
-      // Centrera texten
-      textGeometry.computeBoundingBox();
-      const textWidth = textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x;
-      label.position.x -= textWidth / 2;
-      
-      return label;
-    };
-
     // X-axelns markeringar
     for (let x = 0; x < mazeLayout.length; x++) {
       const gridLine = new Mesh(
@@ -224,18 +204,11 @@ export class MazeRenderer {
     const loader = new FontLoader();
     loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', 
       (font) => {
-        console.log('Font loaded successfully');
         this.font = font;
         this.mazeLogic.updateAvailableDirections();
       },
-      // Progress callback
-      (xhr) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-      },
-      // Error callback
-      (error) => {
-        console.error('Error loading font:', error);
-      }
+      undefined,
+      undefined
     );
   }
 
@@ -269,6 +242,8 @@ export class MazeRenderer {
 
   private animate(): void {
     requestAnimationFrame(() => this.animate());
+    this.animationTime += 0.02;
+    this.animatePowerUps();
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -300,6 +275,74 @@ export class MazeRenderer {
     this.ui = ui;
     // Trigga initial uppdatering av riktningar
     this.mazeLogic.updateAvailableDirections();
+  }
+
+  private static readonly POWER_UP_COLORS: Record<PowerUpType, number> = {
+    hint: 0x00ccff,
+    timeBonus: 0x00ff88,
+    scoreMultiplier: 0xffaa00,
+  };
+
+  private static readonly POWER_UP_EMISSIVE: Record<PowerUpType, number> = {
+    hint: 0x0066aa,
+    timeBonus: 0x008844,
+    scoreMultiplier: 0xaa6600,
+  };
+
+  public addPowerUps(powerUps: PowerUp[]): void {
+    powerUps.forEach(pu => {
+      const key = `${pu.position.x},${pu.position.z}`;
+      const color = MazeRenderer.POWER_UP_COLORS[pu.type];
+      const emissive = MazeRenderer.POWER_UP_EMISSIVE[pu.type];
+
+      let geometry;
+      switch (pu.type) {
+        case 'hint':
+          geometry = new OctahedronGeometry(0.2);
+          break;
+        case 'timeBonus':
+          geometry = new SphereGeometry(0.2, 8, 8);
+          break;
+        case 'scoreMultiplier':
+          geometry = new ConeGeometry(0.18, 0.35, 6);
+          break;
+      }
+
+      const material = new MeshStandardMaterial({
+        color,
+        emissive,
+        emissiveIntensity: 0.6,
+        roughness: 0.3,
+        metalness: 0.5,
+      });
+
+      const mesh = new Mesh(geometry, material);
+      mesh.position.set(pu.position.x, 0.35, pu.position.z);
+      this.scene.add(mesh);
+      this.powerUpMeshes.set(key, mesh);
+    });
+  }
+
+  public removePowerUpAt(x: number, z: number): void {
+    const key = `${x},${z}`;
+    const mesh = this.powerUpMeshes.get(key);
+    if (mesh) {
+      this.scene.remove(mesh);
+      mesh.geometry.dispose();
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach(m => m.dispose());
+      } else {
+        mesh.material.dispose();
+      }
+      this.powerUpMeshes.delete(key);
+    }
+  }
+
+  private animatePowerUps(): void {
+    this.powerUpMeshes.forEach(mesh => {
+      mesh.position.y = 0.35 + Math.sin(this.animationTime * 2) * 0.08;
+      mesh.rotation.y = this.animationTime;
+    });
   }
 
   private handleResize(): void {
