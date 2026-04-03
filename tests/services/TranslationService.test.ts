@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 function loadService() {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+   
   const { i18n } = require('../../src/services/TranslationService');
   return i18n;
 }
