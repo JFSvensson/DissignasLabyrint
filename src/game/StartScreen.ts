@@ -1,9 +1,11 @@
 import { i18n } from '../services/TranslationService';
 import { GameConfig, MathDifficulty, LEVELS, LevelDefinition } from './GameConfig';
 import { stats } from './StatsManager';
+import { SupportedLocale } from '../locales';
 
 export class StartScreen {
   private overlay: HTMLDivElement | null = null;
+  private localeChangeHandler: (() => void) | null = null;
 
   public show(onStart: (config: GameConfig) => void, currentLevel?: number): void {
     this.remove();
@@ -151,11 +153,18 @@ export class StartScreen {
       box.appendChild(statsLine);
     }
 
+    // --- Language switcher ---
+    box.appendChild(this.createLanguageSwitcher(onStart, currentLevel));
+
     this.overlay.appendChild(box);
     document.body.appendChild(this.overlay);
   }
 
   public remove(): void {
+    if (this.localeChangeHandler) {
+      i18n.offChange(this.localeChangeHandler);
+      this.localeChangeHandler = null;
+    }
     if (this.overlay && this.overlay.parentNode) {
       this.overlay.parentNode.removeChild(this.overlay);
       this.overlay = null;
@@ -194,6 +203,60 @@ export class StartScreen {
     });
 
     return { container, getValue: () => selected };
+  }
+
+  private static readonly localeNames: Record<string, string> = {
+    sv: 'ui.language.swedish',
+    en: 'ui.language.english',
+    no: 'ui.language.norwegian',
+    fi: 'ui.language.finnish',
+    da: 'ui.language.danish',
+  };
+
+  private createLanguageSwitcher(onStart: (config: GameConfig) => void, currentLevel?: number): HTMLDivElement {
+    const container = document.createElement('div');
+    container.style.cssText = `
+      margin-top: 18px; padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center;
+      gap: 8px; flex-wrap: wrap;
+    `;
+
+    const label = document.createElement('span');
+    label.textContent = i18n.t('ui.language.selectLanguage');
+    label.style.cssText = 'font-size: 13px; color: #aaa;';
+    container.appendChild(label);
+
+    const locales = i18n.getSupportedLocales();
+    locales.forEach((locale: SupportedLocale) => {
+      const translationKey = StartScreen.localeNames[locale] || `ui.language.${locale}`;
+      const btn = document.createElement('button');
+      btn.textContent = i18n.t(translationKey);
+      btn.style.cssText = `
+        padding: 4px 12px;
+        background: ${i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.08)'};
+        color: white; border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 3px; cursor: pointer; font-size: 12px;
+        transition: all 0.2s ease;
+      `;
+      btn.onclick = () => {
+        if (i18n.getLocale() !== locale) {
+          i18n.setLocale(locale);
+        }
+      };
+      container.appendChild(btn);
+    });
+
+    // Re-render start screen when locale changes
+    if (this.localeChangeHandler) {
+      i18n.offChange(this.localeChangeHandler);
+    }
+    this.localeChangeHandler = () => {
+      this.show(onStart, currentLevel);
+    };
+    i18n.onChange(this.localeChangeHandler);
+
+    return container;
   }
 
   private showHighScores(): void {
