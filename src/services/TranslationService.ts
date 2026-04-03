@@ -126,7 +126,7 @@ class TranslationService {
    * Notify all listeners of locale change
    */
   private notifyListeners(): void {
-    this.listeners.forEach(callback => callback());
+    [...this.listeners].forEach(callback => callback());
   }
 }
 
