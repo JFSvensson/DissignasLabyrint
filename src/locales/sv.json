@@ -70,6 +70,10 @@
       "timeBonus": "⏱ +30 sekunder!",
       "scoreMultiplier": "⭐ Dubbla poäng (3 svar)!"
     },
+    "aria": {
+      "gameControls": "Spelkontroller",
+      "directionButtons": "Riktningsknappar"
+    },
     "settings": {
       "mazeSize": "Labyrintstorlek:",
       "mathDifficulty": "Mattesvårighet:",

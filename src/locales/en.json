@@ -70,6 +70,10 @@
       "timeBonus": "⏱ +30 seconds!",
       "scoreMultiplier": "⭐ Double points (3 answers)!"
     },
+    "aria": {
+      "gameControls": "Game controls",
+      "directionButtons": "Direction buttons"
+    },
     "settings": {
       "mazeSize": "Maze size:",
       "mathDifficulty": "Math difficulty:",

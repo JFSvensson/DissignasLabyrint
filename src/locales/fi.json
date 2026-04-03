@@ -70,6 +70,10 @@
       "timeBonus": "⏱ +30 sekuntia!",
       "scoreMultiplier": "⭐ Tuplapisteet (3 vastausta)!"
     },
+    "aria": {
+      "gameControls": "Peliohjaimet",
+      "directionButtons": "Suuntapainikkeet"
+    },
     "settings": {
       "mazeSize": "Labyrintin koko:",
       "mathDifficulty": "Matikan vaikeus:",
