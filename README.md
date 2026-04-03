@@ -11,8 +11,8 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 
 **Features:**
 - 3D maze rendered with Three.js
-- 4 math operations: addition, subtraction, multiplication, division
-- Progressive difficulty based on maze position
+- 6 math operations: addition, subtraction, multiplication, division, modulo, power
+- Progressive difficulty based on maze position (3 tiers of operations)
 - Selectable maze size (5×5 to 13×13) and math difficulty (easy/medium/hard)
 - 7-level progression system with increasing challenge
 - Optional countdown timer for extra challenge
@@ -20,12 +20,16 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Visited cells highlighted in 3D view
 - Dynamic camera adapting to maze size
 - Score tracking with streak bonuses
+- Power-ups: hint, time bonus, score multiplier — visible as floating 3D objects
+- Background music (ambient chord with toggle)
+- Keyboard navigation (WASD + arrow keys)
+- Accessibility: ARIA roles, labels, live regions
 - High score persistence (localStorage)
 - Highscore leaderboard (top 10)
 - Multi-language support (Swedish, English, Norwegian, Finnish, Danish)
 - Procedural sound effects (Web Audio API)
 - Share results (Web Share API / clipboard)
-- PWA: installable, works offline
+- PWA: installable, works offline (service worker caches fonts too)
 - Responsive design (desktop & mobile)
 
 ## Getting Started
@@ -70,9 +74,10 @@ src/
     StartScreen.ts        # Start/settings screen with tutorial
     MazeGenerator.ts      # Recursive backtracking maze algorithm
     MazeLogic.ts          # Game state, movement, events
-    MazeRenderer.ts       # Three.js 3D rendering, visited cells
+    MazeRenderer.ts       # Three.js 3D rendering, visited cells, power-ups
     Player.ts             # Player entity (logic + mesh)
     PlayerLogic.ts        # Pure player state management
+    PowerUpManager.ts     # Power-up placement & collection
     QuestionGenerator.ts  # Difficulty-scaled math questions
     ScoreTracker.ts       # Points, streaks, accuracy
     StatsManager.ts       # Persistent stats & high scores (localStorage)
@@ -80,14 +85,14 @@ src/
     UI.ts                 # Game UI (DOM), timer, level, share
     types.ts              # TypeScript type definitions
     constants.ts          # Game constants
-  operations/             # Math operations (Addition, Subtraction, etc.)
+  operations/             # Math operations (Addition, Subtraction, Multiplication, Division, Modulo, Power)
   services/
     TranslationService.ts # i18n singleton
   locales/                # sv, en, no, fi, da
   types/
     translations.ts       # Type-safe translation keys
 .github/workflows/ci.yml  # CI/CD: test + deploy to GitHub Pages
-tests/                    # Jest test suite (196 tests)
+tests/                    # Jest test suite (226+ tests)
 public/
   index.html              # PWA-enabled HTML shell
   manifest.json           # PWA manifest
