@@ -51,6 +51,9 @@ function startGame(config: GameConfig, level?: number) {
 
   const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
 
+  // Render power-ups in 3D
+  mazeRenderer.addPowerUps(powerUpManager.getPowerUps());
+
   const gameUI = new GameUI('maze-container', (answer: number, direction: Direction) => {
     const currentPos = mazeLogic.getPlayer().getMazePosition();
     const questions = mazeLogic.getQuestionsAtPosition(currentPos);
@@ -82,6 +85,7 @@ function startGame(config: GameConfig, level?: number) {
       // Check for power-up collection
       const collected = powerUpManager.collectAtPosition(newPos);
       if (collected) {
+        mazeRenderer.removePowerUpAt(newPos.x, newPos.z);
         soundManager.playCorrect();
         if (collected.type === 'hint') {
           const allQ = mazeLogic.getQuestionsAtPosition(newPos);
