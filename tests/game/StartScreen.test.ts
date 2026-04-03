@@ -27,9 +27,17 @@ jest.mock('../../src/services/TranslationService', () => ({
         'ui.tutorial.step5': 'Steg 5',
         'ui.tutorial.tip': 'Tips!',
         'ui.tutorial.close': 'Uppfattat!',
+        'ui.language.selectLanguage': 'Välj språk:',
+        'ui.language.swedish': 'Svenska',
+        'ui.language.english': 'English',
       };
       return map[key] ?? key;
     },
+    getSupportedLocales: () => ['sv', 'en'],
+    getLocale: () => 'sv',
+    setLocale: jest.fn(),
+    onChange: jest.fn(),
+    offChange: jest.fn(),
   },
 }));
 
