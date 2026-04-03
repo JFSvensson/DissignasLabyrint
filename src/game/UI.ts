@@ -1,6 +1,5 @@
 import { Direction } from './types';
 import { i18n } from '../services/TranslationService';
-import { SupportedLocale } from '../locales';
 import { SoundManager } from './SoundManager';
 import { GameTimer } from './GameTimer';
 
@@ -19,7 +18,7 @@ export class GameUI {
     // Huvudcontainer
     this.container = document.createElement('div');
     this.container.setAttribute('role', 'region');
-    this.container.setAttribute('aria-label', 'Game controls');
+    this.container.setAttribute('aria-label', i18n.t('ui.aria.gameControls'));
     this.container.style.cssText = `
       width: 100%;
       max-width: 500px;
@@ -130,7 +129,7 @@ export class GameUI {
     // Container för riktningsknappar
     const buttonContainer = document.createElement('div');
     buttonContainer.setAttribute('role', 'group');
-    buttonContainer.setAttribute('aria-label', 'Direction buttons');
+    buttonContainer.setAttribute('aria-label', i18n.t('ui.aria.directionButtons'));
     buttonContainer.style.cssText = `
       display: grid;
       grid-template-areas:
@@ -221,6 +220,7 @@ export class GameUI {
   }
 
   private getActiveButton(): HTMLButtonElement | null {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_, button] of this.directionButtons) {
       if (button.style.display !== 'none') {
         return button;
