@@ -33,6 +33,7 @@ describe('StatsManager', () => {
     localStorageMock.clear();
     jest.clearAllMocks();
     // Create fresh instance by accessing getInstance after clearing singleton
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (StatsManager as any).instance = undefined;
     manager = StatsManager.getInstance();
   });
