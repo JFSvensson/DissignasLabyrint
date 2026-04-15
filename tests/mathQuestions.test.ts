@@ -1,4 +1,3 @@
-import { QuestionGenerator } from '../src/game/QuestionGenerator';
 import { Addition } from '../src/operations/Addition';
 
 describe('Addition', () => {
