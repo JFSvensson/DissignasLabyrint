@@ -1,8 +1,10 @@
+import { IAudioService } from '../interfaces/IAudioService';
+
 /**
  * Lightweight sound effects using the Web Audio API.
  * Generates tones procedurally — no audio files needed.
  */
-export class SoundManager {
+export class SoundManager implements IAudioService {
   private ctx: AudioContext | null = null;
   private enabled: boolean = true;
   private musicGain: GainNode | null = null;
