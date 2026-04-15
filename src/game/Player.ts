@@ -1,7 +1,7 @@
 import { Mesh, SphereGeometry, MeshStandardMaterial, CanvasTexture } from 'three';
 import { PLAYER_CONSTANTS } from './constants';
 import { PlayerLogic } from './PlayerLogic';
-import { Position3D, Direction } from './types';
+import { Direction } from './types';
 
 export class Player {
   private mesh: Mesh;
