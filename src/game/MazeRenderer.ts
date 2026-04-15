@@ -15,7 +15,6 @@ import {
   ConeGeometry
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
-import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { MazeLogic } from './MazeLogic';
 import { MazeQuestion } from './types';
 import { MAZE_COLORS, MAZE_VISUAL } from './constants';
