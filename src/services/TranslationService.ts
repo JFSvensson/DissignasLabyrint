@@ -7,7 +7,7 @@ import { locales, SupportedLocale, supportedLocales, defaultLocale } from '../lo
 class TranslationService {
   private static instance: TranslationService;
   private currentLocale: SupportedLocale;
-  private translations: Record<string, any>;
+  private translations: Record<string, unknown>;
   private listeners: Set<() => void> = new Set();
 
   private constructor() {
@@ -50,11 +50,11 @@ class TranslationService {
    */
   public t(key: string): string {
     const keys = key.split('.');
-    let value: any = this.translations;
+    let value: unknown = this.translations;
 
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
-        value = value[k];
+        value = (value as Record<string, unknown>)[k];
       } else {
         console.warn(`Translation key not found: ${key}`);
         return key; // Return the key itself if translation is missing
