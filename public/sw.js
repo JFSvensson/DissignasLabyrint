@@ -1,8 +1,7 @@
-const CACHE_NAME = 'dissignas-labyrint-v2';
+const CACHE_NAME = 'dissignas-labyrint-v3';
 const ASSETS = [
   '/',
   '/index.html',
-  '/bundle.js',
   '/css/game.css',
   '/manifest.json',
   '/icons/icon-192.svg',
