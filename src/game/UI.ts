@@ -1,7 +1,8 @@
 import { Direction } from './types';
 import { i18n } from '../services/TranslationService';
-import { SoundManager } from './SoundManager';
+import { IAudioService } from '../interfaces/IAudioService';
 import { GameTimer } from './GameTimer';
+import { LOCALE_NAMES } from '../shared/localeConfig';
 
 export class GameUI {
   private container: HTMLDivElement;
@@ -10,10 +11,11 @@ export class GameUI {
   private directionButtons: Map<Direction, HTMLButtonElement>;
   private messageDisplay: HTMLDivElement;
   private languageSwitcher: HTMLDivElement;
-  private soundManager: SoundManager | null;
+  private soundManager: IAudioService | null;
   private topBar: HTMLDivElement;
+  private localeChangeHandler: () => void;
 
-  constructor(containerId: string, onAnswer: (answer: number, direction: Direction) => void, soundManager?: SoundManager) {
+  constructor(containerId: string, onAnswer: (answer: number, direction: Direction) => void, soundManager?: IAudioService) {
     this.soundManager = soundManager || null;
     // Huvudcontainer
     this.container = document.createElement('div');
@@ -216,7 +218,13 @@ export class GameUI {
     document.getElementById('ui-container')?.appendChild(this.container);
 
     // Listen for locale changes
-    i18n.onChange(() => this.updateTranslations());
+    this.localeChangeHandler = () => this.updateTranslations();
+    i18n.onChange(this.localeChangeHandler);
+  }
+
+  public dispose(): void {
+    i18n.offChange(this.localeChangeHandler);
+    this.container.remove();
   }
 
   private getActiveButton(): HTMLButtonElement | null {
@@ -291,14 +299,6 @@ export class GameUI {
     return key ? i18n.t(key) : direction;
   }
 
-  private static readonly localeNames: Record<string, string> = {
-    sv: 'ui.language.swedish',
-    en: 'ui.language.english',
-    no: 'ui.language.norwegian',
-    fi: 'ui.language.finnish',
-    da: 'ui.language.danish',
-  };
-
   private createLanguageSwitcher(): HTMLDivElement {
     const container = document.createElement('div');
     container.style.cssText = `
@@ -320,7 +320,7 @@ export class GameUI {
 
     const locales = i18n.getSupportedLocales();
     locales.forEach(locale => {
-      const translationKey = GameUI.localeNames[locale] || `ui.language.${locale}`;
+      const translationKey = LOCALE_NAMES[locale] || `ui.language.${locale}`;
       const button = document.createElement('button');
       button.textContent = i18n.t(translationKey);
       button.dataset.translationKey = translationKey;
@@ -344,7 +344,7 @@ export class GameUI {
     return container;
   }
 
-  private createSoundToggle(sm: SoundManager): HTMLDivElement {
+  private createSoundToggle(sm: IAudioService): HTMLDivElement {
     const container = document.createElement('div');
     container.style.cssText = `
       margin-top: 10px;
@@ -374,7 +374,7 @@ export class GameUI {
     return container;
   }
 
-  private createMusicToggle(sm: SoundManager): HTMLDivElement {
+  private createMusicToggle(sm: IAudioService): HTMLDivElement {
     const container = document.createElement('div');
     container.style.cssText = `
       margin-top: 5px;
