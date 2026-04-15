@@ -1,5 +1,3 @@
-import { i18n } from '../services/TranslationService';
-
 export class GameTimer {
   private remainingSeconds: number;
   private intervalId: ReturnType<typeof setInterval> | null = null;
