@@ -13,15 +13,18 @@
     "build:web": "webpack --mode production",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
-    "format": "prettier --write src/ tests/"
+    "format": "prettier --write src/ tests/",
+    "test:coverage": "jest --coverage --no-cache"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "sideEffects": false,
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.8.1",
+    "@types/three": "^0.183.1",
     "copy-webpack-plugin": "^14.0.0",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
@@ -41,10 +44,14 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.test.json"
+      }
+    }
   },
   "dependencies": {
-    "@types/three": "^0.183.1",
     "three": "^0.183.2"
   }
 }
