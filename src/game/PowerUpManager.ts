@@ -17,16 +17,17 @@ export class PowerUpManager {
   private powerUps: PowerUp[] = [];
   private activeMultiplier: ActivePowerUp | null = null;
 
-  public placePowerUps(mazeLayout: number[][], count: number): void {
+  public placePowerUps(mazeLayout: number[][], count: number, startPosition: MazePosition = { x: 1, z: 1 }, goalPosition?: MazePosition): void {
     this.powerUps = [];
     this.activeMultiplier = null;
     const openCells: MazePosition[] = [];
+    const goal = goalPosition ?? { x: mazeLayout.length - 2, z: mazeLayout[0].length - 2 };
 
     for (let x = 0; x < mazeLayout.length; x++) {
       for (let z = 0; z < mazeLayout[0].length; z++) {
-        // Skip start (1,1) and goal (bottom-right) and walls
-        if (mazeLayout[x][z] === 0 && !(x === 1 && z === 1) &&
-            !(x === mazeLayout.length - 2 && z === mazeLayout[0].length - 2)) {
+        if (mazeLayout[x][z] === 0 &&
+            !(x === startPosition.x && z === startPosition.z) &&
+            !(x === goal.x && z === goal.z)) {
           openCells.push({ x, z });
         }
       }
