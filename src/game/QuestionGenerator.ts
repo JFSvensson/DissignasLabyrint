@@ -1,5 +1,5 @@
 import { MazeLogic } from './MazeLogic';
-import { Direction, MazePosition } from './types';
+import { MazePosition } from './types';
 import { Operation, Addition, Subtraction, Multiplication, Division, Modulo, Power } from '../operations';
 import { MathDifficulty, mathDifficultyToBase } from './GameConfig';
 
