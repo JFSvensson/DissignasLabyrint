@@ -2,6 +2,7 @@ import { i18n } from '../services/TranslationService';
 import { GameConfig, MathDifficulty, LEVELS, LevelDefinition } from './GameConfig';
 import { stats } from './StatsManager';
 import { SupportedLocale } from '../locales';
+import { LOCALE_NAMES } from '../shared/localeConfig';
 
 export class StartScreen {
   private overlay: HTMLDivElement | null = null;
@@ -205,14 +206,6 @@ export class StartScreen {
     return { container, getValue: () => selected };
   }
 
-  private static readonly localeNames: Record<string, string> = {
-    sv: 'ui.language.swedish',
-    en: 'ui.language.english',
-    no: 'ui.language.norwegian',
-    fi: 'ui.language.finnish',
-    da: 'ui.language.danish',
-  };
-
   private createLanguageSwitcher(onStart: (config: GameConfig) => void, currentLevel?: number): HTMLDivElement {
     const container = document.createElement('div');
     container.style.cssText = `
@@ -229,7 +222,7 @@ export class StartScreen {
 
     const locales = i18n.getSupportedLocales();
     locales.forEach((locale: SupportedLocale) => {
-      const translationKey = StartScreen.localeNames[locale] || `ui.language.${locale}`;
+      const translationKey = LOCALE_NAMES[locale] || `ui.language.${locale}`;
       const btn = document.createElement('button');
       btn.textContent = i18n.t(translationKey);
       btn.style.cssText = `
