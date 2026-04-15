@@ -1,42 +1,24 @@
 import { MazeLogic } from './MazeLogic';
 import { Direction, MazePosition } from './types';
-import { Addition } from '../operations/Addition';
-import { Subtraction } from '../operations/Subtraction';
-import { Multiplication } from '../operations/Multiplication';
-import { Division } from '../operations/Division';
-import { Modulo } from '../operations/Modulo';
-import { Power } from '../operations/Power';
-import { Operation } from '../operations/Operation';
+import { Operation, Addition, Subtraction, Multiplication, Division, Modulo, Power } from '../operations';
 import { MathDifficulty, mathDifficultyToBase } from './GameConfig';
 
 export class QuestionGenerator {
-  private static easyOperations: Operation[] = [
-    new Addition(),
-    new Subtraction()
-  ];
+  private readonly easyOperations: Operation[];
+  private readonly allOperations: Operation[];
+  private readonly hardOperations: Operation[];
 
-  private static allOperations: Operation[] = [
-    new Addition(),
-    new Subtraction(),
-    new Multiplication(),
-    new Division()
-  ];
+  constructor(
+    easyOperations?: Operation[],
+    allOperations?: Operation[],
+    hardOperations?: Operation[]
+  ) {
+    this.easyOperations = easyOperations ?? [new Addition(), new Subtraction()];
+    this.allOperations = allOperations ?? [new Addition(), new Subtraction(), new Multiplication(), new Division()];
+    this.hardOperations = hardOperations ?? [new Addition(), new Subtraction(), new Multiplication(), new Division(), new Modulo(), new Power()];
+  }
 
-  private static hardOperations: Operation[] = [
-    new Addition(),
-    new Subtraction(),
-    new Multiplication(),
-    new Division(),
-    new Modulo(),
-    new Power()
-  ];
-
-  /**
-   * Returns a difficulty level (1-3) based on Manhattan distance from start (1,1)
-   * to the given position, relative to the goal position.
-   * The baseDifficulty parameter shifts the range up (0=normal, 1=medium, 2=hard).
-   */
-  public static getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number, baseDifficulty: number = 0): number {
+  public getDifficulty(position: MazePosition, mazeWidth: number, mazeHeight: number, baseDifficulty: number = 0): number {
     const maxDistance = (mazeWidth - 2) + (mazeHeight - 2);
     const distance = Math.abs(position.x - 1) + Math.abs(position.z - 1);
     const ratio = distance / maxDistance;
@@ -49,10 +31,7 @@ export class QuestionGenerator {
     return Math.min(3, level + baseDifficulty);
   }
 
-  /**
-   * Returns max number for operations based on difficulty level.
-   */
-  public static getMaxForDifficulty(difficulty: number): number {
+  public getMaxForDifficulty(difficulty: number): number {
     switch (difficulty) {
       case 1: return 10;
       case 2: return 20;
@@ -61,18 +40,13 @@ export class QuestionGenerator {
     }
   }
 
-  /**
-   * Returns available operations based on difficulty level.
-   * Easy (1): addition, subtraction only.
-   * Medium+ (2-3): all four operations.
-   */
-  public static getOperationsForDifficulty(difficulty: number): Operation[] {
+  public getOperationsForDifficulty(difficulty: number): Operation[] {
     if (difficulty <= 1) return this.easyOperations;
     if (difficulty <= 2) return this.allOperations;
     return this.hardOperations;
   }
 
-  public static generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void {
+  public generateQuestionsForMaze(mazeLogic: MazeLogic, mazeLayout: number[][], mathDifficulty?: MathDifficulty): void {
     const mazeHeight = mazeLayout.length;
     const mazeWidth = mazeLayout[0].length;
     const baseDiff = mathDifficulty ? mathDifficultyToBase(mathDifficulty) : 0;
