@@ -1,29 +1,36 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-04-03 (Fas 6: Polering & kvalitetssäkring)
+%% Senast uppdaterad: 2026-04-15
 
 classDiagram
     class MazeRenderer {
         -scene: Scene
         -camera: PerspectiveCamera
         -renderer: WebGLRenderer
+        -maze: Group
         -mazeLogic: MazeLogic
         -questionText: Mesh
-        -font: any
+        -font: unknown
         -ui: GameUI
         -visitedCells: Map~string, Mesh~
         -mazeLayout: number[][]
         -powerUpMeshes: Map~string, Mesh~
         -animationTime: number
+        -POWER_UP_COLORS$: Record~PowerUpType, number~
+        -POWER_UP_EMISSIVE$: Record~PowerUpType, number~
         +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic)
-        -setupCamera(): void
-        -initMaze(mazeLayout: number[][]): void
-        -updateDirectionQuestions(questions: MazeQuestion[]): void
-        -handleResize(): void
-        -markCurrentCellVisited(): void
-        -animatePowerUps(): void
+        +getMazeLogic(): MazeLogic
         +setUI(ui: GameUI): void
         +addPowerUps(powerUps: PowerUp[]): void
         +removePowerUpAt(x: number, z: number): void
+        -loadFont(): Promise~void~
+        -setupCamera(): void
+        -initMaze(mazeLayout: number[][]): void
+        -initQuestionText(): void
+        -updateDirectionQuestions(questions: MazeQuestion[]): void
+        -handleResize(): void
+        -markCurrentCellVisited(): void
+        -animate(): void
+        -animatePowerUps(): void
     }
 
     class Player {
@@ -64,6 +71,8 @@ classDiagram
         +isGoalReached(position: MazePosition): boolean
         +getGoalPosition(): MazePosition
         +getPlayer(): Player
+        -initializeMaze(layout: number[][]): MazeCell[][]
+        -isWall(position: MazePosition): boolean
     }
 
     class MazeGenerator {
@@ -76,22 +85,27 @@ classDiagram
         -container: HTMLDivElement
         -questionDisplay: HTMLDivElement
         -answerInput: HTMLInputElement
-        -directionButtons: Map~string, HTMLButtonElement~
+        -directionButtons: Map~Direction, HTMLButtonElement~
         -messageDisplay: HTMLDivElement
         -languageSwitcher: HTMLDivElement
         -soundManager: SoundManager
         -topBar: HTMLDivElement
+        -localeNames$: Record~string, string~
         +constructor(containerId: string, onAnswer: Function, soundManager?: SoundManager)
         +updateQuestions(questions: Array): void
         +showFeedback(message: string, type: string): void
         +updateScore(score: number, attempts: number, streak: number): void
         +setTimer(timer: GameTimer): void
         +setLevel(level: number): void
-        +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function, timeRemaining?: number, onNextLevel?: Function): void
+        +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function, timeRemaining?: number, onNextLevel?: Function, isNewHighScore?: boolean): void
+        -getActiveButton(): HTMLButtonElement
+        -showMessage(message: string): void
+        -getDirectionButton(direction: Direction): string
+        -getDirectionLabel(direction: Direction): string
         -createLanguageSwitcher(): HTMLDivElement
         -createSoundToggle(sm: SoundManager): HTMLDivElement
+        -createMusicToggle(sm: SoundManager): HTMLDivElement
         -updateTranslations(): void
-        -getActiveButton(): HTMLButtonElement
     }
 
     class QuestionGenerator {
@@ -107,11 +121,15 @@ classDiagram
     class ScoreTracker {
         -score: number
         -attempts: number
+        -correctAnswers: number
+        -incorrectAnswers: number
         -streak: number
         -bestStreak: number
         +recordAnswer(correct: boolean): void
         +getScore(): number
         +getAttempts(): number
+        +getCorrectAnswers(): number
+        +getIncorrectAnswers(): number
         +getStreak(): number
         +getBestStreak(): number
         +getAccuracy(): number
@@ -121,6 +139,8 @@ classDiagram
     class SoundManager {
         -ctx: AudioContext
         -enabled: boolean
+        -musicGain: GainNode
+        -musicOscillators: OscillatorNode[]
         -musicPlaying: boolean
         +setEnabled(enabled: boolean): void
         +isEnabled(): boolean
@@ -132,6 +152,7 @@ classDiagram
         +stopMusic(): void
         +toggleMusic(): void
         +isMusicPlaying(): boolean
+        -getContext(): AudioContext
         -playTone(frequency: number, duration: number, type: OscillatorType, delay: number, volume: number): void
     }
 
@@ -213,10 +234,13 @@ classDiagram
 
     class StartScreen {
         -overlay: HTMLDivElement
+        -localeChangeHandler: Function
+        -localeNames$: Record~string, string~
         +show(onStart: Function, currentLevel?: number): void
         +remove(): void
         -getLevelDef(level: number): LevelDefinition
         -createButtonGroup(options: Array, defaultValue: string): Object
+        -createLanguageSwitcher(onStart: Function, currentLevel?: number): HTMLDivElement
         -showHighScores(): void
         -showTutorial(): void
     }
@@ -345,7 +369,14 @@ classDiagram
         +collectAtPosition(position: MazePosition): PowerUp
         +getScoreMultiplier(): number
         +consumeMultiplierUse(): void
+        +getActiveMultiplier(): ActivePowerUp
         +getHintAnswer(questions: Array): Object
+    }
+
+    class ActivePowerUp {
+        <<interface>>
+        +type: PowerUpType
+        +remaining: number
     }
 
     class PowerUp {
@@ -377,4 +408,5 @@ classDiagram
     }
 
     PowerUpManager --> PowerUp : manages
+    PowerUpManager --> ActivePowerUp : tracks
     PowerUp --> PowerUpType : has type
