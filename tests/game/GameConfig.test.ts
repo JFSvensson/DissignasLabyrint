@@ -1,4 +1,4 @@
-import { GameConfig, MathDifficulty, LEVELS, DEFAULT_CONFIG, mathDifficultyToBase, LevelDefinition } from '../../src/game/GameConfig';
+import { MathDifficulty, LEVELS, DEFAULT_CONFIG, mathDifficultyToBase } from '../../src/game/GameConfig';
 
 describe('GameConfig', () => {
   describe('LEVELS', () => {
