@@ -18,7 +18,6 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry';
 import { MazeLogic } from './MazeLogic';
 import { MazeQuestion } from './types';
-import { GameUI } from './UI';
 import { MAZE_COLORS, MAZE_VISUAL } from './constants';
 import { PowerUp, PowerUpType } from './PowerUpManager';
 
@@ -28,13 +27,24 @@ export class MazeRenderer {
   private renderer: WebGLRenderer;
   private mazeLogic: MazeLogic;
   private questionText: Mesh | null = null;
+
+  private static disposeMesh(mesh: Mesh): void {
+    mesh.geometry.dispose();
+    if (Array.isArray(mesh.material)) {
+      mesh.material.forEach(m => m.dispose());
+    } else {
+      mesh.material.dispose();
+    }
+  }
   private font: unknown = null;
-  private ui: GameUI | null = null;
+  private onQuestionsUpdated: ((questions: MazeQuestion[]) => void) | null = null;
   private maze: Group;
   private visitedCells: Map<string, Mesh> = new Map();
   private mazeLayout: number[][] = [];
   private powerUpMeshes: Map<string, Mesh> = new Map();
   private animationTime: number = 0;
+  private resizeHandler: () => void;
+  private animationFrameId: number = 0;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
@@ -52,7 +62,8 @@ export class MazeRenderer {
     );
     
     // Lägg till event listener för window resize
-    window.addEventListener('resize', () => this.handleResize());
+    this.resizeHandler = () => this.handleResize();
+    window.addEventListener('resize', this.resizeHandler);
     
     container?.appendChild(this.renderer.domElement);
 
@@ -241,29 +252,48 @@ export class MazeRenderer {
   }
 
   private animate(): void {
-    requestAnimationFrame(() => this.animate());
+    this.animationFrameId = requestAnimationFrame(() => this.animate());
     this.animationTime += 0.02;
     this.animatePowerUps();
     this.renderer.render(this.scene, this.camera);
+  }
+
+  public dispose(): void {
+    cancelAnimationFrame(this.animationFrameId);
+    window.removeEventListener('resize', this.resizeHandler);
+
+    this.powerUpMeshes.forEach(mesh => {
+      this.scene.remove(mesh);
+      MazeRenderer.disposeMesh(mesh);
+    });
+    this.powerUpMeshes.clear();
+
+    this.visitedCells.forEach(mesh => {
+      this.scene.remove(mesh);
+      MazeRenderer.disposeMesh(mesh);
+    });
+    this.visitedCells.clear();
+
+    if (this.questionText) {
+      this.scene.remove(this.questionText);
+      MazeRenderer.disposeMesh(this.questionText);
+      this.questionText = null;
+    }
+
+    this.renderer.dispose();
   }
 
   private updateDirectionQuestions(questions: MazeQuestion[]): void {
     // Ta bort existerande text om den finns
     if (this.questionText) {
       this.scene.remove(this.questionText);
-      this.questionText.geometry.dispose();
-      
-      if (Array.isArray(this.questionText.material)) {
-        this.questionText.material.forEach(material => material.dispose());
-      } else {
-        this.questionText.material.dispose();
-      }
+      MazeRenderer.disposeMesh(this.questionText);
       this.questionText = null;
     }
 
     // Uppdatera bara UI:n
-    if (this.ui) {
-      this.ui.updateQuestions(questions);
+    if (this.onQuestionsUpdated) {
+      this.onQuestionsUpdated(questions);
     }
   }
 
@@ -271,8 +301,8 @@ export class MazeRenderer {
     return this.mazeLogic;
   }
 
-  public setUI(ui: GameUI): void {
-    this.ui = ui;
+  public setOnQuestionsUpdated(callback: (questions: MazeQuestion[]) => void): void {
+    this.onQuestionsUpdated = callback;
     // Trigga initial uppdatering av riktningar
     this.mazeLogic.updateAvailableDirections();
   }
@@ -328,12 +358,7 @@ export class MazeRenderer {
     const mesh = this.powerUpMeshes.get(key);
     if (mesh) {
       this.scene.remove(mesh);
-      mesh.geometry.dispose();
-      if (Array.isArray(mesh.material)) {
-        mesh.material.forEach(m => m.dispose());
-      } else {
-        mesh.material.dispose();
-      }
+      MazeRenderer.disposeMesh(mesh);
       this.powerUpMeshes.delete(key);
     }
   }
