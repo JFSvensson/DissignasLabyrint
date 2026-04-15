@@ -1,5 +1,3 @@
-import { Vector3 } from 'three';
-
 export interface Position3D {
   x: number;
   y: number;
