@@ -26,7 +26,7 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Accessibility: ARIA roles, labels, live regions
 - High score persistence (localStorage)
 - Highscore leaderboard (top 10)
-- Multi-language support (Swedish, English, Norwegian, Finnish, Danish)
+- Multi-language support (Swedish, English, Norwegian, Finnish, Danish) — selectable from start screen
 - Procedural sound effects (Web Audio API)
 - Share results (Web Share API / clipboard)
 - PWA: installable, works offline (service worker caches fonts too)
@@ -35,7 +35,7 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 ## Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v22+)
 - npm
 
 ### Install dependencies
@@ -58,6 +58,13 @@ Output is written to the `dist/` folder.
 ### Run tests
 ```bash
 npm test
+```
+
+### Lint & format
+```bash
+npm run lint        # Check for lint errors
+npm run lint:fix    # Auto-fix lint errors
+npm run format      # Format code with Prettier
 ```
 
 ### Deploy to GitHub Pages
