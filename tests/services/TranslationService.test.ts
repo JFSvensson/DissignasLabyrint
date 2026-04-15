@@ -36,8 +36,8 @@ beforeEach(() => {
   localStorageMock.clear();
   localStorageMock.getItem.mockClear();
   localStorageMock.setItem.mockClear();
-  (global as any).navigator = { language: 'sv-SE' };
-  (global as any).document = { documentElement: { lang: '' }, title: '' };
+  (global as unknown as { navigator: { language: string } }).navigator = { language: 'sv-SE' };
+  (global as unknown as { document: { documentElement: { lang: string }; title: string } }).document = { documentElement: { lang: '' }, title: '' };
 });
 
 function loadService() {
@@ -54,20 +54,20 @@ describe('TranslationService', () => {
     });
 
     it('should detect English from browser language', () => {
-      (global as any).navigator = { language: 'en-US' };
+      (global as unknown as { navigator: { language: string } }).navigator = { language: 'en-US' };
       const i18n = loadService();
       expect(i18n.getLocale()).toBe('en');
     });
 
     it('should fall back to default locale for unsupported language', () => {
-      (global as any).navigator = { language: 'fr-FR' };
+      (global as unknown as { navigator: { language: string } }).navigator = { language: 'fr-FR' };
       const i18n = loadService();
       expect(i18n.getLocale()).toBe('sv'); // default
     });
 
     it('should prefer localStorage over browser language', () => {
       localStorageMock.getItem.mockReturnValueOnce('en');
-      (global as any).navigator = { language: 'sv-SE' };
+      (global as unknown as { navigator: { language: string } }).navigator = { language: 'sv-SE' };
       const i18n = loadService();
       expect(i18n.getLocale()).toBe('en');
     });
