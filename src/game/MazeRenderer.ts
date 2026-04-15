@@ -10,15 +10,13 @@ import {
   DirectionalLight,
   Vector3,
   Group,
-  SphereGeometry,
-  OctahedronGeometry,
-  ConeGeometry
 } from 'three';
 import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
 import { MazeLogic } from './MazeLogic';
 import { MazeQuestion } from './types';
 import { MAZE_COLORS, MAZE_VISUAL } from './constants';
-import { PowerUp, PowerUpType } from './PowerUpManager';
+import { PowerUp } from './PowerUpManager';
+import { PowerUpVisualManager } from './PowerUpVisualManager';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -40,13 +38,13 @@ export class MazeRenderer {
   private maze: Group;
   private visitedCells: Map<string, Mesh> = new Map();
   private mazeLayout: number[][] = [];
-  private powerUpMeshes: Map<string, Mesh> = new Map();
-  private animationTime: number = 0;
+  private powerUpVisuals: PowerUpVisualManager;
   private resizeHandler: () => void;
   private animationFrameId: number = 0;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
+    this.powerUpVisuals = new PowerUpVisualManager(this.scene);
     
     // Beräkna aspect ratio baserat på container-storlek
     const container = document.getElementById(containerId);
@@ -252,8 +250,7 @@ export class MazeRenderer {
 
   private animate(): void {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
-    this.animationTime += 0.02;
-    this.animatePowerUps();
+    this.powerUpVisuals.animate();
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -261,11 +258,7 @@ export class MazeRenderer {
     cancelAnimationFrame(this.animationFrameId);
     window.removeEventListener('resize', this.resizeHandler);
 
-    this.powerUpMeshes.forEach(mesh => {
-      this.scene.remove(mesh);
-      MazeRenderer.disposeMesh(mesh);
-    });
-    this.powerUpMeshes.clear();
+    this.powerUpVisuals.dispose();
 
     this.visitedCells.forEach(mesh => {
       this.scene.remove(mesh);
@@ -306,67 +299,12 @@ export class MazeRenderer {
     this.mazeLogic.updateAvailableDirections();
   }
 
-  private static readonly POWER_UP_COLORS: Record<PowerUpType, number> = {
-    hint: 0x00ccff,
-    timeBonus: 0x00ff88,
-    scoreMultiplier: 0xffaa00,
-  };
-
-  private static readonly POWER_UP_EMISSIVE: Record<PowerUpType, number> = {
-    hint: 0x0066aa,
-    timeBonus: 0x008844,
-    scoreMultiplier: 0xaa6600,
-  };
-
   public addPowerUps(powerUps: PowerUp[]): void {
-    powerUps.forEach(pu => {
-      const key = `${pu.position.x},${pu.position.z}`;
-      const color = MazeRenderer.POWER_UP_COLORS[pu.type];
-      const emissive = MazeRenderer.POWER_UP_EMISSIVE[pu.type];
-
-      let geometry;
-      switch (pu.type) {
-        case 'hint':
-          geometry = new OctahedronGeometry(0.2);
-          break;
-        case 'timeBonus':
-          geometry = new SphereGeometry(0.2, 8, 8);
-          break;
-        case 'scoreMultiplier':
-          geometry = new ConeGeometry(0.18, 0.35, 6);
-          break;
-      }
-
-      const material = new MeshStandardMaterial({
-        color,
-        emissive,
-        emissiveIntensity: 0.6,
-        roughness: 0.3,
-        metalness: 0.5,
-      });
-
-      const mesh = new Mesh(geometry, material);
-      mesh.position.set(pu.position.x, 0.35, pu.position.z);
-      this.scene.add(mesh);
-      this.powerUpMeshes.set(key, mesh);
-    });
+    this.powerUpVisuals.add(powerUps);
   }
 
   public removePowerUpAt(x: number, z: number): void {
-    const key = `${x},${z}`;
-    const mesh = this.powerUpMeshes.get(key);
-    if (mesh) {
-      this.scene.remove(mesh);
-      MazeRenderer.disposeMesh(mesh);
-      this.powerUpMeshes.delete(key);
-    }
-  }
-
-  private animatePowerUps(): void {
-    this.powerUpMeshes.forEach(mesh => {
-      mesh.position.y = 0.35 + Math.sin(this.animationTime * 2) * 0.08;
-      mesh.rotation.y = this.animationTime;
-    });
+    this.powerUpVisuals.removeAt(x, z);
   }
 
   private handleResize(): void {
