@@ -48,6 +48,7 @@ jest.mock('../../src/services/TranslationService', () => {
 
 import { GameUI } from '../../src/game/UI';
 import { SoundManager } from '../../src/game/SoundManager';
+import { GameTimer } from '../../src/game/GameTimer';
 
 describe('GameUI', () => {
   let uiContainer: HTMLDivElement;
@@ -244,7 +245,7 @@ describe('GameUI', () => {
 
     it('should toggle sound on click', () => {
       const sm = new SoundManager();
-      const ui = createUI(sm);
+      createUI(sm);
 
       const soundBtn = Array.from(uiContainer.querySelectorAll('button'))
         .find(b => b.textContent?.includes('Ljud'));
@@ -271,7 +272,7 @@ describe('GameUI', () => {
       // Create a mock timer with getElement
       const timerEl = document.createElement('div');
       timerEl.textContent = '⏱ 3:00';
-      const mockTimer = { getElement: () => timerEl } as any;
+      const mockTimer = { getElement: () => timerEl } as unknown as GameTimer;
       ui.setTimer(mockTimer);
       expect(uiContainer.textContent).toContain('3:00');
     });
