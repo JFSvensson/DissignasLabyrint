@@ -18,14 +18,18 @@ const startScreen = new StartScreen();
 let currentLevel = 1;
 let activeTimer: GameTimer | null = null;
 
+function clearContainers(): void {
+  const maze = document.getElementById('maze-container');
+  if (maze) maze.innerHTML = '';
+  const ui = document.getElementById('ui-container');
+  if (ui) ui.innerHTML = '';
+}
+
 export function showStartScreen(level?: number) {
   // Clean up any running timer
   if (activeTimer) { activeTimer.stop(); activeTimer = null; }
 
-  const container = document.getElementById('maze-container');
-  if (container) container.innerHTML = '';
-  const uiContainer = document.getElementById('ui-container');
-  if (uiContainer) uiContainer.innerHTML = '';
+  clearContainers();
 
   startScreen.show((config) => {
     startGame(config, level);
@@ -33,11 +37,7 @@ export function showStartScreen(level?: number) {
 }
 
 function startGame(config: GameConfig, level?: number) {
-  // Clean containers
-  const mazeContainer = document.getElementById('maze-container');
-  if (mazeContainer) mazeContainer.innerHTML = '';
-  const uiContainer = document.getElementById('ui-container');
-  if (uiContainer) uiContainer.innerHTML = '';
+  clearContainers();
 
   const mazeLayout = MazeGenerator.generate(config.mazeSize, config.mazeSize);
   const mazeLogic = new MazeLogic(mazeLayout);
@@ -47,7 +47,8 @@ function startGame(config: GameConfig, level?: number) {
   // Place 3 power-ups in the maze
   powerUpManager.placePowerUps(mazeLayout, 3);
 
-  QuestionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout, config.mathDifficulty);
+  const questionGenerator = new QuestionGenerator();
+  questionGenerator.generateQuestionsForMaze(mazeLogic, mazeLayout, config.mathDifficulty);
 
   const mazeRenderer = new MazeRenderer('maze-container', mazeLayout, mazeLogic);
 
@@ -173,7 +174,7 @@ function startGame(config: GameConfig, level?: number) {
     gameUI.setLevel(level);
   }
 
-  mazeRenderer.setUI(gameUI);
+  mazeRenderer.setOnQuestionsUpdated((questions) => gameUI.updateQuestions(questions));
 }
 
 function showTimeUpScreen(onRetry: () => void, onMenu: () => void) {
