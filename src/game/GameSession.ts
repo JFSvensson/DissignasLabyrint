@@ -147,6 +147,17 @@ export class GameSession {
     this.mazeRenderer.removePowerUpAt(position.x, position.z);
     this.soundManager.playCorrect();
 
+    // Particle burst matching power-up color
+    const burstColors: Record<string, number> = {
+      hint: 0x00ccff,
+      timeBonus: 0x00ff88,
+      scoreMultiplier: 0xffaa00,
+    };
+    this.mazeRenderer.emitPowerUpBurst(
+      position.x, position.z,
+      burstColors[collected.type] ?? 0xffffff
+    );
+
     if (collected.type === 'hint') {
       const allQ = this.mazeLogic.getQuestionsAtPosition(position);
       const hint = this.powerUpManager.getHintAnswer(allQ);
@@ -167,6 +178,10 @@ export class GameSession {
   private handleVictory(): void {
     if (this.timer) { this.timer.stop(); }
     this.soundManager.playVictory();
+
+    // Victory confetti at player position
+    const pos = this.mazeLogic.getPlayer().getMazePosition();
+    this.mazeRenderer.emitVictoryConfetti(pos.x, pos.z);
 
     const timeRemaining = this.timer ? this.timer.getRemainingSeconds() : undefined;
     const isNewHighScore = stats.saveGameResult({
