@@ -100,7 +100,7 @@ describe('GameUI', () => {
         b.textContent?.includes('VÄSTER')
       );
       directionButtons.forEach(button => {
-        expect(button.style.display).toBe('none');
+        expect(button.className).toContain('btn-direction');
       });
     });
 
@@ -216,7 +216,7 @@ describe('GameUI', () => {
       ui.showVictoryScreen(100, 20, 85, 5, onPlayAgain);
 
       // Overlay is appended to document.body
-      const overlay = document.body.querySelector('div[style*="position: fixed"]');
+      const overlay = document.body.querySelector('.overlay-backdrop');
       expect(overlay).not.toBeNull();
       expect(overlay?.textContent).toContain('Grattis!');
       expect(overlay?.textContent).toContain('100');
@@ -282,7 +282,7 @@ describe('GameUI', () => {
     it('should show time remaining when provided', () => {
       const ui = createUI();
       ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), 125);
-      const overlay = document.body.querySelector('div[style*="position: fixed"]');
+      const overlay = document.body.querySelector('.overlay-backdrop');
       expect(overlay?.textContent).toContain('Tid kvar:');
       expect(overlay?.textContent).toContain('2:05');
     });
