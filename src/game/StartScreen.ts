@@ -12,47 +12,34 @@ export class StartScreen {
     this.remove();
 
     this.overlay = document.createElement('div');
-    this.overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: linear-gradient(135deg, #0d0d2b 0%, #1a1a3e 40%, #2d1b4e 100%);
-      display: flex; justify-content: center; align-items: center;
-      z-index: 2000; font-family: Arial, sans-serif;
-    `;
+    this.overlay.className = 'overlay-backdrop overlay-backdrop--start';
 
     const box = document.createElement('div');
-    box.style.cssText = `
-      background: rgba(0,0,0,0.6); padding: 40px; border-radius: 20px;
-      text-align: center; color: white; max-width: 500px; width: 90%;
-      box-shadow: 0 0 40px rgba(150,87,227,0.3); border: 1px solid rgba(150,87,227,0.3);
-    `;
+    box.className = 'modal-box modal-box--start';
 
     // Title
     const title = document.createElement('h1');
     title.textContent = i18n.t('game.title');
-    title.style.cssText = `font-size: 32px; margin: 0 0 5px 0; color: #c9a0ff;`;
+    title.className = 'text-title';
     box.appendChild(title);
 
     const subtitle = document.createElement('p');
     subtitle.textContent = i18n.t('game.welcome');
-    subtitle.style.cssText = `font-size: 14px; color: #aaa; margin: 0 0 25px 0;`;
+    subtitle.className = 'text-subtitle';
     box.appendChild(subtitle);
 
     // Level display if in progression mode
     if (currentLevel !== undefined) {
       const levelBadge = document.createElement('div');
       levelBadge.textContent = `${i18n.t('ui.level.label')} ${currentLevel}`;
-      levelBadge.style.cssText = `
-        display: inline-block; padding: 5px 20px; background: rgba(150,87,227,0.3);
-        border-radius: 15px; font-size: 16px; margin-bottom: 20px;
-        border: 1px solid rgba(150,87,227,0.5); color: #c9a0ff;
-      `;
+      levelBadge.className = 'badge-level';
       box.appendChild(levelBadge);
     }
 
     // --- Maze size ---
     const sizeLabel = document.createElement('label');
     sizeLabel.textContent = i18n.t('ui.settings.mazeSize');
-    sizeLabel.style.cssText = `display: block; font-size: 14px; margin-bottom: 6px; color: #ccc;`;
+    sizeLabel.className = 'config-label';
     box.appendChild(sizeLabel);
 
     const sizeGroup = this.createButtonGroup(
@@ -70,7 +57,7 @@ export class StartScreen {
     // --- Math difficulty ---
     const diffLabel = document.createElement('label');
     diffLabel.textContent = i18n.t('ui.settings.mathDifficulty');
-    diffLabel.style.cssText = `display: block; font-size: 14px; margin: 18px 0 6px 0; color: #ccc;`;
+    diffLabel.className = 'config-label config-label--spaced';
     box.appendChild(diffLabel);
 
     const diffGroup = this.createButtonGroup(
@@ -86,7 +73,7 @@ export class StartScreen {
     // --- Timer ---
     const timerLabel = document.createElement('label');
     timerLabel.textContent = i18n.t('ui.settings.timer');
-    timerLabel.style.cssText = `display: block; font-size: 14px; margin: 18px 0 6px 0; color: #ccc;`;
+    timerLabel.className = 'config-label config-label--spaced';
     box.appendChild(timerLabel);
 
     const timerGroup = this.createButtonGroup(
@@ -105,13 +92,7 @@ export class StartScreen {
     startBtn.textContent = currentLevel !== undefined
       ? `${i18n.t('ui.settings.startLevel')} ${currentLevel}`
       : i18n.t('ui.settings.start');
-    startBtn.style.cssText = `
-      margin-top: 28px; padding: 14px 50px; background: #4CAF50; color: white;
-      border: none; border-radius: 25px; font-size: 18px; cursor: pointer;
-      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    `;
-    startBtn.onmouseover = () => { startBtn.style.background = '#45a049'; startBtn.style.transform = 'scale(1.05)'; };
-    startBtn.onmouseout = () => { startBtn.style.background = '#4CAF50'; startBtn.style.transform = 'scale(1)'; };
+    startBtn.className = 'btn btn-start';
     startBtn.onclick = () => {
       const timerVal = parseInt(timerGroup.getValue());
       const config: GameConfig = {
@@ -128,20 +109,14 @@ export class StartScreen {
     // --- Tutorial link ---
     const tutorialLink = document.createElement('button');
     tutorialLink.textContent = `❓ ${i18n.t('ui.tutorial.howToPlay')}`;
-    tutorialLink.style.cssText = `
-      display: block; margin: 15px auto 0; background: none; border: none;
-      color: #aaa; font-size: 13px; cursor: pointer; text-decoration: underline;
-    `;
+    tutorialLink.className = 'btn btn-link';
     tutorialLink.onclick = () => this.showTutorial();
     box.appendChild(tutorialLink);
 
     // --- Highscore link ---
     const highscoreLink = document.createElement('button');
     highscoreLink.textContent = `🏆 ${i18n.t('ui.highscore.title')}`;
-    highscoreLink.style.cssText = `
-      display: block; margin: 8px auto 0; background: none; border: none;
-      color: #ffd700; font-size: 13px; cursor: pointer; text-decoration: underline;
-    `;
+    highscoreLink.className = 'btn btn-link btn-link--gold';
     highscoreLink.onclick = () => this.showHighScores();
     box.appendChild(highscoreLink);
 
@@ -150,7 +125,7 @@ export class StartScreen {
     if (gameStats.totalGamesWon > 0) {
       const statsLine = document.createElement('p');
       statsLine.textContent = `${i18n.t('ui.stats.gamesWon')}: ${gameStats.totalGamesWon} | ${i18n.t('ui.stats.highestLevel')}: ${gameStats.highestLevel}`;
-      statsLine.style.cssText = `font-size: 12px; color: #888; margin: 10px 0 0 0;`;
+      statsLine.className = 'text-stats-summary';
       box.appendChild(statsLine);
     }
 
@@ -183,21 +158,19 @@ export class StartScreen {
   ): { container: HTMLDivElement; getValue: () => string } {
     let selected = defaultValue;
     const container = document.createElement('div');
-    container.style.cssText = `display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;`;
+    container.className = 'config-group';
 
     const buttons: HTMLButtonElement[] = [];
     options.forEach(opt => {
       const btn = document.createElement('button');
       btn.textContent = opt.label;
-      btn.style.cssText = `
-        padding: 6px 14px; border-radius: 5px; border: 1px solid rgba(255,255,255,0.2);
-        cursor: pointer; font-size: 13px; transition: all 0.2s ease; color: white;
-        background: ${opt.value === defaultValue ? '#9757e3' : 'rgba(255,255,255,0.08)'};
-      `;
+      btn.className = opt.value === defaultValue
+        ? 'btn btn-option btn-option--active'
+        : 'btn btn-option';
       btn.onclick = () => {
         selected = opt.value;
-        buttons.forEach(b => { b.style.background = 'rgba(255,255,255,0.08)'; });
-        btn.style.background = '#9757e3';
+        buttons.forEach(b => { b.className = 'btn btn-option'; });
+        btn.className = 'btn btn-option btn-option--active';
       };
       buttons.push(btn);
       container.appendChild(btn);
@@ -208,16 +181,11 @@ export class StartScreen {
 
   private createLanguageSwitcher(onStart: (config: GameConfig) => void, currentLevel?: number): HTMLDivElement {
     const container = document.createElement('div');
-    container.style.cssText = `
-      margin-top: 18px; padding-top: 15px;
-      border-top: 1px solid rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      gap: 8px; flex-wrap: wrap;
-    `;
+    container.className = 'language-switcher language-switcher--start';
 
     const label = document.createElement('span');
     label.textContent = i18n.t('ui.language.selectLanguage');
-    label.style.cssText = 'font-size: 13px; color: #aaa;';
+    label.className = 'language-label language-label--start';
     container.appendChild(label);
 
     const locales = i18n.getSupportedLocales();
@@ -225,13 +193,9 @@ export class StartScreen {
       const translationKey = LOCALE_NAMES[locale] || `ui.language.${locale}`;
       const btn = document.createElement('button');
       btn.textContent = i18n.t(translationKey);
-      btn.style.cssText = `
-        padding: 4px 12px;
-        background: ${i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.08)'};
-        color: white; border: 1px solid rgba(255,255,255,0.2);
-        border-radius: 3px; cursor: pointer; font-size: 12px;
-        transition: all 0.2s ease;
-      `;
+      btn.className = i18n.getLocale() === locale
+        ? 'btn btn-lang btn-lang--active'
+        : 'btn btn-lang';
       btn.onclick = () => {
         if (i18n.getLocale() !== locale) {
           i18n.setLocale(locale);
@@ -254,46 +218,37 @@ export class StartScreen {
 
   private showHighScores(): void {
     const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); display: flex; justify-content: center;
-      align-items: center; z-index: 3000;
-    `;
+    overlay.className = 'overlay-backdrop overlay-backdrop--modal';
 
     const box = document.createElement('div');
-    box.style.cssText = `
-      background: #1a1a3e; padding: 35px; border-radius: 15px; color: white;
-      max-width: 460px; width: 90%; font-family: Arial, sans-serif;
-      border: 1px solid rgba(150,87,227,0.3); max-height: 80vh; overflow-y: auto;
-    `;
+    box.className = 'modal-box modal-box--info';
 
     const title = document.createElement('h2');
     title.textContent = `🏆 ${i18n.t('ui.highscore.title')}`;
-    title.style.cssText = `margin: 0 0 18px 0; font-size: 24px; color: #ffd700;`;
+    title.className = 'heading-section heading-section--gold';
     box.appendChild(title);
 
     const highScores = stats.getHighScores();
     if (highScores.length === 0) {
       const empty = document.createElement('p');
       empty.textContent = i18n.t('ui.highscore.empty');
-      empty.style.cssText = `color: #aaa; font-size: 15px;`;
+      empty.className = 'text-muted';
       box.appendChild(empty);
     } else {
       const table = document.createElement('table');
-      table.style.cssText = `width: 100%; border-collapse: collapse; font-size: 14px;`;
+      table.className = 'highscore-table';
 
       const header = document.createElement('tr');
       ['#', i18n.t('ui.victory.score'), i18n.t('ui.victory.accuracy'), i18n.t('ui.highscore.level'), i18n.t('ui.highscore.date')].forEach(text => {
         const th = document.createElement('th');
         th.textContent = text;
-        th.style.cssText = `padding: 8px 6px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.2); color: #c9a0ff;`;
         header.appendChild(th);
       });
       table.appendChild(header);
 
       highScores.forEach((entry, idx) => {
         const row = document.createElement('tr');
-        row.style.cssText = idx === 0 ? 'color: #ffd700;' : '';
+        if (idx === 0) row.className = 'rank-first';
 
         const cells = [
           `${idx + 1}`,
@@ -305,7 +260,6 @@ export class StartScreen {
         cells.forEach(text => {
           const td = document.createElement('td');
           td.textContent = text;
-          td.style.cssText = `padding: 6px; border-bottom: 1px solid rgba(255,255,255,0.05);`;
           row.appendChild(td);
         });
         table.appendChild(row);
@@ -316,16 +270,13 @@ export class StartScreen {
 
     const gameStats = stats.getStats();
     const summaryDiv = document.createElement('div');
-    summaryDiv.style.cssText = `margin-top: 18px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 13px; color: #aaa;`;
+    summaryDiv.className = 'summary-section';
     summaryDiv.innerHTML = `${i18n.t('ui.stats.gamesWon')}: ${gameStats.totalGamesWon} &nbsp;|&nbsp; ${i18n.t('ui.stats.highestLevel')}: ${gameStats.highestLevel}`;
     box.appendChild(summaryDiv);
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = i18n.t('ui.tutorial.close');
-    closeBtn.style.cssText = `
-      margin-top: 20px; padding: 10px 30px; background: #9757e3; color: white;
-      border: none; border-radius: 5px; font-size: 15px; cursor: pointer;
-    `;
+    closeBtn.className = 'btn btn-accent';
     closeBtn.onclick = () => overlay.parentNode?.removeChild(overlay);
     box.appendChild(closeBtn);
 
@@ -335,22 +286,14 @@ export class StartScreen {
 
   private showTutorial(): void {
     const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.85); display: flex; justify-content: center;
-      align-items: center; z-index: 3000;
-    `;
+    overlay.className = 'overlay-backdrop overlay-backdrop--modal';
 
     const box = document.createElement('div');
-    box.style.cssText = `
-      background: #1a1a3e; padding: 35px; border-radius: 15px; color: white;
-      max-width: 460px; width: 90%; font-family: Arial, sans-serif;
-      border: 1px solid rgba(150,87,227,0.3); max-height: 80vh; overflow-y: auto;
-    `;
+    box.className = 'modal-box modal-box--info';
 
     const title = document.createElement('h2');
     title.textContent = i18n.t('ui.tutorial.title');
-    title.style.cssText = `margin: 0 0 18px 0; font-size: 24px; color: #c9a0ff;`;
+    title.className = 'heading-section heading-section--accent';
     box.appendChild(title);
 
     const steps = [
@@ -363,17 +306,10 @@ export class StartScreen {
 
     steps.forEach((step, idx) => {
       const p = document.createElement('p');
-      p.style.cssText = `
-        font-size: 15px; line-height: 1.6; margin: 0 0 12px 0;
-        padding-left: 30px; position: relative; color: #ddd;
-      `;
+      p.className = 'tutorial-step';
       const num = document.createElement('span');
       num.textContent = `${idx + 1}`;
-      num.style.cssText = `
-        position: absolute; left: 0; top: 0; width: 22px; height: 22px;
-        background: #9757e3; border-radius: 50%; display: flex; align-items: center;
-        justify-content: center; font-size: 12px; font-weight: bold;
-      `;
+      num.className = 'tutorial-step-number';
       p.appendChild(num);
       p.appendChild(document.createTextNode(step));
       box.appendChild(p);
@@ -381,15 +317,12 @@ export class StartScreen {
 
     const tip = document.createElement('p');
     tip.textContent = `💡 ${i18n.t('ui.tutorial.tip')}`;
-    tip.style.cssText = `font-size: 13px; color: #aaa; margin: 15px 0 0 0; font-style: italic;`;
+    tip.className = 'tutorial-tip';
     box.appendChild(tip);
 
     const closeBtn = document.createElement('button');
     closeBtn.textContent = i18n.t('ui.tutorial.close');
-    closeBtn.style.cssText = `
-      margin-top: 20px; padding: 10px 30px; background: #9757e3; color: white;
-      border: none; border-radius: 5px; font-size: 15px; cursor: pointer;
-    `;
+    closeBtn.className = 'btn btn-accent';
     closeBtn.onclick = () => overlay.parentNode?.removeChild(overlay);
     box.appendChild(closeBtn);
 
