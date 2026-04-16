@@ -13,11 +13,7 @@ export class GameTimer {
   private createDisplay(): HTMLDivElement {
     const container = document.createElement('div');
     container.id = 'timer-display';
-    container.style.cssText = `
-      text-align: center; padding: 8px; margin-bottom: 10px;
-      background: rgba(255,255,255,0.05); border-radius: 5px;
-      font-size: 20px; font-weight: bold; font-family: monospace; color: #4CAF50;
-    `;
+    container.className = 'game-timer';
     container.textContent = this.formatTime(this.remainingSeconds);
     return container;
   }
@@ -33,12 +29,12 @@ export class GameTimer {
       this.display.textContent = this.formatTime(this.remainingSeconds);
 
       if (this.remainingSeconds <= 30) {
-        this.display.style.color = '#ff4444';
+        this.display.className = 'game-timer game-timer--danger';
         this.display.style.animation = 'none';
         // Trigger reflow for pulse effect
         void this.display.offsetWidth;
       } else if (this.remainingSeconds <= 60) {
-        this.display.style.color = '#ffaa00';
+        this.display.className = 'game-timer game-timer--warning';
       }
 
       if (this.remainingSeconds <= 0) {
@@ -63,9 +59,9 @@ export class GameTimer {
     this.remainingSeconds += seconds;
     this.display.textContent = this.formatTime(this.remainingSeconds);
     if (this.remainingSeconds > 60) {
-      this.display.style.color = '#4CAF50';
+      this.display.className = 'game-timer';
     } else if (this.remainingSeconds > 30) {
-      this.display.style.color = '#ffaa00';
+      this.display.className = 'game-timer game-timer--warning';
     }
   }
 
