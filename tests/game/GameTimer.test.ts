@@ -108,7 +108,7 @@ describe('GameTimer', () => {
       const timer = new GameTimer(62, jest.fn());
       timer.start();
       jest.advanceTimersByTime(2000); // 60 remaining
-      expect(timer.getElement().style.color).toBe('rgb(255, 170, 0)');
+      expect(timer.getElement().className).toContain('game-timer--warning');
       timer.stop();
     });
 
@@ -116,7 +116,7 @@ describe('GameTimer', () => {
       const timer = new GameTimer(32, jest.fn());
       timer.start();
       jest.advanceTimersByTime(2000); // 30 remaining
-      expect(timer.getElement().style.color).toBe('rgb(255, 68, 68)');
+      expect(timer.getElement().className).toContain('game-timer--danger');
       timer.stop();
     });
   });
