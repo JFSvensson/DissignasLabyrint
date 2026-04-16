@@ -8,6 +8,8 @@ import {
   MeshBasicMaterial,
   AmbientLight,
   DirectionalLight,
+  PointLight,
+  FogExp2,
   Vector3,
   Group,
 } from 'three';
@@ -17,6 +19,8 @@ import { MazeQuestion } from './types';
 import { MAZE_COLORS, MAZE_VISUAL } from './constants';
 import { PowerUp } from './PowerUpManager';
 import { PowerUpVisualManager } from './PowerUpVisualManager';
+import { TextureFactory } from './TextureFactory';
+import { ParticleSystem } from './ParticleSystem';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -39,12 +43,16 @@ export class MazeRenderer {
   private visitedCells: Map<string, Mesh> = new Map();
   private mazeLayout: number[][] = [];
   private powerUpVisuals: PowerUpVisualManager;
+  private powerUpLights: Map<string, PointLight> = new Map();
+  private particles: ParticleSystem;
+  private lastTime: number = 0;
   private resizeHandler: () => void;
   private animationFrameId: number = 0;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
     this.scene = new Scene();
     this.powerUpVisuals = new PowerUpVisualManager(this.scene);
+    this.particles = new ParticleSystem(this.scene);
     
     // Beräkna aspect ratio baserat på container-storlek
     const container = document.getElementById(containerId);
@@ -64,14 +72,17 @@ export class MazeRenderer {
     
     container?.appendChild(this.renderer.domElement);
 
+    // Fog for depth
+    this.scene.fog = new FogExp2(0x0d0d1a, 0.035);
+
     // Lighting
-    const ambient = new AmbientLight(MAZE_COLORS.AMBIENT_LIGHT, 0.6);
+    const ambient = new AmbientLight(MAZE_COLORS.AMBIENT_LIGHT, 0.5);
     this.scene.add(ambient);
-    const sun = new DirectionalLight(MAZE_COLORS.DIRECTIONAL_LIGHT, 0.8);
+    const sun = new DirectionalLight(MAZE_COLORS.DIRECTIONAL_LIGHT, 0.9);
     sun.position.set(mazeLayout.length, mazeLayout.length * 1.5, mazeLayout[0].length * 0.5);
     sun.castShadow = true;
-    sun.shadow.mapSize.width = 1024;
-    sun.shadow.mapSize.height = 1024;
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
     const shadowExtent = Math.max(mazeLayout.length, mazeLayout[0].length);
     sun.shadow.camera.left = -shadowExtent;
     sun.shadow.camera.right = shadowExtent;
@@ -114,9 +125,10 @@ export class MazeRenderer {
   }
 
   private initMaze(mazeLayout: number[][]): void {
-    // Väggmaterial — lit
+    // Procedural brick texture for walls
+    const brickTexture = TextureFactory.createBrickTexture('#7744aa', '#332255');
     const wallMaterial = new MeshStandardMaterial({ 
-      color: MAZE_COLORS.WALL,
+      map: brickTexture,
       roughness: 0.7,
       metalness: 0.1,
     });
@@ -129,10 +141,12 @@ export class MazeRenderer {
       opacity: MAZE_VISUAL.GRID_OPACITY,
     });
 
-    // Skapa golvet
+    // Procedural tiled floor texture
+    const floorTexture = TextureFactory.createFloorTexture();
+    floorTexture.repeat.set(mazeLayout.length / 2, mazeLayout[0].length / 2);
     const floorGeometry = new BoxGeometry(mazeLayout.length, 0.1, mazeLayout[0].length);
     const floorMaterial = new MeshStandardMaterial({ 
-      color: MAZE_COLORS.FLOOR,
+      map: floorTexture,
       roughness: 0.9,
       metalness: 0.0,
     });
@@ -225,8 +239,28 @@ export class MazeRenderer {
     const size = this.mazeLayout.length;
     const halfSize = size / 2;
     const cameraHeight = size * 1.4;
-    this.camera.position.set(halfSize, cameraHeight, halfSize + size * 0.4);
+    const targetY = cameraHeight;
+    const targetZ = halfSize + size * 0.4;
+
+    // Start higher and animate down
+    this.camera.position.set(halfSize, cameraHeight * 1.6, targetZ + size * 0.3);
     this.camera.lookAt(new Vector3(halfSize, 0, halfSize));
+
+    const startY = this.camera.position.y;
+    const startZ = this.camera.position.z;
+    const duration = 800;
+    const start = performance.now();
+    const animateIntro = () => {
+      const elapsed = performance.now() - start;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease-out cubic
+      const ease = 1 - Math.pow(1 - t, 3);
+      this.camera.position.y = startY + (targetY - startY) * ease;
+      this.camera.position.z = startZ + (targetZ - startZ) * ease;
+      this.camera.lookAt(new Vector3(halfSize, 0, halfSize));
+      if (t < 1) requestAnimationFrame(animateIntro);
+    };
+    requestAnimationFrame(animateIntro);
   }
 
   private markCurrentCellVisited(): void {
@@ -250,7 +284,11 @@ export class MazeRenderer {
 
   private animate(): void {
     this.animationFrameId = requestAnimationFrame(() => this.animate());
+    const now = performance.now();
+    const dt = this.lastTime ? (now - this.lastTime) / 1000 : 0.016;
+    this.lastTime = now;
     this.powerUpVisuals.animate();
+    this.particles.update(dt);
     this.renderer.render(this.scene, this.camera);
   }
 
@@ -259,6 +297,13 @@ export class MazeRenderer {
     window.removeEventListener('resize', this.resizeHandler);
 
     this.powerUpVisuals.dispose();
+    this.particles.dispose();
+
+    this.powerUpLights.forEach(light => {
+      this.scene.remove(light);
+      light.dispose();
+    });
+    this.powerUpLights.clear();
 
     this.visitedCells.forEach(mesh => {
       this.scene.remove(mesh);
@@ -301,10 +346,38 @@ export class MazeRenderer {
 
   public addPowerUps(powerUps: PowerUp[]): void {
     this.powerUpVisuals.add(powerUps);
+
+    // Point light at each power-up
+    const lightColors: Record<string, number> = {
+      hint: 0x00ccff,
+      timeBonus: 0x00ff88,
+      scoreMultiplier: 0xffaa00,
+    };
+    powerUps.forEach(pu => {
+      const light = new PointLight(lightColors[pu.type] ?? 0xffffff, 0.8, 3);
+      light.position.set(pu.position.x, 0.8, pu.position.z);
+      this.scene.add(light);
+      this.powerUpLights.set(`${pu.position.x},${pu.position.z}`, light);
+    });
   }
 
   public removePowerUpAt(x: number, z: number): void {
     this.powerUpVisuals.removeAt(x, z);
+    const key = `${x},${z}`;
+    const light = this.powerUpLights.get(key);
+    if (light) {
+      this.scene.remove(light);
+      light.dispose();
+      this.powerUpLights.delete(key);
+    }
+  }
+
+  public emitPowerUpBurst(x: number, z: number, color: number): void {
+    this.particles.emit(x, 0.4, z, 50, color, 1.0, 1.5);
+  }
+
+  public emitVictoryConfetti(x: number, z: number): void {
+    this.particles.emitConfetti(x, 0.5, z);
   }
 
   private handleResize(): void {
