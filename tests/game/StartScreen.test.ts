@@ -59,10 +59,8 @@ describe('StartScreen', () => {
   describe('show', () => {
     it('should create a full-screen overlay', () => {
       startScreen.show(jest.fn());
-      const overlay = document.body.querySelector('div');
+      const overlay = document.body.querySelector('.overlay-backdrop--start');
       expect(overlay).toBeTruthy();
-      expect(overlay!.style.position).toBe('fixed');
-      expect(overlay!.style.zIndex).toBe('2000');
     });
 
     it('should display the game title', () => {
@@ -129,7 +127,7 @@ describe('StartScreen', () => {
       const startBtn = Array.from(buttons).find(b => b.textContent === 'Starta spelet');
       startBtn!.click();
       // Overlay should be removed
-      expect(document.body.querySelector('[style*="z-index: 2000"]')).toBeNull();
+      expect(document.body.querySelector('.overlay-backdrop--start')).toBeNull();
     });
   });
 
@@ -138,7 +136,7 @@ describe('StartScreen', () => {
       startScreen.show(jest.fn());
       expect(document.body.children.length).toBeGreaterThan(0);
       startScreen.remove();
-      expect(document.body.querySelector('[style*="z-index: 2000"]')).toBeNull();
+      expect(document.body.querySelector('.overlay-backdrop--start')).toBeNull();
     });
 
     it('should be safe to call multiple times', () => {
@@ -155,7 +153,7 @@ describe('StartScreen', () => {
         .find(b => b.textContent?.includes('Hur man spelar'));
       tutorialBtn!.click();
       // Tutorial overlay has z-index 3000
-      const tutorialOverlay = document.body.querySelector('[style*="z-index: 3000"]');
+      const tutorialOverlay = document.body.querySelector('.overlay-backdrop--modal');
       expect(tutorialOverlay).toBeTruthy();
     });
 
@@ -177,7 +175,7 @@ describe('StartScreen', () => {
       const closeBtn = Array.from(document.body.querySelectorAll('button'))
         .find(b => b.textContent === 'Uppfattat!');
       closeBtn!.click();
-      expect(document.body.querySelector('[style*="z-index: 3000"]')).toBeNull();
+      expect(document.body.querySelector('.overlay-backdrop--modal')).toBeNull();
     });
   });
 });
