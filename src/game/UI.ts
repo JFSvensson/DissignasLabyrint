@@ -22,37 +22,17 @@ export class GameUI {
     this.container = document.createElement('div');
     this.container.setAttribute('role', 'region');
     this.container.setAttribute('aria-label', i18n.t('ui.aria.gameControls'));
-    this.container.style.cssText = `
-      width: 100%;
-      max-width: 500px;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 20px;
-      border-radius: 10px;
-      color: white;
-      font-family: Arial, sans-serif;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    `;
+    this.container.className = 'game-panel';
 
     // Top bar for level and timer
     this.topBar = document.createElement('div');
-    this.topBar.style.cssText = `
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 10px; min-height: 0;
-    `;
+    this.topBar.className = 'top-bar';
     this.container.appendChild(this.topBar);
     
     // Score display
     const scoreDisplay = document.createElement('div');
     scoreDisplay.id = 'score-display';
-    scoreDisplay.style.cssText = `
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 15px;
-      padding: 10px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 5px;
-      font-size: 14px;
-    `;
+    scoreDisplay.className = 'score-display';
     scoreDisplay.innerHTML = `
       <span><strong>${i18n.t('ui.score.label')}</strong> <span id="score-value">0</span></span>
       <span><strong>${i18n.t('ui.score.attempts')}</strong> <span id="attempts-value">0</span></span>
@@ -62,45 +42,24 @@ export class GameUI {
 
     // Frågedisplay
     this.questionDisplay = document.createElement('div');
-    this.questionDisplay.style.cssText = `
-      margin-bottom: 15px;
-      font-size: 18px;
-      text-align: center;
-      padding: 10px;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    `;
+    this.questionDisplay.className = 'question-display';
     this.container.appendChild(this.questionDisplay);
 
     // Input-container
     const inputContainer = document.createElement('div');
-    inputContainer.style.cssText = `
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 15px;
-      gap: 10px;
-    `;
+    inputContainer.className = 'input-container';
 
     // Label för input
     const inputLabel = document.createElement('label');
     inputLabel.textContent = i18n.t('ui.answerLabel');
-    inputLabel.style.cssText = `
-      font-size: 16px;
-    `;
+    inputLabel.className = 'input-label';
     inputContainer.appendChild(inputLabel);
 
     // Input för svar
     this.answerInput = document.createElement('input');
     this.answerInput.type = 'number';
     this.answerInput.setAttribute('aria-label', i18n.t('ui.answerLabel'));
-    this.answerInput.style.cssText = `
-      padding: 8px;
-      font-size: 16px;
-      width: 100px;
-      border: none;
-      border-radius: 5px;
-      background: rgba(255,255,255,0.9);
-    `;
+    this.answerInput.className = 'answer-input';
     this.answerInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' && this.getActiveButton()) {
         const activeButton = this.getActiveButton();
@@ -133,49 +92,24 @@ export class GameUI {
     const buttonContainer = document.createElement('div');
     buttonContainer.setAttribute('role', 'group');
     buttonContainer.setAttribute('aria-label', i18n.t('ui.aria.directionButtons'));
-    buttonContainer.style.cssText = `
-      display: grid;
-      grid-template-areas:
-        ". forward ."
-        "left . right"
-        ". back .";
-      grid-gap: 10px;
-      justify-content: center;
-    `;
+    buttonContainer.className = 'direction-grid';
     
     // Skapa riktningsknappar
     this.directionButtons = new Map();
-    const directions: { name: Direction; area: string; symbol: string; translationKey: string }[] = [
-      { name: 'NORTH', area: 'forward', symbol: '⬆️', translationKey: 'ui.directions.north' },
-      { name: 'EAST', area: 'right', symbol: '➡️', translationKey: 'ui.directions.east' },
-      { name: 'WEST', area: 'left', symbol: '⬅️', translationKey: 'ui.directions.west' },
-      { name: 'SOUTH', area: 'back', symbol: '⬇️', translationKey: 'ui.directions.south' }
+    const directions: { name: Direction; cssDir: string; symbol: string; translationKey: string }[] = [
+      { name: 'NORTH', cssDir: 'north', symbol: '⬆️', translationKey: 'ui.directions.north' },
+      { name: 'EAST', cssDir: 'east', symbol: '➡️', translationKey: 'ui.directions.east' },
+      { name: 'WEST', cssDir: 'west', symbol: '⬅️', translationKey: 'ui.directions.west' },
+      { name: 'SOUTH', cssDir: 'south', symbol: '⬇️', translationKey: 'ui.directions.south' }
     ];
 
-    directions.forEach(({ name, area, symbol, translationKey }) => {
+    directions.forEach(({ name, cssDir, symbol, translationKey }) => {
       const button = document.createElement('button');
       button.textContent = `${symbol} ${i18n.t(translationKey)}`;
       button.setAttribute('aria-label', i18n.t(translationKey));
       button.dataset.translationKey = translationKey;
       button.dataset.symbol = symbol;
-      button.style.cssText = `
-        grid-area: ${area};
-        padding: 10px 20px;
-        background: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        display: none;
-      `;
-      button.addEventListener('mouseover', () => {
-        button.style.background = '#45a049';
-      });
-      button.addEventListener('mouseout', () => {
-        button.style.background = '#4CAF50';
-      });
+      button.className = `btn btn-direction btn-direction--${cssDir}`;
       button.onclick = () => {
         const answer = parseInt(this.answerInput.value);
         if (!isNaN(answer)) {
@@ -196,14 +130,7 @@ export class GameUI {
     this.messageDisplay = document.createElement('div');
     this.messageDisplay.setAttribute('role', 'status');
     this.messageDisplay.setAttribute('aria-live', 'polite');
-    this.messageDisplay.style.cssText = `
-      margin-top: 10px;
-      text-align: center;
-      color: #ff4444;
-      min-height: 20px;
-      font-size: 14px;
-      transition: color 0.2s ease;
-    `;
+    this.messageDisplay.className = 'message-display';
     this.container.appendChild(this.messageDisplay);
 
     // Language switcher
@@ -265,7 +192,7 @@ export class GameUI {
   public updateQuestions(questions: Array<{ direction: Direction, question: string }>): void {
     // Uppdatera frågedisplayen
     this.questionDisplay.innerHTML = questions
-      .map(q => `<div style="margin: 5px 0;">${this.getDirectionLabel(q.direction)}: ${q.question}</div>`)
+      .map(q => `<div class="question-row">${this.getDirectionLabel(q.direction)}: ${q.question}</div>`)
       .join('');
 
     // Visa/dölj knappar baserat på tillgängliga riktningar
@@ -302,20 +229,11 @@ export class GameUI {
 
   private createLanguageSwitcher(): HTMLDivElement {
     const container = document.createElement('div');
-    container.style.cssText = `
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    `;
+    container.className = 'language-switcher';
 
     const label = document.createElement('span');
     label.textContent = i18n.t('ui.language.selectLanguage');
-    label.style.cssText = 'font-size: 14px;';
+    label.className = 'language-label';
     label.dataset.translationKey = 'ui.language.selectLanguage';
     container.appendChild(label);
 
@@ -326,16 +244,7 @@ export class GameUI {
       button.textContent = i18n.t(translationKey);
       button.dataset.translationKey = translationKey;
       button.dataset.locale = locale;
-      button.style.cssText = `
-        padding: 5px 15px;
-        background: ${i18n.getLocale() === locale ? '#2196F3' : 'rgba(255,255,255,0.1)'};
-        color: white;
-        border: 1px solid rgba(255,255,255,0.3);
-        border-radius: 3px;
-        cursor: pointer;
-        font-size: 12px;
-        transition: all 0.2s ease;
-      `;
+      button.className = `btn btn-lang${i18n.getLocale() === locale ? ' btn-lang--active' : ''}`;
       button.onclick = () => {
         i18n.setLocale(locale);
       };
@@ -347,26 +256,14 @@ export class GameUI {
 
   private createSoundToggle(sm: IAudioService): HTMLDivElement {
     const container = document.createElement('div');
-    container.style.cssText = `
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-    `;
+    container.className = 'toggle-container';
 
     const button = document.createElement('button');
     const update = () => {
       button.textContent = sm.isEnabled() ? '🔊 ' + i18n.t('ui.sound.on') : '🔇 ' + i18n.t('ui.sound.off');
     };
     update();
-    button.style.cssText = `
-      padding: 5px 15px;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    `;
+    button.className = 'btn btn-ghost';
     button.onclick = () => {
       sm.setEnabled(!sm.isEnabled());
       update();
@@ -377,26 +274,14 @@ export class GameUI {
 
   private createMusicToggle(sm: IAudioService): HTMLDivElement {
     const container = document.createElement('div');
-    container.style.cssText = `
-      margin-top: 5px;
-      display: flex;
-      justify-content: center;
-    `;
+    container.className = 'toggle-container toggle-container--tight';
 
     const button = document.createElement('button');
     const update = () => {
       button.textContent = sm.isMusicPlaying() ? '🎵 ' + i18n.t('ui.music.on') : '🎵 ' + i18n.t('ui.music.off');
     };
     update();
-    button.style.cssText = `
-      padding: 5px 15px;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 3px;
-      cursor: pointer;
-      font-size: 12px;
-    `;
+    button.className = 'btn btn-ghost';
     button.onclick = () => {
       sm.toggleMusic();
       update();
@@ -420,7 +305,11 @@ export class GameUI {
           }
           // Update language switcher button styles
           if (element.dataset.locale) {
-            element.style.background = i18n.getLocale() === element.dataset.locale ? '#2196F3' : 'rgba(255,255,255,0.1)';
+            if (i18n.getLocale() === element.dataset.locale) {
+              element.classList.add('btn-lang--active');
+            } else {
+              element.classList.remove('btn-lang--active');
+            }
           }
         } else {
           element.textContent = i18n.t(key);
@@ -437,14 +326,14 @@ export class GameUI {
 
   public setTimer(timer: GameTimer): void {
     const el = timer.getElement();
-    el.style.cssText = 'font-size: 18px; font-weight: bold;';
+    el.className = 'timer-display';
     this.topBar.appendChild(el);
   }
 
   public setLevel(level: number): void {
     const el = document.createElement('span');
     el.textContent = `${i18n.t('ui.level.label')} ${level}`;
-    el.style.cssText = 'font-size: 16px; font-weight: bold; color: #ffd700;';
+    el.className = 'level-display';
     this.topBar.insertBefore(el, this.topBar.firstChild);
   }
 
