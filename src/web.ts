@@ -10,6 +10,20 @@ const startScreen = new StartScreen();
 let currentLevel = 1;
 let activeSession: GameSession | null = null;
 
+function fadeTransition(callback: () => void): void {
+  const overlay = document.createElement('div');
+  overlay.className = 'level-fade';
+  document.body.appendChild(overlay);
+  // Trigger reflow then fade in
+  void overlay.offsetWidth;
+  overlay.classList.add('level-fade--active');
+  setTimeout(() => {
+    callback();
+    overlay.classList.remove('level-fade--active');
+    setTimeout(() => overlay.remove(), 500);
+  }, 500);
+}
+
 function clearContainers(): void {
   const maze = document.getElementById('maze-container');
   if (maze) maze.innerHTML = '';
@@ -38,12 +52,14 @@ function startGame(config: GameConfig, level?: number) {
       if (nextLevel !== undefined) {
         currentLevel = nextLevel;
         const def = LEVELS[Math.min(currentLevel - 1, LEVELS.length - 1)];
-        startGame({
-          mazeSize: def.mazeSize,
-          mathDifficulty: def.mathDifficulty,
-          timerEnabled: def.timerSeconds > 0,
-          timerSeconds: def.timerSeconds,
-        }, currentLevel);
+        fadeTransition(() => {
+          startGame({
+            mazeSize: def.mazeSize,
+            mathDifficulty: def.mathDifficulty,
+            timerEnabled: def.timerSeconds > 0,
+            timerSeconds: def.timerSeconds,
+          }, currentLevel);
+        });
       }
     },
     onTimeUp: (onRetry, onMenu) => {
