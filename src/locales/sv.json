@@ -83,7 +83,11 @@
       "timer": "Tidsgräns:",
       "timerOff": "Av",
       "start": "Starta spelet",
-      "startLevel": "Starta nivå"
+      "startLevel": "Starta nivå",
+      "levelMode": "Nivåläge",
+      "levelModeDesc": "Spela nivå för nivå med ökande svårighet",
+      "freePlay": "Fritt spel",
+      "freePlayDesc": "Välj storlek och svårighet själv"
     },
     "level": {
       "label": "Nivå",

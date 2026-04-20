@@ -83,7 +83,11 @@
       "timer": "Aikaraja:",
       "timerOff": "Pois",
       "start": "Aloita peli",
-      "startLevel": "Aloita taso"
+      "startLevel": "Aloita taso",
+      "levelMode": "Tasotila",
+      "levelModeDesc": "Pelaa taso tasolta kasvavalla vaikeusasteella",
+      "freePlay": "Vapaa peli",
+      "freePlayDesc": "Valitse koko ja vaikeusaste itse"
     },
     "level": {
       "label": "Taso",

@@ -83,7 +83,11 @@
       "timer": "Time limit:",
       "timerOff": "Off",
       "start": "Start game",
-      "startLevel": "Start level"
+      "startLevel": "Start level",
+      "levelMode": "Level mode",
+      "levelModeDesc": "Play level by level with increasing difficulty",
+      "freePlay": "Free play",
+      "freePlayDesc": "Choose size and difficulty yourself"
     },
     "level": {
       "label": "Level",
