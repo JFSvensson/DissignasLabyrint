@@ -71,6 +71,9 @@ const mockGameUI = {
   showFeedback: jest.fn(),
   updateScore: jest.fn(),
   updateQuestions: jest.fn(),
+  updateExploration: jest.fn(),
+  showFinishButton: jest.fn(),
+  hideFinishButton: jest.fn(),
   setTimer: jest.fn(),
   setLevel: jest.fn(),
   showVictoryScreen: jest.fn(),
@@ -114,6 +117,19 @@ jest.mock('../../src/game/PowerUpManager', () => ({
   PowerUpManager: jest.fn(() => mockPowerUpManager),
 }));
 
+const mockExplorationTracker = {
+  markVisited: jest.fn(),
+  getVisitedCount: jest.fn(() => 1),
+  getTotalCells: jest.fn(() => 8),
+  getPercentage: jest.fn(() => 13),
+  isFullyExplored: jest.fn(() => false),
+  getTotalQuestions: jest.fn(() => 0),
+};
+
+jest.mock('../../src/game/ExplorationTracker', () => ({
+  ExplorationTracker: jest.fn(() => mockExplorationTracker),
+}));
+
 jest.mock('../../src/game/ScoreTracker', () => ({
   ScoreTracker: jest.fn(() => mockScoreTracker),
 }));
@@ -127,6 +143,7 @@ const mockScoreTracker = {
   getStreak: jest.fn(() => 0),
   getBestStreak: jest.fn(() => 0),
   getAccuracy: jest.fn(() => 0),
+  addExplorationBonus: jest.fn(),
   reset: jest.fn(),
 };
 
@@ -383,8 +400,35 @@ describe('GameSession', () => {
     });
   });
 
-  describe('victory', () => {
-    it('should trigger victory when goal reached', () => {
+  describe('goal reached — voluntary finish', () => {
+    it('should show finish button when reaching goal', () => {
+      new GameSession(baseConfig, soundManager, callbacks, 2);
+      mockMazeLogic.isGoalReached.mockReturnValue(true);
+
+      mockOnAnswer(4, 'EAST');
+
+      expect(mockGameUI.showFinishButton).toHaveBeenCalledWith(
+        expect.any(Number),
+        expect.any(Function)
+      );
+      // Should NOT auto-trigger victory
+      expect(soundManager.playVictory).not.toHaveBeenCalled();
+    });
+
+    it('should hide finish button when moving away from goal', () => {
+      new GameSession(baseConfig, soundManager, callbacks);
+      // First reach goal
+      mockMazeLogic.isGoalReached.mockReturnValue(true);
+      mockOnAnswer(4, 'EAST');
+      expect(mockGameUI.showFinishButton).toHaveBeenCalled();
+
+      // Then move away
+      mockMazeLogic.isGoalReached.mockReturnValue(false);
+      mockOnAnswer(4, 'SOUTH');
+      expect(mockGameUI.hideFinishButton).toHaveBeenCalled();
+    });
+
+    it('should trigger victory when finish button callback invoked', () => {
       const { stats } = jest.requireMock('../../src/game/StatsManager');
       new GameSession(baseConfig, soundManager, callbacks, 2);
       mockMazeLogic.isGoalReached.mockReturnValue(true);
@@ -393,6 +437,10 @@ describe('GameSession', () => {
       mockScoreTracker.getBestStreak.mockReturnValue(3);
 
       mockOnAnswer(4, 'EAST');
+
+      // Extract the onFinish callback from showFinishButton
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
 
       expect(soundManager.playVictory).toHaveBeenCalled();
       expect(mockMazeRenderer.emitVictoryConfetti).toHaveBeenCalledWith(1, 1);
@@ -413,6 +461,8 @@ describe('GameSession', () => {
       mockMazeLogic.isGoalReached.mockReturnValue(true);
 
       mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
       expect(mockGameUI.showVictoryScreen).not.toHaveBeenCalled();
 
       jest.advanceTimersByTime(500);
@@ -424,6 +474,8 @@ describe('GameSession', () => {
       mockMazeLogic.isGoalReached.mockReturnValue(true);
 
       mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
 
       expect(mockTimerInstance.stop).toHaveBeenCalled();
     });
@@ -433,9 +485,10 @@ describe('GameSession', () => {
       mockMazeLogic.isGoalReached.mockReturnValue(true);
 
       mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
       jest.advanceTimersByTime(500);
 
-      // showVictoryScreen's 7th arg is onNextLevel callback (not undefined)
       const call = mockGameUI.showVictoryScreen.mock.calls[0];
       expect(call[6]).toBeInstanceOf(Function); // onNextLevel exists
     });
@@ -445,10 +498,40 @@ describe('GameSession', () => {
       mockMazeLogic.isGoalReached.mockReturnValue(true);
 
       mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
       jest.advanceTimersByTime(500);
 
       const call = mockGameUI.showVictoryScreen.mock.calls[0];
-      expect(call[6]).toBeUndefined(); // no onNextLevel
+      expect(call[6]).toBeUndefined();
+    });
+
+    it('should pass exploration data to victory screen', () => {
+      new GameSession(baseConfig, soundManager, callbacks, 1);
+      mockMazeLogic.isGoalReached.mockReturnValue(true);
+      mockScoreTracker.getScore.mockReturnValue(100);
+
+      mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
+      jest.advanceTimersByTime(500);
+
+      const call = mockGameUI.showVictoryScreen.mock.calls[0];
+      expect(call[8]).toEqual(expect.any(Number)); // explorationPercentage
+      expect(call[9]).toEqual(expect.any(Number)); // explorationBonus
+      expect(call[10]).toEqual(expect.any(Number)); // starCount
+    });
+
+    it('should add exploration bonus to score', () => {
+      new GameSession(baseConfig, soundManager, callbacks, 1);
+      mockMazeLogic.isGoalReached.mockReturnValue(true);
+      mockScoreTracker.getScore.mockReturnValue(100);
+
+      mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
+
+      expect(mockScoreTracker.addExplorationBonus).toHaveBeenCalled();
     });
   });
 
