@@ -155,4 +155,28 @@ describe('StatsManager', () => {
       expect(scores[0].timeRemaining).toBe(45);
     });
   });
+
+  describe('bestStars', () => {
+    it('should save and retrieve best stars for a level', () => {
+      manager.saveBestStars(1, 2);
+      expect(manager.getBestStars(1)).toBe(2);
+    });
+
+    it('should only save if new stars are higher', () => {
+      manager.saveBestStars(1, 3);
+      manager.saveBestStars(1, 2);
+      expect(manager.getBestStars(1)).toBe(3);
+    });
+
+    it('should return 0 for levels without stars', () => {
+      expect(manager.getBestStars(99)).toBe(0);
+    });
+
+    it('should track stars independently per level', () => {
+      manager.saveBestStars(1, 1);
+      manager.saveBestStars(2, 3);
+      expect(manager.getBestStars(1)).toBe(1);
+      expect(manager.getBestStars(2)).toBe(3);
+    });
+  });
 });
