@@ -161,7 +161,9 @@ jest.mock('../../src/services/TranslationService', () => ({
 jest.mock('../../src/game/StatsManager', () => ({
   stats: {
     saveGameResult: jest.fn(() => false),
-    getStats: jest.fn(() => ({ highScores: [], highestLevel: 1, totalGamesPlayed: 0, totalGamesWon: 0 })),
+    saveBestStars: jest.fn(),
+    getBestStars: jest.fn(() => 0),
+    getStats: jest.fn(() => ({ highScores: [], highestLevel: 1, totalGamesPlayed: 0, totalGamesWon: 0, bestStars: {} })),
     getHighScores: jest.fn(() => []),
   },
 }));
