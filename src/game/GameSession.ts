@@ -11,6 +11,7 @@ import { PowerUpManager } from './PowerUpManager';
 import { IAudioService } from '../interfaces/IAudioService';
 import { i18n } from '../services/TranslationService';
 import { stats } from './StatsManager';
+import { ExplorationTracker } from './ExplorationTracker';
 
 export interface GameSessionCallbacks {
   onVictory: (level: number | undefined, nextLevel: number | undefined) => void;
@@ -29,7 +30,9 @@ export class GameSession {
   private readonly level: number | undefined;
   private readonly soundManager: IAudioService;
   private readonly callbacks: GameSessionCallbacks;
+  private readonly explorationTracker: ExplorationTracker;
   private timer: GameTimer | null = null;
+  private atGoal: boolean = false;
 
   constructor(
     config: GameConfig,
@@ -46,6 +49,7 @@ export class GameSession {
     this.mazeLogic = new MazeLogic(mazeLayout);
     this.scoreTracker = new ScoreTracker();
     this.powerUpManager = new PowerUpManager();
+    this.explorationTracker = new ExplorationTracker(mazeLayout);
 
     this.powerUpManager.placePowerUps(mazeLayout, 3);
 
@@ -81,6 +85,10 @@ export class GameSession {
 
   public getTimer(): GameTimer | null {
     return this.timer;
+  }
+
+  public getExplorationTracker(): ExplorationTracker {
+    return this.explorationTracker;
   }
 
   private handleAnswer(answer: number, direction: Direction): void {
@@ -121,10 +129,24 @@ export class GameSession {
     this.soundManager.playMove();
 
     const newPos = this.mazeLogic.getPlayer().getMazePosition();
+    this.explorationTracker.markVisited(newPos);
+    this.gameUI.updateExploration(
+      this.explorationTracker.getVisitedCount(),
+      this.explorationTracker.getTotalCells(),
+      this.explorationTracker.getPercentage()
+    );
     this.handlePowerUpCollection(newPos);
 
-    if (this.mazeLogic.isGoalReached(newPos)) {
-      this.handleVictory();
+    const isAtGoal = this.mazeLogic.isGoalReached(newPos);
+    if (isAtGoal && !this.atGoal) {
+      this.atGoal = true;
+      this.gameUI.showFinishButton(
+        this.explorationTracker.getPercentage(),
+        () => this.handleVictory()
+      );
+    } else if (!isAtGoal && this.atGoal) {
+      this.atGoal = false;
+      this.gameUI.hideFinishButton();
     }
   }
 
@@ -177,11 +199,20 @@ export class GameSession {
 
   private handleVictory(): void {
     if (this.timer) { this.timer.stop(); }
+    this.gameUI.hideFinishButton();
     this.soundManager.playVictory();
 
     // Victory confetti at player position
     const pos = this.mazeLogic.getPlayer().getMazePosition();
     this.mazeRenderer.emitVictoryConfetti(pos.x, pos.z);
+
+    // Exploration bonus
+    const explorationPct = this.explorationTracker.getPercentage();
+    const explorationBonus = this.calcExplorationBonus(explorationPct);
+    this.scoreTracker.addExplorationBonus(explorationBonus);
+
+    // Star rating
+    const starCount = this.calcStarRating(explorationPct, this.scoreTracker.getAccuracy());
 
     const timeRemaining = this.timer ? this.timer.getRemainingSeconds() : undefined;
     const isNewHighScore = stats.saveGameResult({
@@ -211,8 +242,25 @@ export class GameSession {
         hasNextLevel ? () => {
           this.callbacks.onVictory(this.level, nextLevel);
         } : undefined,
-        isNewHighScore
+        isNewHighScore,
+        explorationPct,
+        explorationBonus,
+        starCount
       );
     }, 500);
+  }
+
+  private calcExplorationBonus(percentage: number): number {
+    const baseScore = this.scoreTracker.getScore();
+    if (percentage >= 100) return Math.round(baseScore * 0.5);
+    if (percentage >= 75) return Math.round(baseScore * 0.25);
+    if (percentage >= 50) return Math.round(baseScore * 0.1);
+    return 0;
+  }
+
+  private calcStarRating(explorationPct: number, accuracy: number): number {
+    if (explorationPct >= 100 && accuracy >= 80) return 3;
+    if (explorationPct >= 75 && accuracy >= 60) return 2;
+    return 1;
   }
 }
