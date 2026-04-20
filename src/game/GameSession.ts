@@ -13,7 +13,7 @@ import { i18n } from '../services/TranslationService';
 import { stats } from './StatsManager';
 import { ExplorationTracker } from './ExplorationTracker';
 import { calcStarRating, calcExplorationBonus } from './StarRating';
-import { getThemeForLevel } from './themes';
+import { getThemeForLevel, getThemeForMazeSize } from './themes';
 
 export interface GameSessionCallbacks {
   onVictory: (level: number | undefined, nextLevel: number | undefined) => void;
@@ -60,7 +60,7 @@ export class GameSession {
 
     this.mazeRenderer = new MazeRenderer(
       'maze-container', mazeLayout, this.mazeLogic,
-      level !== undefined ? getThemeForLevel(level) : undefined
+      level !== undefined ? getThemeForLevel(level) : getThemeForMazeSize(config.mazeSize)
     );
     this.mazeRenderer.addPowerUps(this.powerUpManager.getPowerUps());
 
