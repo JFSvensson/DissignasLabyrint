@@ -41,7 +41,17 @@ export function showStartScreen(level?: number) {
 
   startScreen.show((config) => {
     startGame(config, level);
-  }, level);
+  }, level, () => {
+    // Level mode: start from level 1
+    currentLevel = 1;
+    const def = LEVELS[0];
+    startGame({
+      mazeSize: def.mazeSize,
+      mathDifficulty: def.mathDifficulty,
+      timerEnabled: def.timerSeconds > 0,
+      timerSeconds: def.timerSeconds,
+    }, currentLevel);
+  });
 }
 
 function startGame(config: GameConfig, level?: number) {
