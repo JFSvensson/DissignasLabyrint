@@ -8,6 +8,7 @@ export interface GameResult {
   mazeSize: number;
   difficulty: MathDifficulty;
   timeRemaining?: number;
+  starCount?: number;
   date: string;
 }
 
@@ -16,6 +17,7 @@ export interface GameStats {
   highestLevel: number;
   totalGamesPlayed: number;
   totalGamesWon: number;
+  bestStars: Record<number, number>;
 }
 
 const STORAGE_KEY = 'dissignas-labyrint-stats';
@@ -78,6 +80,20 @@ export class StatsManager {
     localStorage.removeItem(STORAGE_KEY);
   }
 
+  public saveBestStars(level: number, stars: number): void {
+    const stats = this.getStats();
+    if (!stats.bestStars) stats.bestStars = {};
+    if (stars > (stats.bestStars[level] ?? 0)) {
+      stats.bestStars[level] = stars;
+      this.saveStats(stats);
+    }
+  }
+
+  public getBestStars(level: number): number {
+    const stats = this.getStats();
+    return stats.bestStars?.[level] ?? 0;
+  }
+
   private saveStats(stats: GameStats): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
   }
@@ -88,6 +104,7 @@ export class StatsManager {
       highestLevel: 0,
       totalGamesPlayed: 0,
       totalGamesWon: 0,
+      bestStars: {},
     };
   }
 
