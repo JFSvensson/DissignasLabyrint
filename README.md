@@ -15,6 +15,12 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Progressive difficulty based on maze position (3 tiers of operations)
 - Selectable maze size (5×5 to 13×13) and math difficulty (easy/medium/hard)
 - 7-level progression system with increasing challenge
+- Level mode (structured progression) and free play mode from the start screen
+- Exploration tracking with live progress bar and percentage
+- Voluntary goal completion — player chooses when to finish
+- Star rating system (1–3 stars based on exploration % and accuracy)
+- Exploration bonus: extra score for thorough maze coverage
+- Visual themes: Stone Dungeon, Forest, Space Station — rotate by level or maze size
 - Optional countdown timer for extra challenge
 - Tutorial / how-to-play screen
 - Visited cells highlighted in 3D view
@@ -77,19 +83,24 @@ src/
   web.ts                  # Entry point, game flow & level progression
   game/
     GameConfig.ts         # Difficulty settings, level definitions
+    GameSession.ts        # Orchestrates a single game session
     GameTimer.ts          # Countdown timer component
-    StartScreen.ts        # Start/settings screen with tutorial
+    StartScreen.ts        # Start/settings screen with level mode & free play
+    ExplorationTracker.ts # Tracks visited cells and exploration percentage
+    StarRating.ts         # Star rating & exploration bonus calculation
+    VictoryScreen.ts      # Victory overlay with stars, exploration stats
     MazeGenerator.ts      # Recursive backtracking maze algorithm
     MazeLogic.ts          # Game state, movement, events
-    MazeRenderer.ts       # Three.js 3D rendering, visited cells, power-ups
+    MazeRenderer.ts       # Three.js 3D rendering, visited cells, power-ups, themes
     Player.ts             # Player entity (logic + mesh)
     PlayerLogic.ts        # Pure player state management
     PowerUpManager.ts     # Power-up placement & collection
     QuestionGenerator.ts  # Difficulty-scaled math questions
     ScoreTracker.ts       # Points, streaks, accuracy
-    StatsManager.ts       # Persistent stats & high scores (localStorage)
+    StatsManager.ts       # Persistent stats, high scores & best stars (localStorage)
     SoundManager.ts       # Procedural audio (Web Audio API)
-    UI.ts                 # Game UI (DOM), timer, level, share
+    themes.ts             # Visual theme definitions (stone, forest, space)
+    UI.ts                 # Game UI (DOM), timer, level, exploration bar
     types.ts              # TypeScript type definitions
     constants.ts          # Game constants
   operations/             # Math operations (Addition, Subtraction, Multiplication, Division, Modulo, Power)
@@ -99,7 +110,7 @@ src/
   types/
     translations.ts       # Type-safe translation keys
 .github/workflows/ci.yml  # CI/CD: test + deploy to GitHub Pages
-tests/                    # Jest test suite (226+ tests)
+tests/                    # Jest test suite (288 tests)
 public/
   index.html              # PWA-enabled HTML shell
   manifest.json           # PWA manifest
