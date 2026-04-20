@@ -21,6 +21,7 @@ import { PowerUp } from './PowerUpManager';
 import { PowerUpVisualManager } from './PowerUpVisualManager';
 import { TextureFactory } from './TextureFactory';
 import { ParticleSystem } from './ParticleSystem';
+import { MazeTheme, THEMES } from './themes';
 
 export class MazeRenderer {
   private scene: Scene;
@@ -48,8 +49,10 @@ export class MazeRenderer {
   private lastTime: number = 0;
   private resizeHandler: () => void;
   private animationFrameId: number = 0;
+  private theme: MazeTheme;
 
-  constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic) {
+  constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic, theme?: MazeTheme) {
+    this.theme = theme ?? THEMES[0];
     this.scene = new Scene();
     this.powerUpVisuals = new PowerUpVisualManager(this.scene);
     this.particles = new ParticleSystem(this.scene);
@@ -73,12 +76,12 @@ export class MazeRenderer {
     container?.appendChild(this.renderer.domElement);
 
     // Fog for depth
-    this.scene.fog = new FogExp2(0x0d0d1a, 0.035);
+    this.scene.fog = new FogExp2(this.theme.fogColor, this.theme.fogDensity);
 
     // Lighting
-    const ambient = new AmbientLight(MAZE_COLORS.AMBIENT_LIGHT, 0.5);
+    const ambient = new AmbientLight(this.theme.ambientColor, 0.5);
     this.scene.add(ambient);
-    const sun = new DirectionalLight(MAZE_COLORS.DIRECTIONAL_LIGHT, 0.9);
+    const sun = new DirectionalLight(this.theme.directionalColor, 0.9);
     sun.position.set(mazeLayout.length, mazeLayout.length * 1.5, mazeLayout[0].length * 0.5);
     sun.castShadow = true;
     sun.shadow.mapSize.width = 2048;
@@ -126,7 +129,7 @@ export class MazeRenderer {
 
   private initMaze(mazeLayout: number[][]): void {
     // Procedural brick texture for walls
-    const brickTexture = TextureFactory.createBrickTexture('#7744aa', '#332255');
+    const brickTexture = TextureFactory.createBrickTexture(this.theme.wallColor, this.theme.wallGrout);
     const wallMaterial = new MeshStandardMaterial({ 
       map: brickTexture,
       roughness: 0.7,
@@ -142,7 +145,7 @@ export class MazeRenderer {
     });
 
     // Procedural tiled floor texture
-    const floorTexture = TextureFactory.createFloorTexture();
+    const floorTexture = TextureFactory.createFloorTexture(this.theme.floorColor1, this.theme.floorColor2);
     floorTexture.repeat.set(mazeLayout.length / 2, mazeLayout[0].length / 2);
     const floorGeometry = new BoxGeometry(mazeLayout.length, 0.1, mazeLayout[0].length);
     const floorMaterial = new MeshStandardMaterial({ 
