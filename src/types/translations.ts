@@ -46,6 +46,10 @@ export type TranslationKey =
   | 'ui.settings.timerOff'
   | 'ui.settings.start'
   | 'ui.settings.startLevel'
+  | 'ui.settings.levelMode'
+  | 'ui.settings.levelModeDesc'
+  | 'ui.settings.freePlay'
+  | 'ui.settings.freePlayDesc'
   // Level
   | 'ui.level.label'
   | 'ui.level.complete'
