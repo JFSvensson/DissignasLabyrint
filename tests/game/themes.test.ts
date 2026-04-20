@@ -1,4 +1,4 @@
-import { getThemeForLevel, THEMES } from '../../src/game/themes';
+import { getThemeForLevel, getThemeForMazeSize, THEMES } from '../../src/game/themes';
 
 describe('getThemeForLevel', () => {
   it('returns stone theme for levels 1-3', () => {
@@ -33,5 +33,21 @@ describe('getThemeForLevel', () => {
       expect(typeof theme.ambientColor).toBe('number');
       expect(typeof theme.directionalColor).toBe('number');
     }
+  });
+});
+
+describe('getThemeForMazeSize', () => {
+  it('returns stone theme for small mazes (5)', () => {
+    expect(getThemeForMazeSize(5).name).toBe('stone');
+  });
+
+  it('returns forest theme for medium mazes (7-9)', () => {
+    expect(getThemeForMazeSize(7).name).toBe('forest');
+    expect(getThemeForMazeSize(9).name).toBe('forest');
+  });
+
+  it('returns space theme for large mazes (11+)', () => {
+    expect(getThemeForMazeSize(11).name).toBe('space');
+    expect(getThemeForMazeSize(13).name).toBe('space');
   });
 });
