@@ -59,3 +59,10 @@ export function getThemeForLevel(level: number): MazeTheme {
   if (level >= 4) return THEMES[1]; // forest
   return THEMES[0]; // stone
 }
+
+/** Pick a theme for free play based on maze size. */
+export function getThemeForMazeSize(mazeSize: number): MazeTheme {
+  if (mazeSize >= 11) return THEMES[2]; // space
+  if (mazeSize >= 7)  return THEMES[1]; // forest
+  return THEMES[0]; // stone
+}
