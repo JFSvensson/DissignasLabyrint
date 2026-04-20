@@ -115,6 +115,17 @@
     "stats": {
       "gamesWon": "Voitot",
       "highestLevel": "Korkein taso"
+    },
+    "exploration": {
+      "cells": "solua",
+      "finishButton": "Lopeta taso",
+      "explored": "tutkittu",
+      "bonus": "Tutkimusbonus"
+    },
+    "stars": {
+      "one": "Saavutit maalin!",
+      "two": "Hyvin tutkittu!",
+      "three": "Täydellinen tutkimus!"
     }
   }
 }
