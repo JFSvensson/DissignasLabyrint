@@ -52,6 +52,10 @@ export class ScoreTracker {
     return Math.round((this.correctAnswers / this.attempts) * 100);
   }
 
+  public addExplorationBonus(bonus: number): void {
+    this.score += bonus;
+  }
+
   public reset(): void {
     this.score = 0;
     this.attempts = 0;
