@@ -9,10 +9,13 @@ export interface VictoryScreenOptions {
   timeRemaining?: number;
   onNextLevel?: () => void;
   isNewHighScore?: boolean;
+  explorationPercentage?: number;
+  explorationBonus?: number;
+  starCount?: number;
 }
 
 export function showVictoryScreen(opts: VictoryScreenOptions): void {
-  const { score, attempts, accuracy, bestStreak, onPlayAgain, timeRemaining, onNextLevel, isNewHighScore } = opts;
+  const { score, attempts, accuracy, bestStreak, onPlayAgain, timeRemaining, onNextLevel, isNewHighScore, explorationPercentage, explorationBonus, starCount } = opts;
 
   const overlay = document.createElement('div');
   overlay.className = 'overlay-backdrop';
@@ -78,7 +81,35 @@ export function showVictoryScreen(opts: VictoryScreenOptions): void {
 
   victoryBox.appendChild(title);
   victoryBox.appendChild(message);
+
+  // Star rating
+  if (starCount !== undefined && starCount > 0) {
+    const starDiv = document.createElement('div');
+    starDiv.className = 'star-rating';
+    for (let i = 0; i < 3; i++) {
+      const star = document.createElement('span');
+      star.className = `star-rating__star${i < starCount ? ' star-rating__star--earned' : ''}`;
+      star.textContent = '⭐';
+      starDiv.appendChild(star);
+    }
+    victoryBox.appendChild(starDiv);
+  }
+
   victoryBox.appendChild(statsContainer);
+
+  // Exploration bonus
+  if (explorationPercentage !== undefined) {
+    const explText = document.createElement('p');
+    explText.textContent = `🗺️ ${explorationPercentage}% ${i18n.t('ui.exploration.explored')}`;
+    explText.className = 'stat-md';
+    statsContainer.appendChild(explText);
+  }
+  if (explorationBonus !== undefined && explorationBonus > 0) {
+    const bonusText = document.createElement('p');
+    bonusText.textContent = `✨ ${i18n.t('ui.exploration.bonus')}: +${explorationBonus}`;
+    bonusText.className = 'exploration-bonus';
+    statsContainer.appendChild(bonusText);
+  }
 
   if (onNextLevel) {
     const nextLevelButton = document.createElement('button');
