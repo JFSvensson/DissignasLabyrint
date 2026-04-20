@@ -121,6 +121,30 @@ describe('StartScreen', () => {
       expect(document.body.textContent).toContain('3');
     });
 
+    it('should show level mode button when onLevelMode is provided', () => {
+      const onLevelMode = jest.fn();
+      startScreen.show(jest.fn(), undefined, onLevelMode);
+      const buttons = document.body.querySelectorAll('button');
+      const levelModeBtn = Array.from(buttons).find(b => b.textContent?.includes('ui.settings.levelMode'));
+      expect(levelModeBtn).toBeTruthy();
+    });
+
+    it('should call onLevelMode callback when level mode button clicked', () => {
+      const onLevelMode = jest.fn();
+      startScreen.show(jest.fn(), undefined, onLevelMode);
+      const buttons = document.body.querySelectorAll('button');
+      const levelModeBtn = Array.from(buttons).find(b => b.textContent?.includes('ui.settings.levelMode'));
+      levelModeBtn!.click();
+      expect(onLevelMode).toHaveBeenCalled();
+    });
+
+    it('should not show level mode button when in level mode', () => {
+      startScreen.show(jest.fn(), 3, jest.fn());
+      const buttons = document.body.querySelectorAll('button');
+      const levelModeBtn = Array.from(buttons).find(b => b.textContent?.includes('ui.settings.levelMode'));
+      expect(levelModeBtn).toBeFalsy();
+    });
+
     it('should remove overlay after start', () => {
       startScreen.show(jest.fn());
       const buttons = document.body.querySelectorAll('button');
