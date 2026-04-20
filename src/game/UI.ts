@@ -15,6 +15,8 @@ export class GameUI {
   private soundManager: IAudioService | null;
   private topBar: HTMLDivElement;
   private localeChangeHandler: () => void;
+  private explorationBar: HTMLDivElement | null = null;
+  private finishButton: HTMLButtonElement | null = null;
 
   constructor(containerId: string, onAnswer: (answer: number, direction: Direction) => void, soundManager?: IAudioService) {
     this.soundManager = soundManager || null;
@@ -337,7 +339,60 @@ export class GameUI {
     this.topBar.insertBefore(el, this.topBar.firstChild);
   }
 
-  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void, timeRemaining?: number, onNextLevel?: () => void, isNewHighScore?: boolean): void {
-    showVictoryOverlay({ score, attempts, accuracy, bestStreak, onPlayAgain, timeRemaining, onNextLevel, isNewHighScore });
+  public updateExploration(visited: number, total: number, percentage: number): void {
+    if (!this.explorationBar) {
+      this.explorationBar = document.createElement('div');
+      this.explorationBar.className = 'exploration-bar';
+      this.explorationBar.innerHTML = `
+        <span class="exploration-label"></span>
+        <div class="exploration-track"><div class="exploration-fill"></div></div>
+      `;
+      // Insert after score display
+      const scoreDisplay = this.container.querySelector('#score-display');
+      if (scoreDisplay && scoreDisplay.nextSibling) {
+        this.container.insertBefore(this.explorationBar, scoreDisplay.nextSibling);
+      } else {
+        this.container.appendChild(this.explorationBar);
+      }
+    }
+    const label = this.explorationBar.querySelector('.exploration-label') as HTMLSpanElement;
+    const fill = this.explorationBar.querySelector('.exploration-fill') as HTMLDivElement;
+    label.textContent = `${visited}/${total} ${i18n.t('ui.exploration.cells')} (${percentage}%)`;
+    fill.style.width = `${percentage}%`;
+
+    // Color coding
+    fill.classList.remove('exploration-fill--low', 'exploration-fill--mid', 'exploration-fill--high', 'exploration-fill--full');
+    if (percentage >= 100) fill.classList.add('exploration-fill--full');
+    else if (percentage >= 67) fill.classList.add('exploration-fill--high');
+    else if (percentage >= 33) fill.classList.add('exploration-fill--mid');
+    else fill.classList.add('exploration-fill--low');
+  }
+
+  public showFinishButton(percentage: number, onFinish: () => void): void {
+    if (this.finishButton) {
+      this.finishButton.remove();
+    }
+    this.finishButton = document.createElement('button');
+    this.finishButton.className = 'btn btn-accent btn-finish';
+    this.finishButton.textContent = `🏁 ${i18n.t('ui.exploration.finishButton')} (${percentage}% ${i18n.t('ui.exploration.explored')})`;
+    this.finishButton.onclick = onFinish;
+    // Insert before direction buttons
+    const dirGrid = this.container.querySelector('.direction-grid');
+    if (dirGrid) {
+      this.container.insertBefore(this.finishButton, dirGrid);
+    } else {
+      this.container.appendChild(this.finishButton);
+    }
+  }
+
+  public hideFinishButton(): void {
+    if (this.finishButton) {
+      this.finishButton.remove();
+      this.finishButton = null;
+    }
+  }
+
+  public showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: () => void, timeRemaining?: number, onNextLevel?: () => void, isNewHighScore?: boolean, explorationPercentage?: number, explorationBonus?: number, starCount?: number): void {
+    showVictoryOverlay({ score, attempts, accuracy, bestStreak, onPlayAgain, timeRemaining, onNextLevel, isNewHighScore, explorationPercentage, explorationBonus, starCount });
   }
 }
