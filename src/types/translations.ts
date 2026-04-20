@@ -92,7 +92,16 @@ export type TranslationKey =
   | 'ui.highscore.level'
   | 'ui.highscore.date'
   | 'ui.stats.gamesWon'
-  | 'ui.stats.highestLevel';
+  | 'ui.stats.highestLevel'
+  // Exploration
+  | 'ui.exploration.cells'
+  | 'ui.exploration.finishButton'
+  | 'ui.exploration.explored'
+  | 'ui.exploration.bonus'
+  // Stars
+  | 'ui.stars.one'
+  | 'ui.stars.two'
+  | 'ui.stars.three';
 
 /**
  * Extend this type when adding new translation keys to ensure type safety
