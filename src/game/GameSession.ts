@@ -12,6 +12,8 @@ import { IAudioService } from '../interfaces/IAudioService';
 import { i18n } from '../services/TranslationService';
 import { stats } from './StatsManager';
 import { ExplorationTracker } from './ExplorationTracker';
+import { calcStarRating, calcExplorationBonus } from './StarRating';
+import { getThemeForLevel } from './themes';
 
 export interface GameSessionCallbacks {
   onVictory: (level: number | undefined, nextLevel: number | undefined) => void;
@@ -56,7 +58,10 @@ export class GameSession {
     const questionGenerator = new QuestionGenerator();
     questionGenerator.generateQuestionsForMaze(this.mazeLogic, mazeLayout, config.mathDifficulty);
 
-    this.mazeRenderer = new MazeRenderer('maze-container', mazeLayout, this.mazeLogic);
+    this.mazeRenderer = new MazeRenderer(
+      'maze-container', mazeLayout, this.mazeLogic,
+      level !== undefined ? getThemeForLevel(level) : undefined
+    );
     this.mazeRenderer.addPowerUps(this.powerUpManager.getPowerUps());
 
     this.gameUI = new GameUI(
@@ -208,11 +213,11 @@ export class GameSession {
 
     // Exploration bonus
     const explorationPct = this.explorationTracker.getPercentage();
-    const explorationBonus = this.calcExplorationBonus(explorationPct);
+    const explorationBonus = calcExplorationBonus(this.scoreTracker.getScore(), explorationPct);
     this.scoreTracker.addExplorationBonus(explorationBonus);
 
     // Star rating
-    const starCount = this.calcStarRating(explorationPct, this.scoreTracker.getAccuracy());
+    const starCount = calcStarRating(explorationPct, this.scoreTracker.getAccuracy());
 
     const timeRemaining = this.timer ? this.timer.getRemainingSeconds() : undefined;
     const isNewHighScore = stats.saveGameResult({
@@ -223,8 +228,11 @@ export class GameSession {
       mazeSize: this.config.mazeSize,
       difficulty: this.config.mathDifficulty,
       timeRemaining,
+      starCount,
       date: new Date().toISOString(),
     });
+
+    stats.saveBestStars(this.level ?? 0, starCount);
 
     const nextLevel = this.level !== undefined ? this.level + 1 : undefined;
     const hasNextLevel = nextLevel !== undefined && nextLevel <= LEVELS.length;
@@ -250,17 +258,4 @@ export class GameSession {
     }, 500);
   }
 
-  private calcExplorationBonus(percentage: number): number {
-    const baseScore = this.scoreTracker.getScore();
-    if (percentage >= 100) return Math.round(baseScore * 0.5);
-    if (percentage >= 75) return Math.round(baseScore * 0.25);
-    if (percentage >= 50) return Math.round(baseScore * 0.1);
-    return 0;
-  }
-
-  private calcStarRating(explorationPct: number, accuracy: number): number {
-    if (explorationPct >= 100 && accuracy >= 80) return 3;
-    if (explorationPct >= 75 && accuracy >= 60) return 2;
-    return 1;
-  }
 }
