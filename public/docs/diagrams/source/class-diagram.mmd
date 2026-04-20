@@ -1,5 +1,5 @@
 %% DissignasLabyrint - Class Diagram
-%% Senast uppdaterad: 2026-04-15
+%% Senast uppdaterad: 2026-04-20
 
 classDiagram
     class MazeRenderer {
@@ -15,9 +15,10 @@ classDiagram
         -mazeLayout: number[][]
         -powerUpMeshes: Map~string, Mesh~
         -animationTime: number
+        -theme: MazeTheme
         -POWER_UP_COLORS$: Record~PowerUpType, number~
         -POWER_UP_EMISSIVE$: Record~PowerUpType, number~
-        +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic)
+        +constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic, theme?: MazeTheme)
         +getMazeLogic(): MazeLogic
         +setUI(ui: GameUI): void
         +addPowerUps(powerUps: PowerUp[]): void
@@ -98,6 +99,9 @@ classDiagram
         +setTimer(timer: GameTimer): void
         +setLevel(level: number): void
         +showVictoryScreen(score: number, attempts: number, accuracy: number, bestStreak: number, onPlayAgain: Function, timeRemaining?: number, onNextLevel?: Function, isNewHighScore?: boolean): void
+        +updateExploration(visited: number, total: number, percentage: number): void
+        +showFinishButton(percentage: number, onFinish: Function): void
+        +hideFinishButton(): void
         -getActiveButton(): HTMLButtonElement
         -showMessage(message: string): void
         -getDirectionButton(direction: Direction): string
@@ -133,6 +137,7 @@ classDiagram
         +getStreak(): number
         +getBestStreak(): number
         +getAccuracy(): number
+        +addExplorationBonus(bonus: number): void
         +reset(): void
     }
 
@@ -236,7 +241,7 @@ classDiagram
         -overlay: HTMLDivElement
         -localeChangeHandler: Function
         -localeNames$: Record~string, string~
-        +show(onStart: Function, currentLevel?: number): void
+        +show(onStart: Function, currentLevel?: number, onLevelMode?: Function): void
         +remove(): void
         -getLevelDef(level: number): LevelDefinition
         -createButtonGroup(options: Array, defaultValue: string): Object
@@ -252,6 +257,8 @@ classDiagram
         +saveGameResult(result: GameResult): boolean
         +getHighestLevel(): number
         +getHighScores(): GameResult[]
+        +saveBestStars(level: number, stars: number): void
+        +getBestStars(level: number): number
         +clearStats(): void
         -saveStats(stats: GameStats): void
         -createDefaultStats(): GameStats
@@ -268,6 +275,7 @@ classDiagram
         +difficulty: MathDifficulty
         +timeRemaining: number
         +date: string
+        +starCount?: number
     }
 
     class GameStats {
@@ -276,6 +284,7 @@ classDiagram
         +highestLevel: number
         +totalGamesPlayed: number
         +totalGamesWon: number
+        +bestStars: Record~number, number~
     }
 
     class GameTimer {
@@ -410,3 +419,84 @@ classDiagram
     PowerUpManager --> PowerUp : manages
     PowerUpManager --> ActivePowerUp : tracks
     PowerUp --> PowerUpType : has type
+
+    class ExplorationTracker {
+        -totalCells: number
+        -totalQuestions: number
+        -visited: Set~string~
+        +constructor(mazeLayout: number[][])
+        +markVisited(pos: MazePosition): void
+        +getVisitedCount(): number
+        +getTotalCells(): number
+        +getTotalQuestions(): number
+        +getPercentage(): number
+        +isFullyExplored(): boolean
+    }
+
+    class StarRating {
+        <<module>>
+        +calcStarRating(explorationPct: number, accuracy: number): number
+        +calcExplorationBonus(baseScore: number, explorationPct: number): number
+    }
+
+    class MazeTheme {
+        <<interface>>
+        +name: string
+        +wallColor: string
+        +wallGrout: string
+        +floorColor1: string
+        +floorColor2: string
+        +fogColor: number
+        +fogDensity: number
+        +ambientColor: number
+        +directionalColor: number
+    }
+
+    class ThemeModule {
+        <<module>>
+        +THEMES$: MazeTheme[]
+        +getThemeForLevel(level: number): MazeTheme
+        +getThemeForMazeSize(mazeSize: number): MazeTheme
+    }
+
+    class VictoryScreenOptions {
+        <<interface>>
+        +score: number
+        +attempts: number
+        +accuracy: number
+        +bestStreak: number
+        +onPlayAgain: Function
+        +timeRemaining?: number
+        +onNextLevel?: Function
+        +isNewHighScore?: boolean
+        +explorationPercentage?: number
+        +explorationBonus?: number
+        +starCount?: number
+    }
+
+    class GameSession {
+        -mazeLogic: MazeLogic
+        -mazeRenderer: MazeRenderer
+        -ui: GameUI
+        -scoreTracker: ScoreTracker
+        -explorationTracker: ExplorationTracker
+        -powerUpManager: PowerUpManager
+        -timer: GameTimer
+        -atGoal: boolean
+        +constructor(config: GameConfig, level?: number)
+        +handleCorrectAnswer(): void
+        +handleVictory(): void
+        +getTimer(): GameTimer
+    }
+
+    GameSession --> MazeLogic : uses
+    GameSession --> MazeRenderer : uses
+    GameSession --> GameUI : uses
+    GameSession --> ScoreTracker : uses
+    GameSession --> ExplorationTracker : tracks exploration
+    GameSession --> PowerUpManager : uses
+    GameSession --> StatsManager : saves results
+    GameSession --> StarRating : calculates stars & bonus
+    ExplorationTracker --> MazePosition : tracks
+    MazeRenderer --> MazeTheme : styled by
+    ThemeModule --> MazeTheme : defines
