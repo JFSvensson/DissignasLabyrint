@@ -8,7 +8,7 @@ export class StartScreen {
   private overlay: HTMLDivElement | null = null;
   private localeChangeHandler: (() => void) | null = null;
 
-  public show(onStart: (config: GameConfig) => void, currentLevel?: number): void {
+  public show(onStart: (config: GameConfig) => void, currentLevel?: number, onLevelMode?: () => void): void {
     this.remove();
 
     this.overlay = document.createElement('div');
@@ -34,6 +34,37 @@ export class StartScreen {
       levelBadge.textContent = `${i18n.t('ui.level.label')} ${currentLevel}`;
       levelBadge.className = 'badge-level';
       box.appendChild(levelBadge);
+    }
+
+    // Level mode button when on initial screen
+    if (currentLevel === undefined && onLevelMode) {
+      const levelModeBtn = document.createElement('button');
+      levelModeBtn.textContent = `🏰 ${i18n.t('ui.settings.levelMode')}`;
+      levelModeBtn.className = 'btn btn-start';
+      levelModeBtn.onclick = () => {
+        this.remove();
+        onLevelMode();
+      };
+      box.appendChild(levelModeBtn);
+
+      const levelModeDesc = document.createElement('p');
+      levelModeDesc.textContent = i18n.t('ui.settings.levelModeDesc');
+      levelModeDesc.className = 'text-body text-body--muted';
+      box.appendChild(levelModeDesc);
+
+      const separator = document.createElement('hr');
+      separator.className = 'separator';
+      box.appendChild(separator);
+
+      const freePlayLabel = document.createElement('p');
+      freePlayLabel.textContent = `🎮 ${i18n.t('ui.settings.freePlay')}`;
+      freePlayLabel.className = 'text-subtitle';
+      box.appendChild(freePlayLabel);
+
+      const freePlayDesc = document.createElement('p');
+      freePlayDesc.textContent = i18n.t('ui.settings.freePlayDesc');
+      freePlayDesc.className = 'text-body text-body--muted';
+      box.appendChild(freePlayDesc);
     }
 
     // --- Maze size ---
