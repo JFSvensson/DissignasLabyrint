@@ -47,6 +47,26 @@ function loadService() {
 }
 
 describe('TranslationService', () => {
+  it('should support an injected browser environment', () => {
+    const { TranslationService } = require('../../src/services/TranslationService');
+    const values = new Map<string, string>([['preferredLanguage', 'en']]);
+    const environment = {
+      storage: {
+        getItem: (key: string) => values.get(key) ?? null,
+        setItem: (key: string, value: string) => values.set(key, value),
+      },
+      language: 'sv-SE',
+      document: { documentElement: { lang: '' }, title: '' },
+    };
+
+    const service = new TranslationService(environment);
+
+    expect(service.getLocale()).toBe('en');
+    service.setLocale('sv');
+    expect(environment.document.documentElement.lang).toBe('sv');
+    expect(values.get('preferredLanguage')).toBe('sv');
+  });
+
   describe('locale detection', () => {
     it('should default to sv when browser language is Swedish', () => {
       const i18n = loadService();

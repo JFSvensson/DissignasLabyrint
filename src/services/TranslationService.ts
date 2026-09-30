@@ -1,16 +1,43 @@
 import { locales, SupportedLocale, supportedLocales, defaultLocale } from '../locales';
 
+export interface TranslationStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+}
+
+export interface TranslationDocument {
+  documentElement: { lang: string };
+  title: string;
+}
+
+export interface TranslationEnvironment {
+  storage: TranslationStorage;
+  language: string;
+  document: TranslationDocument;
+}
+
+function createBrowserEnvironment(): TranslationEnvironment {
+  return {
+    storage: globalThis.localStorage,
+    language: globalThis.navigator.language,
+    document: globalThis.document,
+  };
+}
+
 /**
  * TranslationService handles internationalization (i18n) for the game.
  * Provides translation lookup, locale switching, and persistence.
  */
-class TranslationService {
+export class TranslationService {
   private static instance: TranslationService;
   private currentLocale: SupportedLocale;
   private translations: Record<string, unknown>;
   private listeners: Set<() => void> = new Set();
 
-  private constructor() {
+  private readonly environment: TranslationEnvironment;
+
+  constructor(environment: TranslationEnvironment = createBrowserEnvironment()) {
+    this.environment = environment;
     this.currentLocale = this.detectLocale();
     this.translations = locales[this.currentLocale];
   }
@@ -30,13 +57,13 @@ class TranslationService {
    */
   private detectLocale(): SupportedLocale {
     // Check localStorage first
-    const savedLocale = localStorage.getItem('preferredLanguage') as SupportedLocale;
+    const savedLocale = this.environment.storage.getItem('preferredLanguage') as SupportedLocale;
     if (savedLocale && supportedLocales.includes(savedLocale)) {
       return savedLocale;
     }
 
     // Detect from browser
-    const browserLang = navigator.language.split('-')[0];
+    const browserLang = this.environment.language.split('-')[0];
     if (supportedLocales.includes(browserLang as SupportedLocale)) {
       return browserLang as SupportedLocale;
     }
@@ -82,13 +109,13 @@ class TranslationService {
     this.translations = locales[locale];
     
     // Persist to localStorage
-    localStorage.setItem('preferredLanguage', locale);
+    this.environment.storage.setItem('preferredLanguage', locale);
 
     // Update HTML lang attribute
-    document.documentElement.lang = locale;
+    this.environment.document.documentElement.lang = locale;
 
     // Update document title
-    document.title = this.t('game.title');
+    this.environment.document.title = this.t('game.title');
 
     // Notify listeners
     this.notifyListeners();
