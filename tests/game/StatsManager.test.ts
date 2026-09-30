@@ -86,6 +86,29 @@ describe('StatsManager', () => {
       const stats = manager.getStats();
       expect(stats.highScores).toEqual([]);
     });
+
+    it('should return default stats when a high score is malformed', () => {
+      localStorageMock.setItem('dissignas-labyrint-stats', JSON.stringify({
+        highScores: [{}],
+        highestLevel: 1,
+        totalGamesPlayed: 1,
+        totalGamesWon: 1,
+      }));
+
+      expect(manager.getStats().highScores).toEqual([]);
+    });
+
+    it('should migrate stats without bestStars in memory', () => {
+      const result = createResult();
+      localStorageMock.setItem('dissignas-labyrint-stats', JSON.stringify({
+        highScores: [result],
+        highestLevel: 1,
+        totalGamesPlayed: 1,
+        totalGamesWon: 1,
+      }));
+
+      expect(manager.getStats().bestStars).toEqual({});
+    });
   });
 
   describe('saveGameResult', () => {

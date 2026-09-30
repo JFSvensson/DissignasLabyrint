@@ -58,7 +58,7 @@ export class StatsManager {
       if (raw) {
         const data = JSON.parse(raw);
         if (this.isValidStats(data)) {
-          return data;
+          return this.normalizeStats(data);
         }
       }
     } catch {
@@ -131,9 +131,39 @@ export class StatsManager {
     if (typeof data !== 'object' || data === null) return false;
     const d = data as Record<string, unknown>;
     return Array.isArray(d.highScores) &&
-      typeof d.highestLevel === 'number' &&
-      typeof d.totalGamesPlayed === 'number' &&
-      typeof d.totalGamesWon === 'number';
+      d.highScores.every(result => this.isValidGameResult(result)) &&
+      this.isNonNegativeFiniteNumber(d.highestLevel) &&
+      this.isNonNegativeFiniteNumber(d.totalGamesPlayed) &&
+      this.isNonNegativeFiniteNumber(d.totalGamesWon) &&
+      (d.bestStars === undefined || this.isValidBestStars(d.bestStars));
+  }
+
+  private isValidGameResult(result: unknown): result is GameResult {
+    if (typeof result !== 'object' || result === null) return false;
+    const value = result as Record<string, unknown>;
+    return this.isNonNegativeFiniteNumber(value.level) &&
+      typeof value.score === 'number' && Number.isFinite(value.score) &&
+      typeof value.accuracy === 'number' && Number.isFinite(value.accuracy) &&
+      this.isNonNegativeFiniteNumber(value.bestStreak) &&
+      this.isNonNegativeFiniteNumber(value.mazeSize) &&
+      typeof value.difficulty === 'string' &&
+      typeof value.date === 'string';
+  }
+
+  private isValidBestStars(value: unknown): value is Record<number, number> {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+    return Object.values(value).every(stars => this.isNonNegativeFiniteNumber(stars));
+  }
+
+  private isNonNegativeFiniteNumber(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+  }
+
+  private normalizeStats(data: GameStats): GameStats {
+    return {
+      ...data,
+      bestStars: data.bestStars ?? {},
+    };
   }
 }
 
