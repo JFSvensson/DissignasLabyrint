@@ -277,6 +277,27 @@ describe('GameSession', () => {
       new GameSession(baseConfig, soundManager, callbacks);
       expect(mockMazeRenderer.setOnQuestionsUpdated).toHaveBeenCalledWith(expect.any(Function));
     });
+
+    it('should dispose session resources', () => {
+      const session = new GameSession(timerConfig, soundManager, callbacks);
+
+      session.dispose();
+
+      expect(mockTimerInstance.stop).toHaveBeenCalled();
+      expect(mockGameUI.dispose).toHaveBeenCalled();
+      expect(mockMazeRenderer.dispose).toHaveBeenCalled();
+    });
+
+    it('should dispose session resources only once', () => {
+      const session = new GameSession(timerConfig, soundManager, callbacks);
+
+      session.dispose();
+      session.dispose();
+
+      expect(mockTimerInstance.stop).toHaveBeenCalledTimes(1);
+      expect(mockGameUI.dispose).toHaveBeenCalledTimes(1);
+      expect(mockMazeRenderer.dispose).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('correct answer', () => {
@@ -469,6 +490,20 @@ describe('GameSession', () => {
 
       jest.advanceTimersByTime(500);
       expect(mockGameUI.showVictoryScreen).toHaveBeenCalled();
+    });
+
+    it('should not show victory screen after the session is disposed', () => {
+      const session = new GameSession(baseConfig, soundManager, callbacks, 1);
+      mockMazeLogic.isGoalReached.mockReturnValue(true);
+
+      mockOnAnswer(4, 'EAST');
+      const onFinish = mockGameUI.showFinishButton.mock.calls[0][1];
+      onFinish();
+
+      session.dispose();
+      jest.advanceTimersByTime(500);
+
+      expect(mockGameUI.showVictoryScreen).not.toHaveBeenCalled();
     });
 
     it('should stop timer on victory', () => {

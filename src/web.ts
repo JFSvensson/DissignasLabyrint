@@ -31,11 +31,13 @@ function clearContainers(): void {
   if (ui) ui.innerHTML = '';
 }
 
-export function showStartScreen(level?: number) {
-  // Clean up any running timer
-  const timer = activeSession?.getTimer();
-  if (timer) { timer.stop(); }
+function disposeActiveSession(): void {
+  activeSession?.dispose();
   activeSession = null;
+}
+
+export function showStartScreen(level?: number) {
+  disposeActiveSession();
 
   clearContainers();
 
@@ -55,6 +57,7 @@ export function showStartScreen(level?: number) {
 }
 
 function startGame(config: GameConfig, level?: number) {
+  disposeActiveSession();
   clearContainers();
 
   activeSession = new GameSession(config, soundManager, {

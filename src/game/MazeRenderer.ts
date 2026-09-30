@@ -48,8 +48,11 @@ export class MazeRenderer {
   private particles: ParticleSystem;
   private lastTime: number = 0;
   private resizeHandler: () => void;
+  private readonly directionsUpdatedHandler: (questions: MazeQuestion[]) => void;
   private animationFrameId: number = 0;
+  private introAnimationFrameId: number = 0;
   private theme: MazeTheme;
+  private disposed = false;
 
   constructor(containerId: string, mazeLayout: number[][], mazeLogic: MazeLogic, theme?: MazeTheme) {
     this.theme = theme ?? THEMES[0];
@@ -102,12 +105,15 @@ export class MazeRenderer {
     this.scene.add(this.maze);
 
     // Lyssna på händelser från MazeLogic
-    this.mazeLogic.on('directionsUpdated', (questions: MazeQuestion[]) => {
+    this.directionsUpdatedHandler = (questions: MazeQuestion[]) => {
       this.updateDirectionQuestions(questions);
       this.markCurrentCellVisited();
-    });
+    };
+    this.mazeLogic.onDirectionsUpdated(this.directionsUpdatedHandler);
 
     this.loadFont().then(() => {
+      if (this.disposed) return;
+
       this.initMaze(mazeLayout);
       this.initQuestionText();
       this.setupCamera();
@@ -261,12 +267,16 @@ export class MazeRenderer {
       this.camera.position.y = startY + (targetY - startY) * ease;
       this.camera.position.z = startZ + (targetZ - startZ) * ease;
       this.camera.lookAt(new Vector3(halfSize, 0, halfSize));
-      if (t < 1) requestAnimationFrame(animateIntro);
+      if (t < 1) {
+        this.introAnimationFrameId = requestAnimationFrame(animateIntro);
+      }
     };
-    requestAnimationFrame(animateIntro);
+    this.introAnimationFrameId = requestAnimationFrame(animateIntro);
   }
 
   private markCurrentCellVisited(): void {
+    if (this.disposed) return;
+
     const pos = this.mazeLogic.getPlayer().getMazePosition();
     const key = `${pos.x},${pos.z}`;
     if (this.visitedCells.has(key)) return;
@@ -286,6 +296,8 @@ export class MazeRenderer {
   }
 
   private animate(): void {
+    if (this.disposed) return;
+
     this.animationFrameId = requestAnimationFrame(() => this.animate());
     const now = performance.now();
     const dt = this.lastTime ? (now - this.lastTime) / 1000 : 0.016;
@@ -296,8 +308,14 @@ export class MazeRenderer {
   }
 
   public dispose(): void {
+    if (this.disposed) return;
+
+    this.disposed = true;
     cancelAnimationFrame(this.animationFrameId);
+    cancelAnimationFrame(this.introAnimationFrameId);
     window.removeEventListener('resize', this.resizeHandler);
+    this.mazeLogic.offDirectionsUpdated(this.directionsUpdatedHandler);
+    this.onQuestionsUpdated = null;
 
     this.powerUpVisuals.dispose();
     this.particles.dispose();

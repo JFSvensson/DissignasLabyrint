@@ -23,19 +23,38 @@ export interface GameStats {
 const STORAGE_KEY = 'dissignas-labyrint-stats';
 const MAX_HIGH_SCORES = 10;
 
+export interface StatsStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+}
+
+function createBrowserStorage(): StatsStorage {
+  return {
+    getItem: (key) => localStorage.getItem(key),
+    setItem: (key, value) => localStorage.setItem(key, value),
+    removeItem: (key) => localStorage.removeItem(key),
+  };
+}
+
 export class StatsManager {
   private static instance: StatsManager;
+  private readonly storage: StatsStorage;
+
+  constructor(storage: StatsStorage = createBrowserStorage()) {
+    this.storage = storage;
+  }
 
   public static getInstance(): StatsManager {
     if (!StatsManager.instance) {
-      StatsManager.instance = new StatsManager();
+      StatsManager.instance = new StatsManager(createBrowserStorage());
     }
     return StatsManager.instance;
   }
 
   public getStats(): GameStats {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = this.storage.getItem(STORAGE_KEY);
       if (raw) {
         const data = JSON.parse(raw);
         if (this.isValidStats(data)) {
@@ -77,7 +96,7 @@ export class StatsManager {
   }
 
   public clearStats(): void {
-    localStorage.removeItem(STORAGE_KEY);
+    this.storage.removeItem(STORAGE_KEY);
   }
 
   public saveBestStars(level: number, stars: number): void {
@@ -95,7 +114,7 @@ export class StatsManager {
   }
 
   private saveStats(stats: GameStats): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+    this.storage.setItem(STORAGE_KEY, JSON.stringify(stats));
   }
 
   private createDefaultStats(): GameStats {

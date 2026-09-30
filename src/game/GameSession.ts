@@ -35,6 +35,8 @@ export class GameSession {
   private readonly explorationTracker: ExplorationTracker;
   private timer: GameTimer | null = null;
   private atGoal: boolean = false;
+  private victoryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  private disposed = false;
 
   constructor(
     config: GameConfig,
@@ -96,7 +98,23 @@ export class GameSession {
     return this.explorationTracker;
   }
 
+  public dispose(): void {
+    if (this.disposed) return;
+
+    this.disposed = true;
+    this.timer?.stop();
+    this.gameUI.dispose();
+    this.mazeRenderer.dispose();
+
+    if (this.victoryTimeoutId) {
+      clearTimeout(this.victoryTimeoutId);
+      this.victoryTimeoutId = null;
+    }
+  }
+
   private handleAnswer(answer: number, direction: Direction): void {
+    if (this.disposed) return;
+
     const currentPos = this.mazeLogic.getPlayer().getMazePosition();
     const questions = this.mazeLogic.getQuestionsAtPosition(currentPos);
     const questionForDirection = questions.find(q => q.direction === direction);
@@ -203,6 +221,8 @@ export class GameSession {
   }
 
   private handleVictory(): void {
+    if (this.disposed) return;
+
     if (this.timer) { this.timer.stop(); }
     this.gameUI.hideFinishButton();
     this.soundManager.playVictory();
@@ -237,7 +257,10 @@ export class GameSession {
     const nextLevel = this.level !== undefined ? this.level + 1 : undefined;
     const hasNextLevel = nextLevel !== undefined && nextLevel <= LEVELS.length;
 
-    setTimeout(() => {
+    this.victoryTimeoutId = setTimeout(() => {
+      this.victoryTimeoutId = null;
+      if (this.disposed) return;
+
       this.gameUI.showVictoryScreen(
         this.scoreTracker.getScore(),
         this.scoreTracker.getAttempts(),

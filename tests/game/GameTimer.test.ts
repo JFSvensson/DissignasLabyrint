@@ -8,7 +8,7 @@ jest.mock('../../src/services/TranslationService', () => ({
   },
 }));
 
-import { GameTimer } from '../../src/game/GameTimer';
+import { GameTimer, TimerScheduler } from '../../src/game/GameTimer';
 
 describe('GameTimer', () => {
   beforeEach(() => {
@@ -18,6 +18,21 @@ describe('GameTimer', () => {
   afterEach(() => {
     jest.useRealTimers();
   });
+
+  function createScheduler(): TimerScheduler & { tick: () => void } {
+    let callback: (() => void) | null = null;
+    const intervalId = {} as ReturnType<typeof setInterval>;
+    return {
+      setInterval: (nextCallback) => {
+        callback = nextCallback;
+        return intervalId;
+      },
+      clearInterval: () => {
+        callback = null;
+      },
+      tick: () => callback?.(),
+    };
+  }
 
   describe('construction', () => {
     it('should create a display element', () => {
@@ -70,6 +85,16 @@ describe('GameTimer', () => {
       jest.advanceTimersByTime(1000);
       expect(timer.getRemainingSeconds()).toBe(9); // still decremented by 1, not 2
       timer.stop();
+    });
+
+    it('should support an injected timer scheduler', () => {
+      const scheduler = createScheduler();
+      const timer = new GameTimer(2, jest.fn(), scheduler);
+
+      timer.start();
+      scheduler.tick();
+
+      expect(timer.getRemainingSeconds()).toBe(1);
     });
   });
 

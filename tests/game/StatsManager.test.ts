@@ -1,4 +1,4 @@
-import { StatsManager, GameResult } from '../../src/game/StatsManager';
+import { StatsManager, GameResult, StatsStorage } from '../../src/game/StatsManager';
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -26,6 +26,15 @@ function createResult(overrides: Partial<GameResult> = {}): GameResult {
   };
 }
 
+function createMemoryStorage(): StatsStorage {
+  const values = new Map<string, string>();
+  return {
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+    removeItem: (key) => values.delete(key),
+  };
+}
+
 describe('StatsManager', () => {
   let manager: StatsManager;
 
@@ -43,6 +52,17 @@ describe('StatsManager', () => {
       const a = StatsManager.getInstance();
       const b = StatsManager.getInstance();
       expect(a).toBe(b);
+    });
+  });
+
+  describe('storage boundary', () => {
+    it('should support an injected storage implementation', () => {
+      const isolatedManager = new StatsManager(createMemoryStorage());
+
+      isolatedManager.saveGameResult(createResult({ score: 250 }));
+
+      expect(isolatedManager.getHighScores()[0].score).toBe(250);
+      expect(localStorageMock.setItem).not.toHaveBeenCalled();
     });
   });
 

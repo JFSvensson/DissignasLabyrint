@@ -159,5 +159,15 @@ describe('MazeLogic', () => {
 
       expect(listener).toHaveBeenCalledTimes(1);
     });
+
+    test('should support typed subscribe and unsubscribe methods', () => {
+      const listener = jest.fn();
+      mazeLogic.onDirectionsUpdated(listener);
+      mazeLogic.updateAvailableDirections();
+      mazeLogic.offDirectionsUpdated(listener);
+      mazeLogic.updateAvailableDirections();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+    });
   });
 });

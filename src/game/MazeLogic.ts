@@ -85,4 +85,12 @@ export class MazeLogic extends EventEmitter {
     const questions = this.getQuestionsAtPosition(currentPos);
     this.emit('directionsUpdated', questions);
   }
+
+  public onDirectionsUpdated(listener: (questions: MazeQuestion[]) => void): void {
+    this.on('directionsUpdated', listener);
+  }
+
+  public offDirectionsUpdated(listener: (questions: MazeQuestion[]) => void): void {
+    this.off('directionsUpdated', listener);
+  }
 }

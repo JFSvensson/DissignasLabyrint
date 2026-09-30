@@ -1,12 +1,28 @@
+export interface TimerScheduler {
+  setInterval(callback: () => void, delay: number): ReturnType<typeof setInterval>;
+  clearInterval(intervalId: ReturnType<typeof setInterval>): void;
+}
+
+const browserTimerScheduler: TimerScheduler = {
+  setInterval: (callback, delay) => setInterval(callback, delay),
+  clearInterval: (intervalId) => clearInterval(intervalId),
+};
+
 export class GameTimer {
   private remainingSeconds: number;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private display: HTMLDivElement;
   private onTimeUp: () => void;
+  private readonly scheduler: TimerScheduler;
 
-  constructor(seconds: number, onTimeUp: () => void) {
+  constructor(
+    seconds: number,
+    onTimeUp: () => void,
+    scheduler: TimerScheduler = browserTimerScheduler
+  ) {
     this.remainingSeconds = seconds;
     this.onTimeUp = onTimeUp;
+    this.scheduler = scheduler;
     this.display = this.createDisplay();
   }
 
@@ -24,7 +40,7 @@ export class GameTimer {
 
   public start(): void {
     if (this.intervalId) return;
-    this.intervalId = setInterval(() => {
+    this.intervalId = this.scheduler.setInterval(() => {
       this.remainingSeconds--;
       this.display.textContent = this.formatTime(this.remainingSeconds);
 
@@ -46,7 +62,7 @@ export class GameTimer {
 
   public stop(): void {
     if (this.intervalId) {
-      clearInterval(this.intervalId);
+      this.scheduler.clearInterval(this.intervalId);
       this.intervalId = null;
     }
   }

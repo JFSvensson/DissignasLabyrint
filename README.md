@@ -64,6 +64,7 @@ Output is written to the `dist/` folder.
 ### Run tests
 ```bash
 npm test
+npm run typecheck
 ```
 
 ### Lint & format
