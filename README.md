@@ -38,7 +38,9 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 - Procedural sound effects (Web Audio API)
 - Share results (Web Share API / clipboard)
 - PWA: installable, works offline (service worker caches fonts too)
+- Lazy-loaded game session and Three.js renderer for a smaller initial bundle
 - Responsive design (desktop & mobile)
+- Automated browser smoke-tests with Playwright
 
 ## Getting Started
 
@@ -99,6 +101,7 @@ This checks production dependencies without failing on development-only tooling 
 ```bash
 npm test
 npm run typecheck
+npm run test:coverage
 ```
 
 ### Lint & format
@@ -147,15 +150,26 @@ src/
   types/
     translations.ts       # Type-safe translation keys
 .github/workflows/ci.yml  # CI/CD: test + deploy to GitHub Pages
-tests/                    # Jest test suite (288 tests)
+scripts/
+  smoke-test.mjs          # Dependency-free production artifact smoke-test
+tests/                    # Jest test suite (312 tests)
+  e2e/                    # Playwright browser smoke-tests (4 tests)
+playwright.config.ts      # Playwright dev-server configuration
 public/
   index.html              # PWA-enabled HTML shell
   manifest.json           # PWA manifest
   sw.js                   # Service worker (offline cache)
   icons/                  # App icons
   css/game.css
-  docs/                   # Architecture documentation & diagrams
+  docs/README.md          # Architecture documentation
+  docs/diagrams/          # Architecture diagrams
 ```
+
+## Documentation
+
+Architecture notes and the class diagram are available in [public/docs/README.md](public/docs/README.md).
+
+The CI pipeline runs production dependency audit, lint, typecheck, Jest, production build, artifact smoke-test and Playwright browser smoke-tests on Node.js 22 and 24.
 
 ## How to Play
 
