@@ -61,6 +61,12 @@ npm run build
 ```
 Output is written to the `dist/` folder.
 
+### Smoke-test production assets
+```bash
+npm run smoke
+```
+Run `npm run build` first. The smoke test verifies the generated HTML, bundles, PWA assets and service worker.
+
 ### Run tests
 ```bash
 npm test
