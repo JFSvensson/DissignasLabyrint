@@ -14,9 +14,9 @@
     "build:web": "webpack --mode production",
     "lint": "eslint src/ tests/",
     "lint:fix": "eslint src/ tests/ --fix",
-    "format": "prettier --write src/ tests/",
-    "test:coverage": "jest --coverage --no-cache"
-    ,"smoke": "node scripts/smoke-test.mjs"
+    "format": "prettier --write src/ tests/ scripts/",
+    "test:coverage": "jest --coverage --no-cache",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "keywords": [],
   "author": "",
