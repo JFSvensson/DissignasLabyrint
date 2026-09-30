@@ -1,4 +1,4 @@
-import { calcStarRating, calcExplorationBonus } from '../../src/game/StarRating';
+import { calcStarRating, calcExplorationBonus, calculateVictoryMetrics } from '../../src/game/StarRating';
 
 describe('calcStarRating', () => {
   it('returns 3 stars for 100% explored and ≥80% accuracy', () => {
@@ -49,5 +49,14 @@ describe('calcExplorationBonus', () => {
   it('rounds to nearest integer', () => {
     expect(calcExplorationBonus(33, 100)).toBe(17); // 33 * 0.5 = 16.5 → 17
     expect(calcExplorationBonus(33, 75)).toBe(8);   // 33 * 0.25 = 8.25 → 8
+  });
+});
+
+describe('calculateVictoryMetrics', () => {
+  it('combines the exploration bonus and star rating rules', () => {
+    expect(calculateVictoryMetrics(200, 100, 80)).toEqual({
+      explorationBonus: 100,
+      starCount: 3,
+    });
   });
 });

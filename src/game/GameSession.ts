@@ -12,7 +12,7 @@ import { IAudioService } from '../interfaces/IAudioService';
 import { i18n } from '../services/TranslationService';
 import { stats } from './StatsManager';
 import { ExplorationTracker } from './ExplorationTracker';
-import { calcStarRating, calcExplorationBonus } from './StarRating';
+import { calculateVictoryMetrics } from './StarRating';
 import { getThemeForLevel, getThemeForMazeSize } from './themes';
 
 export interface GameSessionCallbacks {
@@ -233,11 +233,12 @@ export class GameSession {
 
     // Exploration bonus
     const explorationPct = this.explorationTracker.getPercentage();
-    const explorationBonus = calcExplorationBonus(this.scoreTracker.getScore(), explorationPct);
+    const { explorationBonus, starCount } = calculateVictoryMetrics(
+      this.scoreTracker.getScore(),
+      explorationPct,
+      this.scoreTracker.getAccuracy()
+    );
     this.scoreTracker.addExplorationBonus(explorationBonus);
-
-    // Star rating
-    const starCount = calcStarRating(explorationPct, this.scoreTracker.getAccuracy());
 
     const timeRemaining = this.timer ? this.timer.getRemainingSeconds() : undefined;
     const isNewHighScore = stats.saveGameResult({

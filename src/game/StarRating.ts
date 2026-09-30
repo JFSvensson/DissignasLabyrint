@@ -25,3 +25,19 @@ export function calcExplorationBonus(baseScore: number, explorationPct: number):
   if (explorationPct >= 50) return Math.round(baseScore * 0.1);
   return 0;
 }
+
+export interface VictoryMetrics {
+  explorationBonus: number;
+  starCount: number;
+}
+
+export function calculateVictoryMetrics(
+  baseScore: number,
+  explorationPct: number,
+  accuracy: number
+): VictoryMetrics {
+  return {
+    explorationBonus: calcExplorationBonus(baseScore, explorationPct),
+    starCount: calcStarRating(explorationPct, accuracy),
+  };
+}
