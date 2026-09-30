@@ -17,7 +17,8 @@
     "format": "prettier --write src/ tests/ scripts/",
     "test:coverage": "jest --coverage --no-cache",
     "smoke": "node scripts/smoke-test.mjs",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "audit:production": "npm audit --omit=dev"
   },
   "keywords": [],
   "author": "",

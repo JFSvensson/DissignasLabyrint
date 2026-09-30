@@ -1,8 +1,9 @@
 # Dissignas Labyrint
-![alt text](<DALL·E 2024-10-27 15.03.55 - A mystical labyrinth in a Nordic mythology-inspired setting, with a female figure named Dissigna at the entrance. Dissigna appears as a wise and ether.webp>)
----
+
+## ![alt text](<DALL·E 2024-10-27 15.03.55 - A mystical labyrinth in a Nordic mythology-inspired setting, with a female figure named Dissigna at the entrance. Dissigna appears as a wise and ether.webp>)
 
 # The Labyrinth of Dissigna
+
 A game of math and logic set in a world of Norse mythology.
 
 ## About
@@ -10,6 +11,7 @@ A game of math and logic set in a world of Norse mythology.
 Dissignas Labyrint is an educational web game where the player navigates a 3D maze by solving math problems. The difficulty increases as you progress deeper into the labyrinth — from simple addition near the entrance to multiplication and division near the goal.
 
 **Features:**
+
 - 3D maze rendered with Three.js
 - 6 math operations: addition, subtraction, multiplication, division, modulo, power
 - Progressive difficulty based on maze position (3 tiers of operations)
@@ -41,46 +43,66 @@ Dissignas Labyrint is an educational web game where the player navigates a 3D ma
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js (v22+)
 - npm
 
 ### Install dependencies
+
 ```bash
 npm install
 ```
 
 ### Run in development mode
+
 ```bash
 npm run dev
 ```
+
 Open http://localhost:8080 in your browser.
 
 ### Build for production
+
 ```bash
 npm run build
 ```
+
 Output is written to the `dist/` folder.
 
 ### Smoke-test production assets
+
 ```bash
 npm run smoke
 ```
+
 Run `npm run build` first. The smoke test verifies the generated HTML, bundles, PWA assets and service worker.
 
 ### Run browser smoke-tests
+
 ```bash
 npx playwright install chromium
 npm run e2e
 ```
+
 The browser tests start the development server and verify the start-screen workflows.
 
+### Audit production dependencies
+
+```bash
+npm run audit:production
+```
+
+This checks production dependencies without failing on development-only tooling advisories.
+
 ### Run tests
+
 ```bash
 npm test
 npm run typecheck
 ```
 
 ### Lint & format
+
 ```bash
 npm run lint        # Check for lint errors
 npm run lint:fix    # Auto-fix lint errors
@@ -88,6 +110,7 @@ npm run format      # Format code with Prettier
 ```
 
 ### Deploy to GitHub Pages
+
 The project includes a GitHub Actions workflow that automatically tests and deploys to GitHub Pages on push to `main`. Enable Pages in your repo settings with "GitHub Actions" as the source.
 
 ## Project Structure
