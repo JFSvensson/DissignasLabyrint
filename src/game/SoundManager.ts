@@ -55,8 +55,8 @@ export class SoundManager implements IAudioService {
       });
 
       this.musicPlaying = true;
-    } catch {
-      // Silently ignore audio errors
+    } catch (error) {
+      this.reportError('Could not start music', error);
     }
   }
 
@@ -72,8 +72,8 @@ export class SoundManager implements IAudioService {
         this.musicGain.disconnect();
         this.musicGain = null;
       }
-    } catch {
-      // Silently ignore
+    } catch (error) {
+      this.reportError('Could not stop music', error);
     }
     this.musicPlaying = false;
   }
@@ -137,8 +137,12 @@ export class SoundManager implements IAudioService {
 
       oscillator.start(ctx.currentTime + delay);
       oscillator.stop(ctx.currentTime + delay + duration + 0.05);
-    } catch {
-      // Silently ignore audio errors (e.g. autoplay policy)
+    } catch (error) {
+      this.reportError('Could not play tone', error);
     }
+  }
+
+  private reportError(message: string, error: unknown): void {
+    console.warn(`[SoundManager] ${message}`, error);
   }
 }

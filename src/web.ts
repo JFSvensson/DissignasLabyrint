@@ -102,7 +102,9 @@ if (typeof window !== 'undefined') {
 
     // Register service worker for PWA / offline support
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').catch((error: unknown) => {
+        console.warn('[PWA] Could not register service worker', error);
+      });
     }
   };
 }
