@@ -67,6 +67,13 @@ npm run smoke
 ```
 Run `npm run build` first. The smoke test verifies the generated HTML, bundles, PWA assets and service worker.
 
+### Run browser smoke-tests
+```bash
+npx playwright install chromium
+npm run e2e
+```
+The browser tests start the development server and verify the start-screen workflows.
+
 ### Run tests
 ```bash
 npm test
