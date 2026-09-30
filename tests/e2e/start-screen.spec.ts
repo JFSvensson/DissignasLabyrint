@@ -45,4 +45,14 @@ test.describe('start screen', () => {
     await page.getByRole('button', { name: 'Uppfattat!' }).click();
     await expect(page.locator('.overlay-backdrop--modal')).toHaveCount(0);
   });
+
+  test('loads a game session after starting', async ({ page }) => {
+    const pageErrors: Error[] = [];
+    page.on('pageerror', (error) => pageErrors.push(error));
+
+    await page.getByRole('button', { name: 'Starta spelet' }).click();
+    await expect(page.locator('#maze-container canvas')).toBeVisible({ timeout: 15_000 });
+
+    expect(pageErrors).toEqual([]);
+  });
 });

@@ -1,14 +1,15 @@
 import { SoundManager } from './game/SoundManager';
 import { i18n } from './services/TranslationService';
 import { StartScreen } from './game/StartScreen';
-import { GameConfig, LEVELS } from './game/GameConfig';
-import { GameSession } from './game/GameSession';
+import { LEVELS, type GameConfig } from './game/GameConfig';
+import type { GameSession } from './game/GameSession';
 import { showTimeUpScreen } from './game/TimeUpScreen';
 
 const soundManager = new SoundManager();
 const startScreen = new StartScreen();
 let currentLevel = 1;
 let activeSession: GameSession | null = null;
+let sessionGeneration = 0;
 
 function fadeTransition(callback: () => void): void {
   const overlay = document.createElement('div');
@@ -32,6 +33,7 @@ function clearContainers(): void {
 }
 
 function disposeActiveSession(): void {
+  sessionGeneration++;
   activeSession?.dispose();
   activeSession = null;
 }
@@ -41,52 +43,71 @@ export function showStartScreen(level?: number) {
 
   clearContainers();
 
-  startScreen.show((config) => {
-    startGame(config, level);
-  }, level, () => {
-    // Level mode: start from level 1
-    currentLevel = 1;
-    const def = LEVELS[0];
-    startGame({
-      mazeSize: def.mazeSize,
-      mathDifficulty: def.mathDifficulty,
-      timerEnabled: def.timerSeconds > 0,
-      timerSeconds: def.timerSeconds,
-    }, currentLevel);
-  });
+  startScreen.show(
+    (config) => {
+      startGame(config, level);
+    },
+    level,
+    () => {
+      // Level mode: start from level 1
+      currentLevel = 1;
+      const def = LEVELS[0];
+      startGame(
+        {
+          mazeSize: def.mazeSize,
+          mathDifficulty: def.mathDifficulty,
+          timerEnabled: def.timerSeconds > 0,
+          timerSeconds: def.timerSeconds,
+        },
+        currentLevel,
+      );
+    },
+  );
 }
 
-function startGame(config: GameConfig, level?: number) {
+async function startGame(config: GameConfig, level?: number): Promise<void> {
   disposeActiveSession();
   clearContainers();
 
-  activeSession = new GameSession(config, soundManager, {
-    onVictory: (_currentLevel, nextLevel) => {
-      if (nextLevel !== undefined) {
-        currentLevel = nextLevel;
-        const def = LEVELS[Math.min(currentLevel - 1, LEVELS.length - 1)];
-        fadeTransition(() => {
-          startGame({
-            mazeSize: def.mazeSize,
-            mathDifficulty: def.mathDifficulty,
-            timerEnabled: def.timerSeconds > 0,
-            timerSeconds: def.timerSeconds,
-          }, currentLevel);
-        });
-      }
+  const generation = sessionGeneration;
+  const { GameSession } = await import('./game/GameSession');
+  if (generation !== sessionGeneration) return;
+
+  activeSession = new GameSession(
+    config,
+    soundManager,
+    {
+      onVictory: (_currentLevel, nextLevel) => {
+        if (nextLevel !== undefined) {
+          currentLevel = nextLevel;
+          const def = LEVELS[Math.min(currentLevel - 1, LEVELS.length - 1)];
+          fadeTransition(() => {
+            startGame(
+              {
+                mazeSize: def.mazeSize,
+                mathDifficulty: def.mathDifficulty,
+                timerEnabled: def.timerSeconds > 0,
+                timerSeconds: def.timerSeconds,
+              },
+              currentLevel,
+            );
+          });
+        }
+      },
+      onTimeUp: (onRetry, onMenu) => {
+        showTimeUpScreen(onRetry, onMenu);
+      },
+      onRestart: (cfg, lvl) => {
+        startGame(cfg, lvl);
+      },
+      onMenu: () => {
+        const nextLevel = level !== undefined ? level + 1 : undefined;
+        startScreen.remove();
+        showStartScreen(nextLevel);
+      },
     },
-    onTimeUp: (onRetry, onMenu) => {
-      showTimeUpScreen(onRetry, onMenu);
-    },
-    onRestart: (cfg, lvl) => {
-      startGame(cfg, lvl);
-    },
-    onMenu: () => {
-      const nextLevel = level !== undefined ? level + 1 : undefined;
-      startScreen.remove();
-      showStartScreen(nextLevel);
-    },
-  }, level);
+    level,
+  );
 }
 
 export function initWebGame() {
