@@ -221,6 +221,38 @@ describe('GameUI', () => {
     });
   });
 
+  describe('exploration', () => {
+    it('should create and update the exploration bar', () => {
+      const ui = createUI();
+
+      ui.updateExploration(2, 10, 20);
+      expect(uiContainer.querySelector('.exploration-label')?.textContent).toContain('2/10');
+      expect(uiContainer.querySelector('.exploration-fill')?.className).toContain('exploration-fill--low');
+
+      ui.updateExploration(8, 10, 80);
+      expect(uiContainer.querySelector('.exploration-fill')?.className).toContain('exploration-fill--high');
+
+      ui.updateExploration(10, 10, 100);
+      expect(uiContainer.querySelector('.exploration-fill')?.className).toContain('exploration-fill--full');
+    });
+
+    it('should show and hide the finish button', () => {
+      const ui = createUI();
+      const onFinish = jest.fn();
+
+      ui.showFinishButton(75, onFinish);
+      const finishButton = uiContainer.querySelector('.btn-finish') as HTMLButtonElement;
+      expect(finishButton).not.toBeNull();
+      expect(finishButton.textContent).toContain('75%');
+
+      finishButton.click();
+      expect(onFinish).toHaveBeenCalledTimes(1);
+
+      ui.hideFinishButton();
+      expect(uiContainer.querySelector('.btn-finish')).toBeNull();
+    });
+  });
+
   describe('showVictoryScreen', () => {
     it('should create a victory overlay', () => {
       const ui = createUI();
@@ -291,6 +323,25 @@ describe('GameUI', () => {
   });
 
   describe('showVictoryScreen with time and next level', () => {
+    it('should show victory details and use Web Share when available', () => {
+      const ui = createUI();
+      const share = jest.fn(() => Promise.resolve());
+      Object.defineProperty(navigator, 'share', { value: share, configurable: true });
+
+      ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), undefined, undefined, true, 80, 25, 3);
+
+      expect(document.body.querySelector('.badge-highscore')).not.toBeNull();
+      expect(document.body.querySelectorAll('.star-rating__star')).toHaveLength(3);
+      expect(document.body.textContent).toContain('80%');
+      expect(document.body.textContent).toContain('+25');
+
+      const shareButton = document.body.querySelector('.btn-share') as HTMLButtonElement;
+      shareButton.click();
+      expect(share).toHaveBeenCalledTimes(1);
+
+      Object.defineProperty(navigator, 'share', { value: undefined, configurable: true });
+    });
+
     it('should show time remaining when provided', () => {
       const ui = createUI();
       ui.showVictoryScreen(100, 20, 85, 5, jest.fn(), 125);
