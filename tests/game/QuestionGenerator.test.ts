@@ -98,4 +98,71 @@ describe('QuestionGenerator', () => {
       expect(ops[0].getName()).toBe('math.operations.addition');
     });
   });
+
+  describe('generateQuestionsForMaze', () => {
+    it('should generate questions for available directions on open cells', () => {
+      const operation = {
+        calculate: jest.fn((a: number, b: number) => a + b),
+        formatQuestion: jest.fn((a: number, b: number) => `${a} + ${b}`),
+        generateNumbers: jest.fn(() => [2, 3] as [number, number]),
+        getName: jest.fn(() => 'test-operation'),
+      };
+      const setQuestionForDirection = jest.fn();
+      const mazeLogic = {
+        getAvailableDirections: jest.fn(() => ['EAST', 'SOUTH']),
+        setQuestionForDirection,
+      };
+      const customGenerator = new QuestionGenerator(
+        [operation],
+        [operation],
+        [operation]
+      );
+      const mazeLayout = [
+        [1, 1, 1],
+        [1, 0, 1],
+        [1, 1, 1],
+      ];
+
+      customGenerator.generateQuestionsForMaze(
+        mazeLogic as never,
+        mazeLayout,
+        'easy'
+      );
+
+      expect(mazeLogic.getAvailableDirections).toHaveBeenCalledWith({ x: 1, z: 1 });
+      expect(operation.generateNumbers).toHaveBeenCalledWith(10);
+      expect(operation.formatQuestion).toHaveBeenCalledWith(2, 3);
+      expect(operation.calculate).toHaveBeenCalledWith(2, 3);
+      expect(setQuestionForDirection).toHaveBeenCalledTimes(2);
+      expect(setQuestionForDirection).toHaveBeenCalledWith(
+        { x: 1, z: 1 },
+        'EAST',
+        '2 + 3',
+        5
+      );
+    });
+
+    it('should skip open cells without available directions', () => {
+      const operation = {
+        calculate: jest.fn(() => 5),
+        formatQuestion: jest.fn(() => '2 + 3'),
+        generateNumbers: jest.fn(() => [2, 3] as [number, number]),
+        getName: jest.fn(() => 'test-operation'),
+      };
+      const mazeLogic = {
+        getAvailableDirections: jest.fn(() => []),
+        setQuestionForDirection: jest.fn(),
+      };
+      const customGenerator = new QuestionGenerator([operation], [operation], [operation]);
+
+      customGenerator.generateQuestionsForMaze(
+        mazeLogic as never,
+        [[1, 1, 1], [1, 0, 1], [1, 1, 1]]
+      );
+
+      expect(mazeLogic.getAvailableDirections).toHaveBeenCalledTimes(1);
+      expect(operation.generateNumbers).not.toHaveBeenCalled();
+      expect(mazeLogic.setQuestionForDirection).not.toHaveBeenCalled();
+    });
+  });
 });
