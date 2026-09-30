@@ -17,22 +17,29 @@ export class GameUI {
   private localeChangeHandler: () => void;
   private explorationBar: HTMLDivElement | null = null;
   private finishButton: HTMLButtonElement | null = null;
+  private readonly document: Document;
 
-  constructor(containerId: string, onAnswer: (answer: number, direction: Direction) => void, soundManager?: IAudioService) {
+  constructor(
+    containerId: string,
+    onAnswer: (answer: number, direction: Direction) => void,
+    soundManager?: IAudioService,
+    document: Document = globalThis.document
+  ) {
     this.soundManager = soundManager || null;
+    this.document = document;
     // Huvudcontainer
-    this.container = document.createElement('div');
+    this.container = this.document.createElement('div');
     this.container.setAttribute('role', 'region');
     this.container.setAttribute('aria-label', i18n.t('ui.aria.gameControls'));
     this.container.className = 'game-panel';
 
     // Top bar for level and timer
-    this.topBar = document.createElement('div');
+    this.topBar = this.document.createElement('div');
     this.topBar.className = 'top-bar';
     this.container.appendChild(this.topBar);
     
     // Score display
-    const scoreDisplay = document.createElement('div');
+    const scoreDisplay = this.document.createElement('div');
     scoreDisplay.id = 'score-display';
     scoreDisplay.className = 'score-display';
     scoreDisplay.innerHTML = `
@@ -43,22 +50,22 @@ export class GameUI {
     this.container.appendChild(scoreDisplay);
 
     // Frågedisplay
-    this.questionDisplay = document.createElement('div');
+    this.questionDisplay = this.document.createElement('div');
     this.questionDisplay.className = 'question-display';
     this.container.appendChild(this.questionDisplay);
 
     // Input-container
-    const inputContainer = document.createElement('div');
+    const inputContainer = this.document.createElement('div');
     inputContainer.className = 'input-container';
 
     // Label för input
-    const inputLabel = document.createElement('label');
+    const inputLabel = this.document.createElement('label');
     inputLabel.textContent = i18n.t('ui.answerLabel');
     inputLabel.className = 'input-label';
     inputContainer.appendChild(inputLabel);
 
     // Input för svar
-    this.answerInput = document.createElement('input');
+    this.answerInput = this.document.createElement('input');
     this.answerInput.type = 'number';
     this.answerInput.setAttribute('aria-label', i18n.t('ui.answerLabel'));
     this.answerInput.className = 'answer-input';
@@ -91,7 +98,7 @@ export class GameUI {
     this.container.appendChild(inputContainer);
 
     // Container för riktningsknappar
-    const buttonContainer = document.createElement('div');
+    const buttonContainer = this.document.createElement('div');
     buttonContainer.setAttribute('role', 'group');
     buttonContainer.setAttribute('aria-label', i18n.t('ui.aria.directionButtons'));
     buttonContainer.className = 'direction-grid';
@@ -106,7 +113,7 @@ export class GameUI {
     ];
 
     directions.forEach(({ name, cssDir, symbol, translationKey }) => {
-      const button = document.createElement('button');
+      const button = this.document.createElement('button');
       button.textContent = `${symbol} ${i18n.t(translationKey)}`;
       button.setAttribute('aria-label', i18n.t(translationKey));
       button.dataset.translationKey = translationKey;
@@ -129,7 +136,7 @@ export class GameUI {
     this.container.appendChild(buttonContainer);
 
     // Meddelandedisplay för feedback
-    this.messageDisplay = document.createElement('div');
+    this.messageDisplay = this.document.createElement('div');
     this.messageDisplay.setAttribute('role', 'status');
     this.messageDisplay.setAttribute('aria-live', 'polite');
     this.messageDisplay.className = 'message-display';
@@ -145,7 +152,7 @@ export class GameUI {
       this.container.appendChild(this.createMusicToggle(this.soundManager));
     }
 
-    document.getElementById('ui-container')?.appendChild(this.container);
+    this.document.getElementById('ui-container')?.appendChild(this.container);
 
     // Listen for locale changes
     this.localeChangeHandler = () => this.updateTranslations();
@@ -183,9 +190,9 @@ export class GameUI {
   }
 
   public updateScore(score: number, attempts: number, streak: number = 0): void {
-    const scoreValue = document.getElementById('score-value');
-    const attemptsValue = document.getElementById('attempts-value');
-    const streakValue = document.getElementById('streak-value');
+    const scoreValue = this.document.getElementById('score-value');
+    const attemptsValue = this.document.getElementById('attempts-value');
+    const streakValue = this.document.getElementById('streak-value');
     if (scoreValue) scoreValue.textContent = score.toString();
     if (attemptsValue) attemptsValue.textContent = attempts.toString();
     if (streakValue) streakValue.textContent = streak.toString();
@@ -230,10 +237,10 @@ export class GameUI {
   }
 
   private createLanguageSwitcher(): HTMLDivElement {
-    const container = document.createElement('div');
+    const container = this.document.createElement('div');
     container.className = 'language-switcher';
 
-    const label = document.createElement('span');
+    const label = this.document.createElement('span');
     label.textContent = i18n.t('ui.language.selectLanguage');
     label.className = 'language-label';
     label.dataset.translationKey = 'ui.language.selectLanguage';
@@ -242,7 +249,7 @@ export class GameUI {
     const locales = i18n.getSupportedLocales();
     locales.forEach(locale => {
       const translationKey = LOCALE_NAMES[locale] || `ui.language.${locale}`;
-      const button = document.createElement('button');
+      const button = this.document.createElement('button');
       button.textContent = i18n.t(translationKey);
       button.dataset.translationKey = translationKey;
       button.dataset.locale = locale;
@@ -257,10 +264,10 @@ export class GameUI {
   }
 
   private createSoundToggle(sm: IAudioService): HTMLDivElement {
-    const container = document.createElement('div');
+    const container = this.document.createElement('div');
     container.className = 'toggle-container';
 
-    const button = document.createElement('button');
+    const button = this.document.createElement('button');
     const update = () => {
       button.textContent = sm.isEnabled() ? '🔊 ' + i18n.t('ui.sound.on') : '🔇 ' + i18n.t('ui.sound.off');
     };
@@ -275,10 +282,10 @@ export class GameUI {
   }
 
   private createMusicToggle(sm: IAudioService): HTMLDivElement {
-    const container = document.createElement('div');
+    const container = this.document.createElement('div');
     container.className = 'toggle-container toggle-container--tight';
 
-    const button = document.createElement('button');
+    const button = this.document.createElement('button');
     const update = () => {
       button.textContent = sm.isMusicPlaying() ? '🎵 ' + i18n.t('ui.music.on') : '🎵 ' + i18n.t('ui.music.off');
     };
@@ -333,7 +340,7 @@ export class GameUI {
   }
 
   public setLevel(level: number): void {
-    const el = document.createElement('span');
+    const el = this.document.createElement('span');
     el.textContent = `${i18n.t('ui.level.label')} ${level}`;
     el.className = 'level-display';
     this.topBar.insertBefore(el, this.topBar.firstChild);
@@ -341,7 +348,7 @@ export class GameUI {
 
   public updateExploration(visited: number, total: number, percentage: number): void {
     if (!this.explorationBar) {
-      this.explorationBar = document.createElement('div');
+      this.explorationBar = this.document.createElement('div');
       this.explorationBar.className = 'exploration-bar';
       this.explorationBar.innerHTML = `
         <span class="exploration-label"></span>
@@ -372,7 +379,7 @@ export class GameUI {
     if (this.finishButton) {
       this.finishButton.remove();
     }
-    this.finishButton = document.createElement('button');
+    this.finishButton = this.document.createElement('button');
     this.finishButton.className = 'btn btn-accent btn-finish';
     this.finishButton.textContent = `🏁 ${i18n.t('ui.exploration.finishButton')} (${percentage}% ${i18n.t('ui.exploration.explored')})`;
     this.finishButton.onclick = onFinish;

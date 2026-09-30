@@ -109,6 +109,18 @@ describe('GameUI', () => {
       expect(uiContainer.textContent).toContain('Svenska');
       expect(uiContainer.textContent).toContain('English');
     });
+
+    it('should render into an injected document', () => {
+      const isolatedDocument = document.implementation.createHTMLDocument('isolated');
+      const isolatedContainer = isolatedDocument.createElement('div');
+      isolatedContainer.id = 'ui-container';
+      isolatedDocument.body.appendChild(isolatedContainer);
+
+      new GameUI('maze-container', onAnswer, undefined, isolatedDocument);
+
+      expect(isolatedContainer.children).toHaveLength(1);
+      expect(uiContainer.children).toHaveLength(0);
+    });
   });
 
   describe('updateQuestions', () => {
