@@ -153,6 +153,38 @@ describe('StartScreen', () => {
       // Overlay should be removed
       expect(document.body.querySelector('.overlay-backdrop--start')).toBeNull();
     });
+
+    it('should pass selected options in the start config', () => {
+      const onStart = jest.fn();
+      startScreen.show(onStart);
+      const groups = document.body.querySelectorAll('.config-group');
+      const sizeButtons = groups[0].querySelectorAll('button');
+      const difficultyButtons = groups[1].querySelectorAll('button');
+      const timerButtons = groups[2].querySelectorAll('button');
+
+      sizeButtons[4].click();
+      difficultyButtons[2].click();
+      timerButtons[1].click();
+      Array.from(document.body.querySelectorAll('button'))
+        .find(button => button.textContent === 'Starta spelet')?.click();
+
+      expect(onStart).toHaveBeenCalledWith({
+        mazeSize: 13,
+        mathDifficulty: 'hard',
+        timerEnabled: true,
+        timerSeconds: 120,
+      });
+    });
+
+    it('should request the selected locale from the language switcher', () => {
+      const { i18n } = jest.requireMock('../../src/services/TranslationService');
+      startScreen.show(jest.fn());
+
+      Array.from(document.body.querySelectorAll('button'))
+        .find(button => button.textContent === 'English')?.click();
+
+      expect(i18n.setLocale).toHaveBeenCalledWith('en');
+    });
   });
 
   describe('remove', () => {
@@ -199,6 +231,22 @@ describe('StartScreen', () => {
       const closeBtn = Array.from(document.body.querySelectorAll('button'))
         .find(b => b.textContent === 'Uppfattat!');
       closeBtn!.click();
+      expect(document.body.querySelector('.overlay-backdrop--modal')).toBeNull();
+    });
+  });
+
+  describe('high scores', () => {
+    it('should open and close the empty highscore overlay', () => {
+      startScreen.show(jest.fn());
+      const highscoreButton = Array.from(document.body.querySelectorAll('button'))
+        .find(button => button.textContent?.includes('ui.highscore.title'));
+
+      highscoreButton?.click();
+
+      expect(document.body.textContent).toContain('ui.highscore.empty');
+      const closeButton = Array.from(document.body.querySelectorAll('button'))
+        .find(button => button.textContent === 'Uppfattat!');
+      closeButton?.click();
       expect(document.body.querySelector('.overlay-backdrop--modal')).toBeNull();
     });
   });
